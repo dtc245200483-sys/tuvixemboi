@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL Database Service
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: tuvi_postgres_prod
+    restart: always
+    environment:
+      POSTGRES_DB: tuvi_production
+      POSTGRES_USER: tuvi_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-TuVi_Secure_Db_Pass_2026!}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tuvi_admin -d tuvi_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 2. FastAPI Backend Service
+  # ----------------------------------------------------------------------------
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: tuvi_backend_prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENV: production
+      DATABASE_URL: postgresql://tuvi_admin:${POSTGRES_PASSWORD:-TuVi_Secure_Db_Pass_2026!}@postgres:5432/tuvi_production
+      JWT_SECRET: ${JWT_SECRET:-k9sF7xP2wL4mQ8yZ1vR5tN3bC6jH0aD8eU4iO2gW9}
+      VECTOR_DB_PATH: /data/vector_store
+      AI_PROVIDER: gemini
+      AI_API_KEY: ${AI_API_KEY}
+      CONTENT_SAFETY_API_KEY: ${CONTENT_SAFETY_API_KEY}
+      SENTRY_DSN: ${SENTRY_DSN}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://khaitam.vercel.app}
+      PORT: 8000
+    volumes:
+      # Gắn persistent volume cho Vector Database ChromaDB & Backups
+      - chroma_data:/data
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
+    name: tuvi_postgres_data
+  chroma_data:
+    name: tuvi_chroma_data

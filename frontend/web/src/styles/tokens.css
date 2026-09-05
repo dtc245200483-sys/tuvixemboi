@@ -1,0 +1,31 @@
+/* ==============================================================================
+   DESIGN TOKENS - TỬ VI & XEM BÓI AI PLATFORM
+   Định nghĩa chuẩn hóa CSS Custom Properties cố định cho toàn bộ Frontend.
+   KHÔNG ĐƯỢC THAY ĐỔI MÀU Ở BẤT KỲ PROMPT NÀO TRONG TƯƠNG LAI.
+   ============================================================================== */
+
+:root {
+  /* 1. Bảng màu chính thức (8 tokens chuẩn Design System Prompt 8.0) */
+  --color-primary: #6B2B1F;         /* Nâu đỏ trầm — header, nút CTA chính */
+  --color-accent: #C9962C;          /* Vàng đồng — icon, viền nhấn, badge, ngôi sao */
+  --color-background: #F5EDE0;      /* Kem giấy dó — nền toàn ứng dụng (sáng nhã nhặn) */
+  --color-surface: #FFFFFF;         /* Trắng — nền card, dialog, input container */
+  --color-surface-border: #DCC9A8;  /* Viền card thanh nhã (đậm nhẹ ~8% so với #EADFC8 để nhìn rõ) */
+  --color-text-primary: #2E1B10;    /* Nâu đen mực tàu (đậm nhẹ ~10% so với #3B2417 cho chữ sắc nét) */
+  --color-text-secondary: #8A6F52;  /* Nâu nhạt — mô tả, chú thích, metadata phụ */
+  --color-text-on-primary: #FBF3E6; /* Kem sáng — màu chữ trên nền primary hoặc accent */
+
+  /* 2. Bán kính bo góc nhất quán (Border Radius) */
+  --radius-card: 12px;              /* Bo góc tiêu chuẩn cho mọi thẻ card, panel */
+  --radius-btn: 10px;               /* Bo góc cho button, input field, dropdown */
+  --radius-badge: 9999px;           /* Bo góc tròn hoàn toàn cho tags, badge */
+
+  /* 3. Đổ bóng nhẹ nhàng (Soft Shadows - Tránh shadow nặng kiểu AI-generated) */
+  --shadow-subtle: 0 2px 8px rgba(107, 43, 31, 0.04);
+  --shadow-card: 0 4px 16px rgba(107, 43, 31, 0.06);
+  --shadow-dropdown: 0 8px 24px rgba(107, 43, 31, 0.08);
+
+  /* 4. Chuyển động vi mô (Transitions) */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}

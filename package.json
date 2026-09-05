@@ -1,0 +1,18 @@
+{
+  "name": "tuvixemboi",
+  "version": "1.0.0",
+  "description": "Hệ thống nền tảng đa nền tảng (Web PWA & Mobile Android) ứng dụng trí tuệ nhân tạo (AI) trong lĩnh vực huyền học Á Đông, hỗ trợ 4 phân hệ chính: 1. **Tử Vi Đẩu Số:** Lập và luận giải lá số 12 cung, 14 chính tinh, phụ tinh, đại vận, tiểu vận. 2. **Quẻ Kinh Dịch:** 64 quẻ dịch cổ điển, quẻ biến, thoán từ, hào từ và gieo quẻ Mai Hoa Dịch Số. 3. **Bát Tự / Tứ Trụ:** Phân tích Can-Chi giờ-ngày-tháng-năm sinh, tương tác ngũ hành, xác định Dụng Thần. 4. **Nhân Tướng Học:** Phân tích xem tay (đường chỉ tay, gò bàn tay) và xem mặt (tam đình ngũ quan, nốt ruồi).",
+  "main": "index.js",
+  "scripts": {
+    "test:e2e": "node tests/e2e/test_e2e_frontend.js",
+    "test:flow": "node tests/e2e/verify_user_flow.js",
+    "test:design": "node tests/e2e/verify_login_and_design.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
+  }
+}

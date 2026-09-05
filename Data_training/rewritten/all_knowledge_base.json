@@ -1,0 +1,811 @@
+{
+  "tu_vi": [
+    {
+      "loai": "sao",
+      "ten": "Tử Vi",
+      "noi_dung_moi": "Đế Tinh, Vua của muôn sao. Âm Thổ. Chủ về quyền quý, phúc thọ, uy nghiêm, tài lãnh đạo. Miếu tại Ngọ, Tỵ; Vượng tại Dần, Thân; Đắc tại Thìn, Tuất; Bình hòa tại Tý, Hợi, Mão, Dậu.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thiên Cơ",
+      "noi_dung_moi": "Thiện Tinh / Mưu Tinh. Âm Mộc. Chủ về trí tuệ, mưu lược, mẫn tiệp, khéo léo, linh hoạt thích ứng. Thích hợp làm cố vấn, tham mưu.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thái Dương",
+      "noi_dung_moi": "Quang Minh Tinh / Quý Tinh. Dương Hỏa. Tượng trưng cho Mặt Trời, cha, chồng, sự nghiệp vinh hiển. Quang minh chính đại, bác ái.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Vũ Khúc",
+      "noi_dung_moi": "Tài Tinh / Cương Tinh. Âm Kim. Chủ về tiền tài, vàng bạc, tính cách cương nghị, dứt khoát, giỏi kinh doanh làm giàu.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thiên Đồng",
+      "noi_dung_moi": "Phúc Tinh. Dương Thủy. Chủ về sự an nhàn, hưởng thụ, hiền hòa, lương thiện, có duyên nghệ thuật, gặp dữ hóa lành.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Liêm Trinh",
+      "noi_dung_moi": "Tù Tinh / Thứ Đào Hoa. Âm Hỏa. Tính khí cương trực, thẳng thắn, liêm khiết nhưng nóng nảy, trọng kỷ luật pháp luật.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thiên Phủ",
+      "noi_dung_moi": "Lệnh Tinh / Kho Tàng. Dương Thổ. Kho trời giữ tiền của, cai quản tài bạch điền trạch, cẩn trọng, từ tốn, tích lũy vững vàng.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thái Âm",
+      "noi_dung_moi": "Phú Tinh / Nguyệt Tinh. Âm Thủy. Tượng trưng cho Mặt Trăng, mẹ, vợ, bất động sản. Điềm đạm, tinh tế, giàu trí tưởng tượng.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Tham Lang",
+      "noi_dung_moi": "Đào Hoa Tinh / Dục Tinh. Dương Mộc đới Âm Thủy. Thích giao thiệp, đa tài nghệ, đam mê tâm linh, hợp Hỏa Tinh thành cách bạo phát.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Cự Môn",
+      "noi_dung_moi": "Ám Tinh / Khẩu Tinh. Âm Thủy. Chủ về ngôn ngữ, tài biện bác, quan sát tỉ mỉ. Đắc địa làm nhà ngoại giao, luật gia, giáo dục.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thiên Tướng",
+      "noi_dung_moi": "Ấn Tinh. Dương Thủy. Sao phò tá trung thành, công chính nghĩa khí, chu đáo, coi trọng uy tín danh dự.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thiên Lương",
+      "noi_dung_moi": "Ấm Tinh / Thọ Tinh. Dương Mộc. Sao che chở, phúc thọ, trường sinh, hóa giải tai ách hiểm nguy, tính tình nhân hậu người lớn.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Thất Sát",
+      "noi_dung_moi": "Tướng Tinh / Quyền Tinh. Dương Kim đới Hỏa. Dũng tướng sa trường, độc lập, quyết đoán, dám chịu trách nhiệm, đời nhiều phong ba.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "sao",
+      "ten": "Phá Quân",
+      "noi_dung_moi": "Hao Tinh / Tiên Phong Tinh. Âm Thủy. Tiên phong khai phá, phá cũ lập mới, táo bạo, tính nhanh nhẹn trước khó sau dễ.",
+      "nguon_goc": {
+        "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+        "trang": 1
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Mệnh",
+      "noi_dung_moi": "Thể hiện bản chất, tính cách, tướng mạo, tài năng thiên phú và xu hướng tổng quan cuộc đời.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Thân",
+      "noi_dung_moi": "Thể hiện hậu vận sau 30 tuổi, hành động thực tế và môi trường sinh hoạt trưởng thành.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Quan Lộc",
+      "noi_dung_moi": "Thể hiện sự nghiệp, chức vụ, học vấn, thi cử và phong cách làm việc.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Tài Bạch",
+      "noi_dung_moi": "Thể hiện nguồn tiền bạc, năng lực kiếm tiền, phương thức chi tiêu và mức độ phú quý.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Thiên Di",
+      "noi_dung_moi": "Thể hiện môi trường xã hội bên ngoài, sự xuất hành, quan hệ giao tế công chúng.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Phúc Đức",
+      "noi_dung_moi": "Thể hiện phúc đức tổ tiên, tinh thần nội tâm, tuổi thọ và sự hưởng thụ thanh thản.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Phu Thê",
+      "noi_dung_moi": "Thể hiện nhân duyên, phẩm chất người phối ngẫu, mức độ hòa thuận trong hôn nhân.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Tử Tức",
+      "noi_dung_moi": "Thể hiện con cái, hậu duệ, sự sinh sản và tương lai của con.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Điền Trạch",
+      "noi_dung_moi": "Thể hiện đất đai, nhà cửa, cơ sở vật chất, khả năng tích lũy tài sản cố định.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Tật Ách",
+      "noi_dung_moi": "Thể hiện sức khỏe thể chất, các bệnh tật tiềm tàng và tai ách cần phòng ngừa.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Phụ Mẫu",
+      "noi_dung_moi": "Thể hiện tình cảm, ân đức, sự hỗ trợ từ cha mẹ và hoàn cảnh gia đình thuở nhỏ.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Huynh Đệ",
+      "noi_dung_moi": "Thể hiện mối quan hệ, sự gắn bó và hỗ trợ qua lại giữa anh chị em ruột thịt.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cung",
+      "ten": "Cung Nô Bộc",
+      "noi_dung_moi": "Thể hiện bạn bè, đồng nghiệp, cấp dưới, người giúp việc và đối tác hợp tác.",
+      "nguon_goc": {
+        "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+        "trang": 25
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "cach_cuc",
+      "ten": "Tử Phủ Vũ Tướng",
+      "noi_dung_moi": "Cách cục đế vương quyền quý, tài lộc trọn vẹn, tính cách đĩnh đạc, ổn định phát triển vững vàng.",
+      "nguon_goc": {
+        "ten_file": "Tu vi nghiem ly.pdf",
+        "trang": 50
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "cach_cuc",
+      "ten": "Sát Phá Tham",
+      "noi_dung_moi": "Cách cục năng động đột phá, dám mạo hiểm, giàu tinh thần đổi mới, hậu vận đại phát rực rỡ.",
+      "nguon_goc": {
+        "ten_file": "Tu vi nghiem ly.pdf",
+        "trang": 50
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "cach_cuc",
+      "ten": "Cơ Nguyệt Đồng Lương",
+      "noi_dung_moi": "Cách cục trí tuệ, tham mưu, viên chức, giáo dục, tài chính mẫn tiệp, bền bỉ và thanh tao.",
+      "nguon_goc": {
+        "ten_file": "Tu vi nghiem ly.pdf",
+        "trang": 50
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "cach_cuc",
+      "ten": "Nhật Nguyệt Đồng Lâm",
+      "noi_dung_moi": "Thái Dương và Thái Âm đồng cung tại Sửu Mùi, đa tài hoa, mưu lược uyên bác, bôn ba trước sướng sau.",
+      "nguon_goc": {
+        "ten_file": "Tu vi nghiem ly.pdf",
+        "trang": 50
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "cach_cuc",
+      "ten": "Cự Nhật Đồng Cung",
+      "noi_dung_moi": "Thái Dương và Cự Môn cùng chiếu tại Dần Thân, danh tiếng vang xa, giỏi tài hùng biện và ngoại giao.",
+      "nguon_goc": {
+        "ten_file": "Tu vi nghiem ly.pdf",
+        "trang": 50
+      },
+      "do_tin_cay": 0.96
+    }
+  ],
+  "kinh_dich": [
+    {
+      "loai": "que",
+      "ten": "Quẻ Thuần Càn",
+      "noi_dung_moi": "Nguyên hanh lợi trinh. Tượng Trời cương kiện bất tức. Đắc thời vạn sự hanh thông, đại lợi.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thuần Khôn",
+      "noi_dung_moi": "Nguyên hanh, lợi tẫn mã chi trinh. Tượng Đất nhu thuận bao dung. Nên nhẫn nại, phò tá người hiền.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thủy Lôi Truân",
+      "noi_dung_moi": "Gian nan buổi đầu nảy mầm, mây sấm giăng đầy. Không vội manh động, cần củng cố nội lực.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Sơn Thủy Mông",
+      "noi_dung_moi": "Ấu trĩ non nớt, suối dưới chân núi. Cần tìm thầy học hỏi chí thành, khai sáng trí tuệ.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thủy Thiên Nhu",
+      "noi_dung_moi": "Chờ đợi thời cơ, mây trên trời sắp mưa. Vui vẻ dưỡng sức, bình tĩnh đón nhận vận hội.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thiên Thủy Tụng",
+      "noi_dung_moi": "Bất hòa tranh chấp, kiện tụng. Nên dẹp bỏ cái tôi, hòa giải sớm để tránh tổn thương.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Địa Thủy Sư",
+      "noi_dung_moi": "Quân đội xuất chinh, nước chứa trong lòng đất. Cần kỷ luật sắt đá và vị tướng tài năng.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thủy Địa Tỷ",
+      "noi_dung_moi": "Thân thiết gắn bó, tương trợ đồng lòng. Chọn bạn lành mà kết giao, trung tín trên dưới.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Phong Thiên Tiểu Súc",
+      "noi_dung_moi": "Tích lũy nhỏ, gió thổi trên trời. Mây dày chưa mưa, kiên nhẫn tích tụ thêm tài đức.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thiên Trạch Lý",
+      "noi_dung_moi": "Dẫm đuôi cọp mà không cắn. Giữ đúng lễ nghi, tôn ti trật tự thì hiểm nguy hóa an lành.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Địa Thiên Thái",
+      "noi_dung_moi": "Thái bình thịnh trị, trời đất giao hòa. Vạn vật tươi tốt, thời vận đại phát.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thiên Địa Bĩ",
+      "noi_dung_moi": "Bế tắc suy thoái, trời đất không giao. Quân tử ẩn nhẫn giữ đạo, chờ thời cơ chuyển biến.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Thiên Hỏa Đồng Nhân",
+      "noi_dung_moi": "Hòa đồng cùng người, ngọn lửa sáng dưới trời. Chung chí hướng làm nên việc lớn.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Hỏa Thiên Đại Hữu",
+      "noi_dung_moi": "Có của cải lớn, lửa cháy trên trời chiếu rọi muôn phương. Giàu sang phú quý song toàn.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Địa Sơn Khiêm",
+      "noi_dung_moi": "Khiêm tốn nhún nhường, núi cao nằm dưới lòng đất. Càng khiêm cung càng hưởng phúc lớn.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Lôi Địa Dự",
+      "noi_dung_moi": "Vui vẻ phấn khởi, sấm động trên mặt đất. Thuận theo lòng người, đề phòng phóng túng.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Trạch Lôi Tùy",
+      "noi_dung_moi": "Tùy thời ứng biến, sấm động trong đầm. Thuận theo hoàn cảnh, giữ lòng trung trinh.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Sơn Phong Cổ",
+      "noi_dung_moi": "Mục ruỗng tệ hại, gió dưới chân núi. Cần cải cách canh tân, khắc phục sai lầm cũ.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Địa Trạch Lâm",
+      "noi_dung_moi": "Đến gần giám sát, đất trên đầm nước. Cơ hội phát triển thịnh vượng đến gần.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "que",
+      "ten": "Quẻ Phong Địa Quan",
+      "noi_dung_moi": "Quan sát chiêm nghiệm, gió thổi trên mặt đất. Làm gương sáng cho đời, thanh tịnh tâm trí.",
+      "nguon_goc": {
+        "ten_file": "5384-kinh-dich-tron-bo---ngo-tat-to-pdf-khoahoctamlinh.vn.pdf",
+        "trang": 10
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "hao",
+      "ten": "Quẻ Càn - Hào Sơ Cửu",
+      "noi_dung_moi": "Tiềm long vật dụng: Rồng ẩn dưới nước sâu, chưa đến thời vận thì chớ hành động hấp tấp.",
+      "nguon_goc": {
+        "ten_file": "64_que_kinh_dich.doc",
+        "trang": 1
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "hao",
+      "ten": "Quẻ Càn - Hào Cửu Ngũ",
+      "noi_dung_moi": "Phi long tại thiên: Rồng bay trên trời cao, công danh sự nghiệp viên mãn, gặp minh quân.",
+      "nguon_goc": {
+        "ten_file": "64_que_kinh_dich.doc",
+        "trang": 1
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "hao",
+      "ten": "Quẻ Khôn - Hào Sơ Lục",
+      "noi_dung_moi": "Lý sương kiên băng chí: Dẫm lên sương sớm biết băng giá sắp đến, thấy việc nhỏ ngừa tai họa lớn.",
+      "nguon_goc": {
+        "ten_file": "64_que_kinh_dich.doc",
+        "trang": 1
+      },
+      "do_tin_cay": 0.97
+    }
+  ],
+  "bat_tu": [
+    {
+      "loai": "can_chi",
+      "ten": "Giáp Mộc",
+      "noi_dung_moi": "Dương Mộc, cây đại thụ hiên ngang, tính cương trực, có chí tiến thủ, thích che chở người khác.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Ất Mộc",
+      "noi_dung_moi": "Âm Mộc, cây cỏ dây leo, mềm dẻo, khéo léo thích nghi cao độ, giỏi tùy cơ ứng biến.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Bính Hỏa",
+      "noi_dung_moi": "Dương Hỏa, ánh mặt trời chói lọi, nhiệt huyết, quang minh, thẳng thắn nhưng dễ nóng vội.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Đinh Hỏa",
+      "noi_dung_moi": "Âm Hỏa, ngọn đèn nến lung linh, ấm áp, sâu sắc, cẩn trọng và kiên nhẫn.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Mậu Thổ",
+      "noi_dung_moi": "Dương Thổ, đất đồi núi cao dày, vững chãi, trung thực, bao dung, trọng chữ tín.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Kỷ Thổ",
+      "noi_dung_moi": "Âm Thổ, đất đồng ruộng phù sa, màu mỡ, nuôi dưỡng vạn vật, mềm mỏng và độ lượng.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Canh Kim",
+      "noi_dung_moi": "Dương Kim, sắt thép kiếm kích, sắc bén, quyết đoán, dũng cảm và chuộng nghĩa khí.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Tân Kim",
+      "noi_dung_moi": "Âm Kim, ngọc ngà châu báu, tinh xảo, thanh cao, coi trọng danh dự và thẩm mỹ.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Nhâm Thủy",
+      "noi_dung_moi": "Dương Thủy, dòng sông lớn biển cả cuộn sóng, thông minh mưu lược, hào phóng xông xáo.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "can_chi",
+      "ten": "Quý Thủy",
+      "noi_dung_moi": "Âm Thủy, mưa móc sương mai, nhẹ nhàng, sâu lắng, thấm nhuần muôn loài, giàu linh cảm.",
+      "nguon_goc": {
+        "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
+        "trang": 15
+      },
+      "do_tin_cay": 0.98
+    },
+    {
+      "loai": "dung_than",
+      "ten": "Dụng Thần Phù Ức",
+      "noi_dung_moi": "Quy tắc ức cường phù nhược: Nhật can quá yếu thì dùng Ấn Tỷ phò trợ; Nhật can quá vượng thì dùng Quan Sát, Thực Thương, Tài tinh để khắc chế tiết bớt.",
+      "nguon_goc": {
+        "ten_file": "Du Bao Theo Tu Binh.pdf",
+        "trang": 80
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "dung_than",
+      "ten": "Dụng Thần Điều Hậu",
+      "noi_dung_moi": "Cân bằng hàn nhiệt: Sinh mùa đông giá lạnh cần Hỏa ấm sưởi ấm; Sinh mùa hè nắng cháy cần Thủy mát tưới nhuần.",
+      "nguon_goc": {
+        "ten_file": "Du Bao Theo Tu Binh.pdf",
+        "trang": 80
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "dung_than",
+      "ten": "Dụng Thần Thông Quan",
+      "noi_dung_moi": "Hòa giải xung khắc: Hai hành tương khắc mạnh mẽ (như Mộc khắc Thổ) thì dùng Hỏa làm trung gian thông suốt (Mộc sinh Hỏa, Hỏa sinh Thổ).",
+      "nguon_goc": {
+        "ten_file": "Du Bao Theo Tu Binh.pdf",
+        "trang": 80
+      },
+      "do_tin_cay": 0.97
+    }
+  ],
+  "nhan_tuong": [
+    {
+      "loai": "duong_chi_tay",
+      "ten": "Đường Sinh Đạo (Đường Đời)",
+      "vi_tri": "Chạy vòng quanh gò Kim Tinh",
+      "noi_dung_moi": "Chủ về thể lực, sinh lực, hệ miễn dịch và các biến cố sức khỏe lớn trong đời. Sâu dài liền mạch là người khỏe mạnh thọ trường.",
+      "nguon_goc": {
+        "ten_file": "XEM CHI TAY.pdf",
+        "trang": 12
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "duong_chi_tay",
+      "ten": "Đường Trí Đạo (Đường Trí Tuệ)",
+      "vi_tri": "Chạy ngang giữa lòng bàn tay",
+      "noi_dung_moi": "Chủ về tư duy logic, khả năng học tập, sự sáng tạo và khả năng giải quyết khủng hoảng. Rõ nét không đứt đoạn là trí tuệ mẫn tiệp.",
+      "nguon_goc": {
+        "ten_file": "XEM CHI TAY.pdf",
+        "trang": 12
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "duong_chi_tay",
+      "ten": "Đường Tâm Đạo (Đường Tình Cảm)",
+      "vi_tri": "Nằm ở phần trên lòng bàn tay",
+      "noi_dung_moi": "Chủ về cảm xúc, tình yêu, đời sống tinh thần và các mối quan hệ nhân duyên. Đậm nét, không có vân đảo là tình cảm chân thành, thủy chung.",
+      "nguon_goc": {
+        "ten_file": "XEM CHI TAY.pdf",
+        "trang": 12
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "duong_chi_tay",
+      "ten": "Đường Định Mệnh (Đường Sự Nghiệp)",
+      "vi_tri": "Chạy dọc từ cổ tay hướng lên ngón giữa",
+      "noi_dung_moi": "Chủ về công danh sự nghiệp, sự thăng trầm và vận may trong đường đời.",
+      "nguon_goc": {
+        "ten_file": "XEM CHI TAY.pdf",
+        "trang": 12
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "go_ban_tay",
+      "ten": "Gò Kim Tinh",
+      "vi_tri": "Dưới gốc ngón tay cái",
+      "noi_dung_moi": "Chủ về sinh lực tình cảm, lòng nhiệt huyết và sức hút cá nhân.",
+      "nguon_goc": {
+        "ten_file": "XEM CHI TAY.pdf",
+        "trang": 12
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "go_ban_tay",
+      "ten": "Gò Mộc Tinh",
+      "vi_tri": "Dưới gốc ngón tay trỏ",
+      "noi_dung_moi": "Chủ về tham vọng quyền lực, chí tiến thủ và khả năng lãnh đạo tổ chức.",
+      "nguon_goc": {
+        "ten_file": "XEM CHI TAY.pdf",
+        "trang": 12
+      },
+      "do_tin_cay": 0.97
+    },
+    {
+      "loai": "bo_vi_khuon_mat",
+      "ten": "Thượng Đình (Vùng Trán)",
+      "vi_tri": "Từ chân tóc đến lông mày",
+      "noi_dung_moi": "Chủ về tiền vận (từ 15 đến 30 tuổi), phúc đức cha mẹ và trí tuệ thiên bẩm. Trán cao rộng sáng sủa là người thông minh sớm đắc chí.",
+      "nguon_goc": {
+        "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+        "trang": 45
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "bo_vi_khuon_mat",
+      "ten": "Trung Đình (Mũi, Mắt, Gò má)",
+      "vi_tri": "Từ lông mày đến chóp mũi",
+      "noi_dung_moi": "Chủ về trung vận (từ 31 đến 50 tuổi), ý chí phấn đấu, tài lộc tự thân và hôn nhân.",
+      "nguon_goc": {
+        "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+        "trang": 45
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "bo_vi_khuon_mat",
+      "ten": "Hạ Đình (Miệng, Cằm, Nhân trung)",
+      "vi_tri": "Từ dưới mũi đến hết cằm",
+      "noi_dung_moi": "Chủ về hậu vận (sau 50 tuổi), của cải tích lũy và con cháu.",
+      "nguon_goc": {
+        "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+        "trang": 45
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "bo_vi_khuon_mat",
+      "ten": "Chuẩn Đầu (Chóp Mũi)",
+      "vi_tri": "Đầu chóp mũi",
+      "noi_dung_moi": "Kho tàng tiền của, chóp mũi tròn đầy đặn kín lỗ mũi là người tích lũy tài sản lớn, phú quý.",
+      "nguon_goc": {
+        "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+        "trang": 45
+      },
+      "do_tin_cay": 0.96
+    },
+    {
+      "loai": "not_ruoi",
+      "ten": "Nốt Ruồi Đón Lệ (Lệ Đường)",
+      "vi_tri": "Dưới bọng mắt",
+      "noi_dung_moi": "Chủ về cảm xúc đa sầu đa cảm, dễ bận tâm lo nghĩ chuyện con cái gia đạo.",
+      "nguon_goc": {
+        "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+        "trang": 45
+      },
+      "do_tin_cay": 0.96
+    }
+  ]
+}

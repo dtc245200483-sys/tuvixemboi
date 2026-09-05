@@ -1,0 +1,123 @@
+[
+  {
+    "loai": "duong_chi_tay",
+    "ten": "Đường Sinh Đạo (Đường Đời)",
+    "vi_tri": "Chạy vòng quanh gò Kim Tinh",
+    "noi_dung_moi": "Chủ về thể lực, sinh lực, hệ miễn dịch và các biến cố sức khỏe lớn trong đời. Sâu dài liền mạch là người khỏe mạnh thọ trường.",
+    "nguon_goc": {
+      "ten_file": "XEM CHI TAY.pdf",
+      "trang": 12
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "duong_chi_tay",
+    "ten": "Đường Trí Đạo (Đường Trí Tuệ)",
+    "vi_tri": "Chạy ngang giữa lòng bàn tay",
+    "noi_dung_moi": "Chủ về tư duy logic, khả năng học tập, sự sáng tạo và khả năng giải quyết khủng hoảng. Rõ nét không đứt đoạn là trí tuệ mẫn tiệp.",
+    "nguon_goc": {
+      "ten_file": "XEM CHI TAY.pdf",
+      "trang": 12
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "duong_chi_tay",
+    "ten": "Đường Tâm Đạo (Đường Tình Cảm)",
+    "vi_tri": "Nằm ở phần trên lòng bàn tay",
+    "noi_dung_moi": "Chủ về cảm xúc, tình yêu, đời sống tinh thần và các mối quan hệ nhân duyên. Đậm nét, không có vân đảo là tình cảm chân thành, thủy chung.",
+    "nguon_goc": {
+      "ten_file": "XEM CHI TAY.pdf",
+      "trang": 12
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "duong_chi_tay",
+    "ten": "Đường Định Mệnh (Đường Sự Nghiệp)",
+    "vi_tri": "Chạy dọc từ cổ tay hướng lên ngón giữa",
+    "noi_dung_moi": "Chủ về công danh sự nghiệp, sự thăng trầm và vận may trong đường đời.",
+    "nguon_goc": {
+      "ten_file": "XEM CHI TAY.pdf",
+      "trang": 12
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "go_ban_tay",
+    "ten": "Gò Kim Tinh",
+    "vi_tri": "Dưới gốc ngón tay cái",
+    "noi_dung_moi": "Chủ về sinh lực tình cảm, lòng nhiệt huyết và sức hút cá nhân.",
+    "nguon_goc": {
+      "ten_file": "XEM CHI TAY.pdf",
+      "trang": 12
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "go_ban_tay",
+    "ten": "Gò Mộc Tinh",
+    "vi_tri": "Dưới gốc ngón tay trỏ",
+    "noi_dung_moi": "Chủ về tham vọng quyền lực, chí tiến thủ và khả năng lãnh đạo tổ chức.",
+    "nguon_goc": {
+      "ten_file": "XEM CHI TAY.pdf",
+      "trang": 12
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "bo_vi_khuon_mat",
+    "ten": "Thượng Đình (Vùng Trán)",
+    "vi_tri": "Từ chân tóc đến lông mày",
+    "noi_dung_moi": "Chủ về tiền vận (từ 15 đến 30 tuổi), phúc đức cha mẹ và trí tuệ thiên bẩm. Trán cao rộng sáng sủa là người thông minh sớm đắc chí.",
+    "nguon_goc": {
+      "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+      "trang": 45
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "bo_vi_khuon_mat",
+    "ten": "Trung Đình (Mũi, Mắt, Gò má)",
+    "vi_tri": "Từ lông mày đến chóp mũi",
+    "noi_dung_moi": "Chủ về trung vận (từ 31 đến 50 tuổi), ý chí phấn đấu, tài lộc tự thân và hôn nhân.",
+    "nguon_goc": {
+      "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+      "trang": 45
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "bo_vi_khuon_mat",
+    "ten": "Hạ Đình (Miệng, Cằm, Nhân trung)",
+    "vi_tri": "Từ dưới mũi đến hết cằm",
+    "noi_dung_moi": "Chủ về hậu vận (sau 50 tuổi), của cải tích lũy và con cháu.",
+    "nguon_goc": {
+      "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+      "trang": 45
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "bo_vi_khuon_mat",
+    "ten": "Chuẩn Đầu (Chóp Mũi)",
+    "vi_tri": "Đầu chóp mũi",
+    "noi_dung_moi": "Kho tàng tiền của, chóp mũi tròn đầy đặn kín lỗ mũi là người tích lũy tài sản lớn, phú quý.",
+    "nguon_goc": {
+      "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+      "trang": 45
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "not_ruoi",
+    "ten": "Nốt Ruồi Đón Lệ (Lệ Đường)",
+    "vi_tri": "Dưới bọng mắt",
+    "noi_dung_moi": "Chủ về cảm xúc đa sầu đa cảm, dễ bận tâm lo nghĩ chuyện con cái gia đạo.",
+    "nguon_goc": {
+      "ten_file": "Tim hieu tinh cach con nguoi qua khuon mat.pdf",
+      "trang": 45
+    },
+    "do_tin_cay": 0.96
+  }
+]

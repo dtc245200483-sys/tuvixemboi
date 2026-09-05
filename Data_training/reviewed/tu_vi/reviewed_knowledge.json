@@ -1,0 +1,322 @@
+[
+  {
+    "loai": "sao",
+    "ten": "Tử Vi",
+    "noi_dung_moi": "Đế Tinh, Vua của muôn sao. Âm Thổ. Chủ về quyền quý, phúc thọ, uy nghiêm, tài lãnh đạo. Miếu tại Ngọ, Tỵ; Vượng tại Dần, Thân; Đắc tại Thìn, Tuất; Bình hòa tại Tý, Hợi, Mão, Dậu.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thiên Cơ",
+    "noi_dung_moi": "Thiện Tinh / Mưu Tinh. Âm Mộc. Chủ về trí tuệ, mưu lược, mẫn tiệp, khéo léo, linh hoạt thích ứng. Thích hợp làm cố vấn, tham mưu.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thái Dương",
+    "noi_dung_moi": "Quang Minh Tinh / Quý Tinh. Dương Hỏa. Tượng trưng cho Mặt Trời, cha, chồng, sự nghiệp vinh hiển. Quang minh chính đại, bác ái.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Vũ Khúc",
+    "noi_dung_moi": "Tài Tinh / Cương Tinh. Âm Kim. Chủ về tiền tài, vàng bạc, tính cách cương nghị, dứt khoát, giỏi kinh doanh làm giàu.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thiên Đồng",
+    "noi_dung_moi": "Phúc Tinh. Dương Thủy. Chủ về sự an nhàn, hưởng thụ, hiền hòa, lương thiện, có duyên nghệ thuật, gặp dữ hóa lành.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Liêm Trinh",
+    "noi_dung_moi": "Tù Tinh / Thứ Đào Hoa. Âm Hỏa. Tính khí cương trực, thẳng thắn, liêm khiết nhưng nóng nảy, trọng kỷ luật pháp luật.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thiên Phủ",
+    "noi_dung_moi": "Lệnh Tinh / Kho Tàng. Dương Thổ. Kho trời giữ tiền của, cai quản tài bạch điền trạch, cẩn trọng, từ tốn, tích lũy vững vàng.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thái Âm",
+    "noi_dung_moi": "Phú Tinh / Nguyệt Tinh. Âm Thủy. Tượng trưng cho Mặt Trăng, mẹ, vợ, bất động sản. Điềm đạm, tinh tế, giàu trí tưởng tượng.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Tham Lang",
+    "noi_dung_moi": "Đào Hoa Tinh / Dục Tinh. Dương Mộc đới Âm Thủy. Thích giao thiệp, đa tài nghệ, đam mê tâm linh, hợp Hỏa Tinh thành cách bạo phát.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Cự Môn",
+    "noi_dung_moi": "Ám Tinh / Khẩu Tinh. Âm Thủy. Chủ về ngôn ngữ, tài biện bác, quan sát tỉ mỉ. Đắc địa làm nhà ngoại giao, luật gia, giáo dục.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thiên Tướng",
+    "noi_dung_moi": "Ấn Tinh. Dương Thủy. Sao phò tá trung thành, công chính nghĩa khí, chu đáo, coi trọng uy tín danh dự.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thiên Lương",
+    "noi_dung_moi": "Ấm Tinh / Thọ Tinh. Dương Mộc. Sao che chở, phúc thọ, trường sinh, hóa giải tai ách hiểm nguy, tính tình nhân hậu người lớn.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Thất Sát",
+    "noi_dung_moi": "Tướng Tinh / Quyền Tinh. Dương Kim đới Hỏa. Dũng tướng sa trường, độc lập, quyết đoán, dám chịu trách nhiệm, đời nhiều phong ba.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "sao",
+    "ten": "Phá Quân",
+    "noi_dung_moi": "Hao Tinh / Tiên Phong Tinh. Âm Thủy. Tiên phong khai phá, phá cũ lập mới, táo bạo, tính nhanh nhẹn trước khó sau dễ.",
+    "nguon_goc": {
+      "ten_file": "888451701-Cac-sao-trong-Tử-Vi.txt",
+      "trang": 1
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Mệnh",
+    "noi_dung_moi": "Thể hiện bản chất, tính cách, tướng mạo, tài năng thiên phú và xu hướng tổng quan cuộc đời.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Thân",
+    "noi_dung_moi": "Thể hiện hậu vận sau 30 tuổi, hành động thực tế và môi trường sinh hoạt trưởng thành.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Quan Lộc",
+    "noi_dung_moi": "Thể hiện sự nghiệp, chức vụ, học vấn, thi cử và phong cách làm việc.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Tài Bạch",
+    "noi_dung_moi": "Thể hiện nguồn tiền bạc, năng lực kiếm tiền, phương thức chi tiêu và mức độ phú quý.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Thiên Di",
+    "noi_dung_moi": "Thể hiện môi trường xã hội bên ngoài, sự xuất hành, quan hệ giao tế công chúng.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Phúc Đức",
+    "noi_dung_moi": "Thể hiện phúc đức tổ tiên, tinh thần nội tâm, tuổi thọ và sự hưởng thụ thanh thản.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Phu Thê",
+    "noi_dung_moi": "Thể hiện nhân duyên, phẩm chất người phối ngẫu, mức độ hòa thuận trong hôn nhân.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Tử Tức",
+    "noi_dung_moi": "Thể hiện con cái, hậu duệ, sự sinh sản và tương lai của con.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Điền Trạch",
+    "noi_dung_moi": "Thể hiện đất đai, nhà cửa, cơ sở vật chất, khả năng tích lũy tài sản cố định.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Tật Ách",
+    "noi_dung_moi": "Thể hiện sức khỏe thể chất, các bệnh tật tiềm tàng và tai ách cần phòng ngừa.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Phụ Mẫu",
+    "noi_dung_moi": "Thể hiện tình cảm, ân đức, sự hỗ trợ từ cha mẹ và hoàn cảnh gia đình thuở nhỏ.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Huynh Đệ",
+    "noi_dung_moi": "Thể hiện mối quan hệ, sự gắn bó và hỗ trợ qua lại giữa anh chị em ruột thịt.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cung",
+    "ten": "Cung Nô Bộc",
+    "noi_dung_moi": "Thể hiện bạn bè, đồng nghiệp, cấp dưới, người giúp việc và đối tác hợp tác.",
+    "nguon_goc": {
+      "ten_file": "tu vi tong hop-nguyen-phat-loc.pdf",
+      "trang": 25
+    },
+    "do_tin_cay": 0.97
+  },
+  {
+    "loai": "cach_cuc",
+    "ten": "Tử Phủ Vũ Tướng",
+    "noi_dung_moi": "Cách cục đế vương quyền quý, tài lộc trọn vẹn, tính cách đĩnh đạc, ổn định phát triển vững vàng.",
+    "nguon_goc": {
+      "ten_file": "Tu vi nghiem ly.pdf",
+      "trang": 50
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "cach_cuc",
+    "ten": "Sát Phá Tham",
+    "noi_dung_moi": "Cách cục năng động đột phá, dám mạo hiểm, giàu tinh thần đổi mới, hậu vận đại phát rực rỡ.",
+    "nguon_goc": {
+      "ten_file": "Tu vi nghiem ly.pdf",
+      "trang": 50
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "cach_cuc",
+    "ten": "Cơ Nguyệt Đồng Lương",
+    "noi_dung_moi": "Cách cục trí tuệ, tham mưu, viên chức, giáo dục, tài chính mẫn tiệp, bền bỉ và thanh tao.",
+    "nguon_goc": {
+      "ten_file": "Tu vi nghiem ly.pdf",
+      "trang": 50
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "cach_cuc",
+    "ten": "Nhật Nguyệt Đồng Lâm",
+    "noi_dung_moi": "Thái Dương và Thái Âm đồng cung tại Sửu Mùi, đa tài hoa, mưu lược uyên bác, bôn ba trước sướng sau.",
+    "nguon_goc": {
+      "ten_file": "Tu vi nghiem ly.pdf",
+      "trang": 50
+    },
+    "do_tin_cay": 0.96
+  },
+  {
+    "loai": "cach_cuc",
+    "ten": "Cự Nhật Đồng Cung",
+    "noi_dung_moi": "Thái Dương và Cự Môn cùng chiếu tại Dần Thân, danh tiếng vang xa, giỏi tài hùng biện và ngoại giao.",
+    "nguon_goc": {
+      "ten_file": "Tu vi nghiem ly.pdf",
+      "trang": 50
+    },
+    "do_tin_cay": 0.96
+  }
+]

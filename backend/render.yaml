@@ -1,0 +1,91 @@
+# Render Blueprint Specification cho Nền tảng Tử Vi & Xem Bói AI (Khai Tâm Huyền Học)
+# Tự động khởi tạo Web API, Persistent Disk cho ChromaDB, PostgreSQL Database và Cron Job bảo trì
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. FastAPI Web Service (Backend Production)
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: tuvixemboi-api
+    env: python
+    region: singapore
+    plan: starter
+    buildCommand: "pip install -r requirements.txt && alembic upgrade head"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    autoDeploy: true
+
+    # Gắn Persistent Disk để lưu trữ Vector Database ChromaDB không bị mất dữ liệu
+    disk:
+      name: chroma-data
+      mountPath: /data
+      sizeGB: 10
+
+    envVars:
+      - key: ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tuvixemboi-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: 7
+      - key: VECTOR_DB_PATH
+        value: /data/vector_store
+      - key: AI_PROVIDER
+        value: gemini
+      - key: AI_API_KEY
+        sync: false  # Cấu hình an toàn trực tiếp trên Render Dashboard
+      - key: CONTENT_SAFETY_API_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false  # Sentry DSN theo dõi lỗi sản xuất
+      - key: CORS_ORIGINS
+        sync: false  # Điền domain Vercel Frontend sau khi deploy (VD: https://khaitam.vercel.app)
+      - key: RATE_LIMIT_PER_MINUTE
+        value: 60
+      - key: AI_DAILY_QUOTA_FREE_USER
+        value: 10
+      - key: DISABLE_SCHEDULER
+        value: "false"  # Kích hoạt APScheduler chạy ngầm trong container
+
+  # ----------------------------------------------------------------------------
+  # 2. Cron Job Định Kỳ: Sao Lưu DB, Dọn Backup Cũ & Xóa Ảnh Hết Hạn (02:00 AM)
+  # ----------------------------------------------------------------------------
+  - type: cron
+    name: tuvixemboi-maintenance-cron
+    env: python
+    region: singapore
+    plan: starter
+    schedule: "0 19 * * *"  # 19:00 UTC tương đương 02:00 AM giờ Việt Nam (UTC+7)
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python cron_jobs.py"
+    envVars:
+      - key: ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tuvixemboi-db
+          property: connectionString
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: tuvixemboi-api
+          envVarKey: JWT_SECRET
+
+# ------------------------------------------------------------------------------
+# 3. Managed PostgreSQL Database Instance
+# ------------------------------------------------------------------------------
+databases:
+  - name: tuvixemboi-db
+    databaseName: tuvi_production
+    user: tuvi_admin
+    region: singapore
+    plan: starter
+    ipAllowList: []  # Chỉ cho phép kết nối nội bộ từ các services trong cùng tài khoản Render

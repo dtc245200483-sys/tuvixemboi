@@ -1,0 +1,72 @@
+﻿/* ==============================================================================
+   TYPOGRAPHY - PHONG CÁCH HUYỀN HỌC Á ĐÔNG TINH TẾ (HIGH-END VISUAL DESIGN)
+   Import Google Fonts hỗ trợ trọn vẹn tiếng Việt có dấu:
+   - Heading: Cormorant Garamond (cổ kính, trang nhã, thanh thoát)
+   - Body: Be Vietnam Pro (tối ưu hiển thị màn hình, rõ ràng, dễ đọc)
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap');
+
+/* Định nghĩa font cho toàn bộ ứng dụng */
+body {
+  font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Các lớp tiêu đề phong cách Á Đông */
+.font-heading {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  letter-spacing: 0.02em;
+}
+
+.font-body {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+/* Tiêu đề cấp 1 (Trang trọng, tiêu đề chính) */
+.text-heading-1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.25rem; /* 36px */
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.01em;
+}
+
+/* Tiêu đề cấp 2 (Tiêu đề phân đoạn, tên quẻ, cung Mệnh) */
+.text-heading-2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.75rem; /* 28px */
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Tiêu đề cấp 3 (Tiêu đề card, nhóm thông tin) */
+.text-heading-3 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.35rem; /* 21.6px */
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Nội dung bài luận giải chính */
+.text-body-regular {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.95rem; /* 15.2px */
+  line-height: 1.65;
+  color: var(--color-text-primary);
+}
+
+/* Chú thích, phụ chú, metadata */
+.text-caption {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.825rem; /* 13.2px */
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}

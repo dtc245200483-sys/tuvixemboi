@@ -1,0 +1,93 @@
+@import './styles/tokens.css';
+@import './styles/typography.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Thiết lập mặc định giao diện */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #F5EDE0;
+}
+
+/* Card tiêu chuẩn của nền tảng */
+.card-base {
+  background-color: #FFFFFF;
+  border: 1px solid #DCC9A8;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(107, 43, 31, 0.04);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.card-base:hover {
+  border-color: #C9962C;
+  box-shadow: 0 4px 16px rgba(107, 43, 31, 0.08);
+}
+
+/* Button CTA Chính (Primary) */
+.btn-primary {
+  background-color: #6B2B1F;
+  color: #FBF3E6;
+  border-radius: 10px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 180ms ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background-color: #552218;
+  box-shadow: 0 2px 8px rgba(107, 43, 31, 0.2);
+}
+
+/* Button Điểm Nhấn (Accent) */
+.btn-accent {
+  background-color: #C9962C;
+  color: #FBF3E6;
+  border-radius: 10px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 180ms ease;
+  border: 1px solid transparent;
+}
+
+.btn-accent:hover {
+  background-color: #B38323;
+  box-shadow: 0 2px 8px rgba(201, 150, 44, 0.25);
+}
+
+/* Button Phụ / Viền (Outline) */
+.btn-outline {
+  background-color: #FFFFFF;
+  color: #3B2417;
+  border: 1px solid #EADFC8;
+  border-radius: 10px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 180ms ease;
+}
+
+.btn-outline:hover {
+  border-color: #C9962C;
+  color: #6B2B1F;
+  background-color: #FAF5EE;
+}
