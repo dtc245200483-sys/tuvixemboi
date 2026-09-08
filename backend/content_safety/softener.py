@@ -36,7 +36,15 @@ FALLBACK_REPLACEMENTS = {
     "s? nghi?p s?p ?? ho?n to?n": "s? nghi?p c? giai ?o?n chuy?n d?ch c?n t?i c?u tr?c",
     "gia ??nh tan n?t": "gia ??o c? l?c b?t h?a c?n s? nh?n nh?n v? th?u hi?u",
     "v?n h?n kh?ng th? tr?nh": "th? th?ch mang t?nh chu k? c? th? chuy?n h?a b?ng s? tu d??ng",
-    "cu?c ??i ?en ??i t?t c?ng": "giai ?o?n tr?c tr? l? c? h?i ?? t?i luy?n b?n l?nh"
+    "cu?c ??i ?en ??i t?t c?ng": "giai ?o?n tr?c tr? l? c? h?i ?? t?i luy?n b?n l?nh",
+    "đoản thọ": "cần chú trọng dưỡng sinh và thăm khám sức khỏe định kỳ",
+    "chết": "thử thách lớn cần chú ý phòng ngừa rủi ro",
+    "tử nạn": "nguy cơ tai biến cần cẩn trọng tối đa khi di chuyển",
+    "chết chóc": "rủi ro cần hết sức chú ý an toàn",
+    "tuyệt tự": "đường con cái cần kiên nhẫn và tích đức thiện lành",
+    "sát phu": "cần học cách nhẫn nhịn và chia sẻ trong hôn nhân",
+    "sát thê": "cần ôn hòa và trân trọng người bạn đời",
+    "bệnh hiểm nghèo khó qua": "thể trạng có lúc suy yếu cần tuân thủ y khoa hiện đại"
 }
 
 

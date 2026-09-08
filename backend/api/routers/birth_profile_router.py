@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Router quản lý hồ sơ ngày giờ sinh (Birth Profile):
 - POST /birth-profile: Tạo hồ sơ mới, tự động tính ngày âm qua calendar_converter
@@ -18,6 +18,7 @@ from db.database import get_db
 from db.models import User, BirthProfile
 from auth.dependencies import get_current_user
 from calendar_converter.lunar_calendar import solar_to_lunar
+from middleware.quota_service import kiem_tra_va_tang_quota
 from api.schemas import (
     APIResponse,
     BirthProfileCreateRequest,
@@ -63,11 +64,14 @@ def _to_response_data(profile: BirthProfile) -> dict:
         "gioi_tinh": profile.gioi_tinh,
         "ngay_sinh_am": profile.ngay_sinh_am,
         "thong_tin_am_lich": lunar_info,
+        "is_default": getattr(profile, "is_default", False),
+        "is_quick_chart": getattr(profile, "is_quick_chart", False),
         "created_at": profile.created_at
     }
 
 
 @router.post("", response_model=APIResponse[BirthProfileResponse], status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=APIResponse[BirthProfileResponse], status_code=status.HTTP_201_CREATED, include_in_schema=False)
 def tao_ho_so_sinh(
     req: BirthProfileCreateRequest,
     current_user: User = Depends(get_current_user),
@@ -76,6 +80,7 @@ def tao_ho_so_sinh(
     """
     Tạo hồ sơ sinh mới cho người dùng.
     Tự động tính ngày âm lịch và can chi năm/tháng/ngày/giờ thông qua calendar_converter.
+    Hồ sơ đầu tiên của người dùng sẽ được tự động chọn làm hồ sơ mặc định.
     """
     try:
         lunar_data = solar_to_lunar(req.ngay_sinh_duong.day, req.ngay_sinh_duong.month, req.ngay_sinh_duong.year)
@@ -83,37 +88,132 @@ def tao_ho_so_sinh(
     except Exception:
         ngay_am = None
 
-    new_profile = BirthProfile(
+    has_existing = db.query(BirthProfile.id).filter(BirthProfile.user_id == current_user.id).first() is not None
+    is_default = not has_existing
+
+    profile = BirthProfile(
         id=uuid.uuid4(),
         user_id=current_user.id,
-        ho_ten=req.ho_ten,
+        ho_ten=req.ho_ten.strip(),
         ngay_sinh_duong=req.ngay_sinh_duong,
         gio_sinh=req.gio_sinh,
         phut_sinh=req.phut_sinh,
         gioi_tinh=req.gioi_tinh,
-        ngay_sinh_am=ngay_am
+        ngay_sinh_am=ngay_am,
+        is_default=is_default,
+        is_quick_chart=False
     )
-    db.add(new_profile)
+
+    db.add(profile)
+    if is_default:
+        current_user.default_birth_profile_id = profile.id
     db.commit()
-    db.refresh(new_profile)
+    db.refresh(profile)
 
     return APIResponse(
         thanh_cong=True,
-        du_lieu=_to_response_data(new_profile),
+        du_lieu=_to_response_data(profile),
+        loi=None
+    )
+
+
+@router.post("/an-sao", response_model=APIResponse[BirthProfileResponse], status_code=status.HTTP_201_CREATED)
+def an_sao_lap_la_so(
+    req: BirthProfileCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Thực hiện An Sao Lập Lá Số từ thanh nhập nhanh:
+    - Khấu trừ 1 lượt sử dụng hôm nay (đối với tài khoản Free), chặn nếu hết lượt.
+    - Lưu hồ sơ với is_quick_chart=True, is_default=False (KHÔNG làm đổi Hồ Sơ Mệnh Đang Chọn).
+    """
+    quota_res = kiem_tra_va_tang_quota(user_id=current_user.id, db=db)
+    if not quota_res.get("con_han_muc", True):
+        msg = quota_res.get("thong_bao") or "Bạn đã dùng hết 50 lượt an sao hôm nay. Vui lòng đợi đến ngày mai hoặc nâng cấp Premium để tiếp tục."
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=msg
+        )
+
+    try:
+        lunar_data = solar_to_lunar(req.ngay_sinh_duong.day, req.ngay_sinh_duong.month, req.ngay_sinh_duong.year)
+        ngay_am = date(lunar_data["nam_am"], lunar_data["thang_am"], lunar_data["ngay_am"])
+    except Exception:
+        ngay_am = None
+
+    profile = BirthProfile(
+        id=uuid.uuid4(),
+        user_id=current_user.id,
+        ho_ten=req.ho_ten.strip(),
+        ngay_sinh_duong=req.ngay_sinh_duong,
+        gio_sinh=req.gio_sinh,
+        phut_sinh=req.phut_sinh,
+        gioi_tinh=req.gioi_tinh,
+        ngay_sinh_am=ngay_am,
+        is_default=False,
+        is_quick_chart=True
+    )
+
+    db.add(profile)
+    db.commit()
+    db.refresh(profile)
+
+    return APIResponse(
+        thanh_cong=True,
+        du_lieu=_to_response_data(profile),
+        loi=None
+    )
+
+
+@router.put("/{profile_id}/set-default", response_model=APIResponse[BirthProfileResponse])
+def dat_ho_so_menh_mac_dinh(
+    profile_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Đặt hồ sơ chỉ định làm Hồ Sơ Mệnh Đang Chọn (Mặc định)"""
+    try:
+        p_uuid = uuid.UUID(profile_id)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Định dạng ID không hợp lệ")
+
+    target_profile = db.query(BirthProfile).filter(
+        BirthProfile.id == p_uuid,
+        BirthProfile.user_id == current_user.id
+    ).first()
+    if not target_profile:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy hồ sơ sinh")
+
+    # Bỏ cờ is_default của các hồ sơ khác của user này
+    db.query(BirthProfile).filter(
+        BirthProfile.user_id == current_user.id
+    ).update({BirthProfile.is_default: False}, synchronize_session=False)
+
+    target_profile.is_default = True
+    current_user.default_birth_profile_id = target_profile.id
+
+    db.commit()
+    db.refresh(target_profile)
+
+    return APIResponse(
+        thanh_cong=True,
+        du_lieu=_to_response_data(target_profile),
         loi=None
     )
 
 
 @router.get("", response_model=APIResponse[List[BirthProfileResponse]])
+@router.get("/", response_model=APIResponse[List[BirthProfileResponse]], include_in_schema=False)
 def danh_sach_ho_so_sinh(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Liệt kê danh sách hồ sơ sinh của người dùng hiện tại"""
+    """Liệt kê danh sách hồ sơ sinh của người dùng hiện tại, ưu tiên hồ sơ mặc định lên đầu"""
     profiles = (
         db.query(BirthProfile)
         .filter(BirthProfile.user_id == current_user.id)
-        .order_by(BirthProfile.created_at.desc())
+        .order_by(BirthProfile.is_default.desc(), BirthProfile.created_at.desc())
         .all()
     )
     data = [_to_response_data(p) for p in profiles]

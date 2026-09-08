@@ -197,32 +197,45 @@ export default function ChatInput({
           </div>
         )}
 
-        {/* Main Input Form */}
-        <form onSubmit={handleSubmit} className="flex items-end gap-2">
-          {/* Paperclip Button */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/jpeg,image/png,image/webp"
-            className="hidden"
-          />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isSending || quotaExceeded || isProcessingImage}
-            title="Đính kèm ảnh diện mạo hoặc bàn tay để xem tướng"
-            className="p-2.5 rounded-xl border border-surface-border bg-surface text-text-secondary hover:text-accent hover:border-accent/60 transition-all focus:outline-none disabled:opacity-50 flex-shrink-0"
+        {/* Main Input Form – tất cả nằm trong 1 container thống nhất */}
+        <form onSubmit={handleSubmit}>
+          <div
+            className="flex items-end rounded-xl border overflow-hidden"
+            style={{
+              background: 'var(--color-surface)',
+              borderColor: 'var(--color-surface-border)',
+            }}
           >
-            {isProcessingImage ? (
-              <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <IconPaperclip size={20} />
-            )}
-          </button>
+            {/* Paperclip Button – bên trái */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isSending || quotaExceeded || isProcessingImage}
+              title="Đính kèm ảnh diện mạo hoặc bàn tay để xem tướng"
+              className="flex-shrink-0 flex items-center justify-center w-11 h-11 self-end transition-colors disabled:opacity-50"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-accent)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; }}
+            >
+              {isProcessingImage ? (
+                <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+                  style={{ borderColor: 'var(--color-accent)', borderTopColor: 'transparent' }} />
+              ) : (
+                <IconPaperclip size={19} />
+              )}
+            </button>
 
-          {/* Auto-expanding Textarea */}
-          <div className="flex-1 relative">
+            {/* Divider */}
+            <div className="w-px self-stretch my-2" style={{ background: 'var(--color-surface-border)' }} />
+
+            {/* Auto-expanding Textarea – giữa */}
             <textarea
               ref={textareaRef}
               rows={1}
@@ -235,23 +248,31 @@ export default function ChatInput({
                   ? 'Hạn mức hôm nay đã hết...'
                   : 'Hỏi về vận mệnh, sự nghiệp, tình duyên, lá số, hoặc gieo quẻ...'
               }
-              className="w-full resize-none rounded-xl border border-surface-border bg-surface px-3.5 py-2.5 text-sm font-body text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all disabled:bg-[#FAF5EE] disabled:opacity-60 max-h-[120px] overflow-y-auto"
+              className="flex-1 resize-none bg-transparent border-0 outline-none ring-0 px-3.5 py-3 text-sm font-body max-h-[120px] overflow-y-auto placeholder:text-text-secondary/60 disabled:opacity-60"
+              style={{
+                color: 'var(--color-text-primary)',
+              }}
             />
-          </div>
 
-          {/* Send Button */}
-          <button
-            type="submit"
-            disabled={isSubmitDisabled}
-            className="p-2.5 rounded-xl bg-primary hover:bg-[#552218] text-text-on-primary transition-all focus:outline-none disabled:opacity-40 disabled:hover:bg-primary shadow-sm flex-shrink-0"
-            title="Gửi câu hỏi (Enter)"
-          >
-            {isSending ? (
-              <div className="w-5 h-5 border-2 border-text-on-primary border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <IconSend size={20} />
-            )}
-          </button>
+            {/* Divider */}
+            <div className="w-px self-stretch my-2" style={{ background: 'var(--color-surface-border)' }} />
+
+            {/* Send Button – bên phải */}
+            <button
+              type="submit"
+              disabled={isSubmitDisabled}
+              className="flex-shrink-0 flex items-center justify-center w-11 h-11 self-end transition-all disabled:opacity-40 active:scale-95"
+              style={{ color: isSubmitDisabled ? 'var(--color-text-secondary)' : 'var(--color-primary)' }}
+              title="Gửi câu hỏi (Enter)"
+            >
+              {isSending ? (
+                <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+                  style={{ borderColor: 'var(--color-primary)', borderTopColor: 'transparent' }} />
+              ) : (
+                <IconSend size={19} />
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

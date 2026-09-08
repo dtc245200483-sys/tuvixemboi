@@ -41,6 +41,7 @@ from api.routers import (
     chat_router,
     quota_router
 )
+from api.routers.forum_router import router as forum_router
 
 logger = logging.getLogger("backend.main")
 
@@ -48,11 +49,35 @@ logger = logging.getLogger("backend.main")
 khoi_tao_sentry()
 
 
+def _warmup_background():
+    """Tải trước mô hình embedding, vector store và API provider ở luồng nền để tối ưu tốc độ cho request đầu tiên."""
+    try:
+        from knowledge_base.embedding_service import get_embedding_model
+        logger.info("[WARMUP] Đang tải trước mô hình embedding trong nền...")
+        get_embedding_model()
+        logger.info("[WARMUP] Hoàn tất nạp trước mô hình embedding thành công!")
+
+        from knowledge_base.search_service import search
+        search("Tử Vi", "tu_vi", top_k=1)
+        logger.info("[WARMUP] Hoàn tất nạp trước vector store search!")
+
+        from ai_module.providers.freellm_provider import FreeLLMProvider
+        FreeLLMProvider()
+        logger.info("[WARMUP] Hoàn tất nạp trước FreeLLM keys!")
+    except Exception as e:
+        logger.warning(f"[WARMUP] Bỏ qua tải trước: {e}")
+
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Quản lý vòng đời ứng dụng FastAPI: khởi động và tắt an toàn APScheduler"""
+    """Quản lý vòng đời ứng dụng FastAPI: khởi tạo DB, khởi động APScheduler và nạp trước mô hình nền"""
+    from db.database import init_db
+    init_db()
     if os.getenv("DISABLE_SCHEDULER", "false").lower() != "true":
         khoi_tao_scheduler()
+    import threading
+    threading.Thread(target=_warmup_background, daemon=True).start()
     yield
     dung_scheduler()
 
@@ -167,6 +192,7 @@ app.include_router(kinh_dich_router)
 app.include_router(nhan_tuong_router)
 app.include_router(chat_router)
 app.include_router(quota_router)
+app.include_router(forum_router)
 
 
 @app.get("/health", tags=["Health"])

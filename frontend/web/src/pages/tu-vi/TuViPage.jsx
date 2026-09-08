@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   IconCompass,
@@ -8,177 +8,199 @@ import {
   IconUser,
   IconStar,
   IconInfoCircle,
-  IconZoomIn,
-  IconFlame,
-  IconShieldCheck
+  IconUsers,
+  IconPlus
 } from '@tabler/icons-react';
 import { tuViService, birthProfileService } from '../../services/api';
 import InterpretationTabs from '../../components/InterpretationTabs';
 import QuotaBadge from '../../components/QuotaBadge';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ErrorMessage from '../../components/ErrorMessage';
+import TuViQuickInputBar from '../../components/TuViQuickInputBar';
+import TuViCustomizerSidebar from '../../components/TuViCustomizerSidebar';
+import { getLunarInfoForSolarMonth } from '../../utils/lunarConverter';
+import '../../styles/tuvi_vn.css';
 
-// Tọa độ CSS Grid (4x4) chuẩn truyền thống cho 12 Địa Chi (0 = Tý ... 11 = Hợi)
-const PALACE_GRID_POSITIONS = {
-  0: { row: 4, col: 3, name: 'Tý' },
-  1: { row: 4, col: 2, name: 'Sửu' },
-  2: { row: 4, col: 1, name: 'Dần' },
-  3: { row: 3, col: 1, name: 'Mão' },
-  4: { row: 2, col: 1, name: 'Thìn' },
-  5: { row: 1, col: 1, name: 'Tỵ' },
-  6: { row: 1, col: 2, name: 'Ngọ' },
-  7: { row: 1, col: 3, name: 'Mùi' },
-  8: { row: 1, col: 4, name: 'Thân' },
-  9: { row: 2, col: 4, name: 'Dậu' },
-  10: { row: 3, col: 4, name: 'Tuất' },
-  11: { row: 4, col: 4, name: 'Hợi' },
+/**
+ * BẢNG THÔNG TIN 12 ĐỊA CHI (VỊ TRÍ GRID 4x4, NGŨ HÀNH, VIẾT TẮT CAN CHI CHUẨN TUVI.VN)
+ */
+const BRANCH_CONFIG = {
+  'Tỵ':  { gridRow: 1, gridCol: 1, elementText: '-Hoả',  elementClass: 'element-hoa',  defaultStem: 'Q' },
+  'Ngọ': { gridRow: 1, gridCol: 2, elementText: '+Hoả',  elementClass: 'element-hoa',  defaultStem: 'G' },
+  'Mùi': { gridRow: 1, gridCol: 3, elementText: '-Thổ',  elementClass: 'element-tho',  defaultStem: 'Ấ' },
+  'Thân':{ gridRow: 1, gridCol: 4, elementText: '+Kim',  elementClass: 'element-kim',  defaultStem: 'B' },
+  'Dậu': { gridRow: 2, gridCol: 4, elementText: '-Kim',  elementClass: 'element-kim',  defaultStem: 'Đ' },
+  'Tuất':{ gridRow: 3, gridCol: 4, elementText: '+Thổ',  elementClass: 'element-tho',  defaultStem: 'M' },
+  'Hợi': { gridRow: 4, gridCol: 4, elementText: '-Thuỷ', elementClass: 'element-thuy', defaultStem: 'K' },
+  'Tý':  { gridRow: 4, gridCol: 3, elementText: '+Thuỷ', elementClass: 'element-thuy', defaultStem: 'C' },
+  'Sửu': { gridRow: 4, gridCol: 2, elementText: '-Thổ',  elementClass: 'element-tho',  defaultStem: 'T' },
+  'Dần': { gridRow: 4, gridCol: 1, elementText: '+Mộc',  elementClass: 'element-moc',  defaultStem: 'C' },
+  'Mão': { gridRow: 3, gridCol: 1, elementText: '-Mộc',  elementClass: 'element-moc',  defaultStem: 'T' },
+  'Thìn':{ gridRow: 2, gridCol: 1, elementText: '+Thổ',  elementClass: 'element-tho',  defaultStem: 'N' }
 };
 
-// Vòng Tràng Sinh danh sách để phát hiện sao Tràng Sinh hiển thị ở góc
-const TRANG_SINH_STARS = [
-  'Tràng Sinh', 'Mộc Dục', 'Quan Đới', 'Lâm Quan', 'Đế Vượng',
-  'Suy', 'Bệnh', 'Tử', 'Mộ', 'Tuyệt', 'Thai', 'Dưỡng'
-];
-
-// Hàm trả về màu sắc theo Ngũ Hành phong thủy chuẩn Design System
-const getElementStyle = (nguHanh) => {
-  switch ((nguHanh || '').trim().toLowerCase()) {
-    case 'kim':
-      return {
-        text: 'text-slate-700 font-bold',
-        badge: 'bg-slate-100 text-slate-700 border-slate-300',
-        dot: 'bg-slate-400'
-      };
-    case 'mộc':
-      return {
-        text: 'text-emerald-700 font-bold',
-        badge: 'bg-emerald-50 text-emerald-800 border-emerald-300',
-        dot: 'bg-emerald-500'
-      };
-    case 'thủy':
-      return {
-        text: 'text-blue-700 font-bold',
-        badge: 'bg-blue-50 text-blue-800 border-blue-300',
-        dot: 'bg-blue-500'
-      };
-    case 'hỏa':
-      return {
-        text: 'text-rose-700 font-bold',
-        badge: 'bg-rose-50 text-rose-800 border-rose-300',
-        dot: 'bg-rose-500'
-      };
-    case 'thổ':
-      return {
-        text: 'text-amber-800 font-bold',
-        badge: 'bg-amber-50 text-amber-800 border-amber-300',
-        dot: 'bg-amber-500'
-      };
-    default:
-      return {
-        text: 'text-text-primary font-bold',
-        badge: 'bg-[#FAF5EE] text-text-primary border-surface-border',
-        dot: 'bg-gray-400'
-      };
-  }
+const BRANCH_INDEX_MAP = {
+  'Tý': 0, 'Sửu': 1, 'Dần': 2, 'Mão': 3,
+  'Thìn': 4, 'Tỵ': 5, 'Ngọ': 6, 'Mùi': 7,
+  'Thân': 8, 'Dậu': 9, 'Tuất': 10, 'Hợi': 11
 };
 
-// Hàm hiển thị huy hiệu độ sáng sao (Miếu/Vượng/Đắc/Bình/Hãm)
-const renderDacHam = (dacHam) => {
-  if (!dacHam) return null;
-  const val = dacHam.toUpperCase();
-  let color = 'text-text-primary';
-  let title = 'Bình hòa';
-  if (val === 'M') {
-    color = 'text-rose-600 font-bold';
-    title = 'Miếu địa (Sáng nhất, rực rỡ)';
-  } else if (val === 'V') {
-    color = 'text-amber-600 font-bold';
-    title = 'Vượng địa (Rất sáng, tốt lành)';
-  } else if (val === 'Đ') {
-    color = 'text-emerald-600 font-bold';
-    title = 'Đắc địa (Tốt đẹp, đắc thời)';
-  } else if (val === 'H') {
-    color = 'text-gray-400 italic underline';
-    title = 'Hãm địa (Tối tăm, bất lợi)';
-  }
-  return (
-    <span className={`text-[10px] ml-0.5 ${color}`} title={title}>
-      ({val})
-    </span>
-  );
+const STEM_ABBR = {
+  'Giáp': 'G', 'Ất': 'Ấ', 'Bính': 'B', 'Đinh': 'Đ', 'Mậu': 'M',
+  'Kỷ': 'K', 'Canh': 'C', 'Tân': 'T', 'Nhâm': 'N', 'Quý': 'Q'
 };
 
-// Hiển thị huy hiệu Tứ Hóa
-const renderHoaBadge = (hoa) => {
-  if (!hoa) return null;
-  const map = {
-    'Hóa Lộc': 'bg-emerald-600 text-white',
-    'Hóa Quyền': 'bg-rose-600 text-white',
-    'Hóa Khoa': 'bg-blue-600 text-white',
-    'Hóa Kỵ': 'bg-purple-700 text-white'
+const MONTH_TRACKING = {
+  'Sửu': 'Th.1', 'Dần': 'Th.2', 'Mão': 'Th.3', 'Thìn': 'Th.4',
+  'Tỵ': 'Th.5',  'Ngọ': 'Th.6', 'Mùi': 'Th.7', 'Thân': 'Th.8',
+  'Dậu': 'Th.9', 'Tuất': 'Th.10', 'Hợi': 'Th.11', 'Tý': 'Th.12'
+};
+
+const DV_TRACKING = {
+  'Tỵ': 'ĐV.ĐIỀN', 'Ngọ': 'ĐV.QUAN', 'Mùi': 'ĐV.NÔ',   'Thân': 'ĐV.DI',
+  'Dậu': 'ĐV.TẬT', 'Tuất': 'ĐV.TÀI',  'Hợi': 'ĐV.TỬ',   'Tý': 'ĐV.PHỐI',
+  'Sửu': 'ĐV.HUYNH', 'Dần': 'ĐV.MỆNH', 'Mão': 'ĐV.PHỤ',  'Thìn': 'ĐV.PHÚC'
+};
+
+const LN_TRACKING = {
+  'Tỵ': 'LN.DI',   'Ngọ': 'LN.TẬT',  'Mùi': 'LN.TÀI',  'Thân': 'LN.TỬ',
+  'Dậu': 'LN.PHỐI', 'Tuất': 'LN.HUYNH', 'Hợi': 'LN.MỆNH', 'Tý': 'LN.PHỤ',
+  'Sửu': 'LN.PHÚC', 'Dần': 'LN.ĐIỀN', 'Mão': 'LN.QUAN', 'Thìn': 'LN.NÔ'
+};
+
+const STAR_METADATA = {
+  // 14 Chính Tinh
+  'Tử Vi':      { element: 'tho',  isGood: true,  isMajor: true, polarity: '+' },
+  'Thiên Cơ':   { element: 'moc',  isGood: true,  isMajor: true, polarity: '-' },
+  'Thái Dương': { element: 'hoa',  isGood: true,  isMajor: true, polarity: '+' },
+  'Vũ Khúc':    { element: 'kim',  isGood: true,  isMajor: true, polarity: '-' },
+  'Thiên Đồng': { element: 'thuy', isGood: true,  isMajor: true, polarity: '+' },
+  'Liêm Trinh': { element: 'hoa',  isGood: true,  isMajor: true, polarity: '-' },
+  'Thiên Phủ':  { element: 'tho',  isGood: true,  isMajor: true, polarity: '+' },
+  'Thái Âm':    { element: 'thuy', isGood: true,  isMajor: true, polarity: '-' },
+  'Tham Lang':  { element: 'thuy', isGood: true,  isMajor: true, polarity: '+' },
+  'Cự Môn':     { element: 'thuy', isGood: true,  isMajor: true, polarity: '-' },
+  'Thiên Tướng':{ element: 'thuy', isGood: true,  isMajor: true, polarity: '+' },
+  'Thiên Lương':{ element: 'moc',  isGood: true,  isMajor: true, polarity: '+' },
+  'Thất Sát':   { element: 'kim',  isGood: true,  isMajor: true, polarity: '+' },
+  'Phá Quân':   { element: 'thuy', isGood: true,  isMajor: true, polarity: '-' },
+
+  // Cát Tinh
+  'Văn Xương':  { element: 'kim',  isGood: true },
+  'Văn Khúc':   { element: 'thuy', isGood: true },
+  'Tả Phù':     { element: 'tho',  isGood: true },
+  'Hữu Bật':    { element: 'thuy', isGood: true },
+  'Thiên Khôi': { element: 'hoa',  isGood: true },
+  'Thiên Việt': { element: 'hoa',  isGood: true },
+  'Lộc Tồn':    { element: 'tho',  isGood: true },
+  'Hóa Lộc':    { element: 'moc',  isGood: true },
+  'Hóa Quyền':  { element: 'thuy', isGood: true },
+  'Hóa Khoa':   { element: 'thuy', isGood: true },
+  'Thiên Mã':   { element: 'hoa',  isGood: true },
+  'Đào Hoa':    { element: 'moc',  isGood: true },
+  'Hồng Loan':  { element: 'thuy', isGood: true },
+  'Thiên Hỷ':   { element: 'thuy', isGood: true },
+  'Thiên Quan': { element: 'hoa',  isGood: true },
+  'Thiên Phúc': { element: 'tho',  isGood: true },
+  'Ân Quang':   { element: 'moc',  isGood: true },
+  'Thiên Quý':  { element: 'tho',  isGood: true },
+  'Tam Thai':   { element: 'thuy', isGood: true },
+  'Bát Tọa':    { element: 'thuy', isGood: true },
+  'Long Trì':   { element: 'thuy', isGood: true },
+  'Phượng Các': { element: 'tho',  isGood: true },
+  'Giải Thần':  { element: 'moc',  isGood: true },
+  'Bác Sỹ':     { element: 'thuy', isGood: true },
+  'Lực Sỹ':     { element: 'hoa',  isGood: true },
+  'Thanh Long': { element: 'thuy', isGood: true },
+  'Tướng Quân': { element: 'moc',  isGood: true },
+  'Tấu Thư':    { element: 'kim',  isGood: true },
+  'Hỷ Thần':    { element: 'hoa',  isGood: true },
+  'Hoa Cái':    { element: 'kim',  isGood: true },
+  'Thiếu Dương':{ element: 'hoa',  isGood: true },
+  'Thiếu Âm':   { element: 'thuy', isGood: true },
+  'Long Đức':   { element: 'thuy', isGood: true },
+  'Phúc Đức':   { element: 'tho',  isGood: true },
+  'Thiên Thọ':  { element: 'tho',  isGood: true },
+  'Thiên Tài':  { element: 'tho',  isGood: true },
+  'Thiên Trù':  { element: 'tho',  isGood: true },
+  'Phong Cáo':  { element: 'tho',  isGood: true },
+
+  // Hung Tinh / Sát Tinh
+  'Kình Dương': { element: 'kim',  isGood: false },
+  'Đà La':      { element: 'kim',  isGood: false },
+  'Hỏa Tinh':   { element: 'hoa',  isGood: false },
+  'Linh Tinh':  { element: 'hoa',  isGood: false },
+  'Địa Không':  { element: 'hoa',  isGood: false },
+  'Địa Kiếp':   { element: 'hoa',  isGood: false },
+  'Thiên Hình': { element: 'hoa',  isGood: false },
+  'Thiên Riêu': { element: 'thuy', isGood: false },
+  'Thiên Khốc': { element: 'kim',  isGood: false },
+  'Thiên Hư':   { element: 'thuy', isGood: false },
+  'Tang Môn':   { element: 'moc',  isGood: false },
+  'Bạch Hổ':    { element: 'kim',  isGood: false },
+  'Đại Hao':    { element: 'hoa',  isGood: false },
+  'Tiểu Hao':   { element: 'hoa',  isGood: false },
+  'Kiếp Sát':   { element: 'hoa',  isGood: false },
+  'Cô Thần':    { element: 'tho',  isGood: false },
+  'Quả Tú':     { element: 'tho',  isGood: false },
+  'Thiên Không':{ element: 'hoa',  isGood: false },
+  'Phi Liêm':   { element: 'hoa',  isGood: false },
+  'Phục Binh':  { element: 'hoa',  isGood: false },
+  'Quan Phù':   { element: 'hoa',  isGood: false },
+  'Quan Phủ':   { element: 'hoa',  isGood: false },
+  'Tuế Phá':    { element: 'hoa',  isGood: false },
+  'Thái Tuế':   { element: 'hoa',  isGood: false },
+  'Điếu Khách': { element: 'hoa',  isGood: false },
+  'Trực Phù':   { element: 'hoa',  isGood: false },
+  'Tử Phù':     { element: 'kim',  isGood: false },
+  'Bệnh Phù':   { element: 'tho',  isGood: false },
+  'Hóa Kỵ':     { element: 'thuy', isGood: false },
+  'Thiên Sứ':   { element: 'thuy', isGood: false },
+  'Thiên Thương':{ element: 'tho', isGood: false }
+};
+
+function formatBrightness(b) {
+  if (!b) return '';
+  const upper = b.toString().toUpperCase().trim();
+  if (upper.startsWith('M') || upper.includes('MIẾU')) return '(M)';
+  if (upper.startsWith('V') || upper.includes('VƯỢNG')) return '(V)';
+  if (upper.startsWith('Đ') || upper.startsWith('D') || upper.includes('ĐẮC')) return '(Đ)';
+  if (upper.startsWith('B') || upper.includes('BÌNH')) return '(B)';
+  if (upper.startsWith('H') || upper.includes('HÃM')) return '(H)';
+  return `(${upper.charAt(0)})`;
+}
+
+function getStarInfo(starName) {
+  let cleanName = starName.replace(/^Lưu\s+|^L\./, '').trim();
+  const isLuu = starName.startsWith('Lưu ') || starName.startsWith('L.');
+
+  if (cleanName === 'Lộc') cleanName = 'Lộc Tồn';
+  if (cleanName === 'Dương') cleanName = 'Kình Dương';
+  if (cleanName === 'Đà') cleanName = 'Đà La';
+  if (cleanName === 'Mã') cleanName = 'Thiên Mã';
+  if (cleanName === 'Hổ') cleanName = 'Bạch Hổ';
+  if (cleanName === 'Khốc') cleanName = 'Thiên Khốc';
+  if (cleanName === 'Hư') cleanName = 'Thiên Hư';
+  if (cleanName === 'Tang') cleanName = 'Tang Môn';
+  if (cleanName === 'Xương') cleanName = 'Văn Xương';
+  if (cleanName === 'Khúc') cleanName = 'Văn Khúc';
+
+  const meta = STAR_METADATA[cleanName] || {
+    element: 'thuy',
+    isGood: !['Hỏa Tinh', 'Linh Tinh', 'Địa Không', 'Địa Kiếp', 'Kình Dương', 'Đà La', 'Tang Môn', 'Bạch Hổ'].includes(cleanName),
+    polarity: ''
   };
-  const style = map[hoa] || 'bg-amber-600 text-white';
-  const label = hoa.replace('Hóa ', '');
-  return (
-    <span className={`text-[9px] px-1 py-0.2 rounded font-bold ml-1 ${style}`} title={hoa}>
-      {label}
-    </span>
-  );
-};
 
-// Danh mục 14 chính tinh và nhóm sát hung tinh
-const CHINH_TINH_NAMES = [
-  'Tử Vi', 'Liêm Trinh', 'Thiên Đồng', 'Vũ Khúc', 'Thái Dương', 'Thiên Cơ',
-  'Thiên Phủ', 'Thái Âm', 'Tham Lang', 'Cự Môn', 'Thiên Tướng', 'Thiên Lương',
-  'Thất Sát', 'Phá Quân'
-];
-
-const HUNG_SAT_TYPES = ['sat_tinh', 'hung_tinh', 'bai_tinh'];
-
-// Phân loại sao an toàn dự phòng
-const phanLoaiSao = (cung) => {
-  const allStars = cung?.danh_sach_sao || [];
-
-  let chinhTinh = (cung?.chinh_tinh && cung.chinh_tinh.length > 0) ? [...cung.chinh_tinh] : [];
-  if (chinhTinh.length === 0) {
-    chinhTinh = allStars.filter((s) => s.loai === 'chinh_tinh' || CHINH_TINH_NAMES.includes(s.ten));
-  }
-
-  let satTinh = (cung?.sat_tinh && cung.sat_tinh.length > 0) ? [...cung.sat_tinh] : [];
-  if (satTinh.length === 0) {
-    satTinh = allStars.filter((s) => HUNG_SAT_TYPES.includes(s.loai) && !CHINH_TINH_NAMES.includes(s.ten));
-  }
-
-  let catTinh = (cung?.cat_tinh && cung.cat_tinh.length > 0) ? [...cung.cat_tinh] : [];
-  if (catTinh.length === 0) {
-    const chinhNames = new Set(chinhTinh.map((s) => s.ten));
-    const satNames = new Set(satTinh.map((s) => s.ten));
-    catTinh = allStars.filter((s) => !chinhNames.has(s.ten) && !satNames.has(s.ten) && !TRANG_SINH_STARS.includes(s.ten));
-  }
-
-  return { chinhTinh, catTinh, satTinh, allStars };
-};
-
-const getCanChiCung = (cung) => {
-  if (!cung) return '';
-  if (cung.can_chi_cung) return cung.can_chi_cung;
-  if (cung.can_cung && cung.ten_dia_chi) return `${cung.can_cung} ${cung.ten_dia_chi}`;
-  return cung.ten_dia_chi || '';
-};
-
-const getThanCuText = (laSo, cacCung) => {
-  if (laSo?.than_cu) return laSo.than_cu;
-  const thanCung = (cacCung || []).find((c) => c.la_cung_than);
-  if (thanCung) return thanCung.ten_cung_chuc_nang;
-  return '--';
-};
-
-const getMenhCuText = (laSo, cacCung) => {
-  if (laSo?.ten_cung_menh) return laSo.ten_cung_menh;
-  const menhCung = (cacCung || []).find((c) => (c.ten_cung_chuc_nang || '').includes('Mệnh'));
-  if (menhCung) return getCanChiCung(menhCung);
-  return '--';
-};
+  return {
+    cleanName,
+    isLuu,
+    displayName: isLuu ? `L.${cleanName}` : cleanName,
+    elementClass: `element-${meta.element}`,
+    isGood: meta.isGood,
+    polarity: meta.polarity || '',
+    isMajor: !!meta.isMajor
+  };
+}
 
 export default function TuViPage() {
   const [searchParams] = useSearchParams();
@@ -188,100 +210,280 @@ export default function TuViPage() {
   const [error, setError] = useState(null);
   const [laSoData, setLaSoData] = useState(null);
   const [luanGiaiData, setLuanGiaiData] = useState(null);
+  const [profiles, setProfiles] = useState([]);
+  const [currentProfileId, setCurrentProfileId] = useState(null);
   const [selectedPalace, setSelectedPalace] = useState(null);
+  const [hoveredBranchId, setHoveredBranchId] = useState(null);
   const [quotaTrigger, setQuotaTrigger] = useState(0);
-  const [isOfflineData, setIsOfflineData] = useState(false);
 
-  const fetchLaSo = async (profileId) => {
-    setLoading(true);
-    setError(null);
-    try {
-      let targetId = profileId;
-      if (!targetId) {
+  // Trạng thái Tùy chỉnh lá số (chuẩn tuvi.vn)
+  const [isGrayscale, setIsGrayscale] = useState(false);
+  const [showChieuLine, setShowChieuLine] = useState(true);
+  const [showPalaceDetail, setShowPalaceDetail] = useState(true);
+  const [xemNam, setXemNam] = useState(2026);
+  const [xemThang, setXemThang] = useState(7);
+
+  // 1. Tải danh sách hồ sơ sinh
+  useEffect(() => {
+    let isMounted = true;
+    const loadProfiles = async () => {
+      try {
         const profRes = await birthProfileService.getAll();
         const list = profRes.data?.du_lieu || profRes.data || [];
-        if (list.length === 0) {
+        if (!isMounted) return;
+        setProfiles(list);
+        
+        // Hàm xác định hồ sơ ưu tiên (cô lập an sao nhanh)
+        const getPreferredProfile = (items) => {
+          if (!items || items.length === 0) return null;
+          const savedId = typeof window !== 'undefined' ? localStorage.getItem('selected_ho_so_menh_id') : null;
+          let pref = items.find((p) => p.is_default);
+          if (!pref && savedId) {
+            pref = items.find((p) => String(p.id) === String(savedId));
+          }
+          if (!pref) {
+            const nonQuick = items.filter((p) => !p.is_quick_chart);
+            if (nonQuick.length > 0) {
+              pref = [...nonQuick].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))[0];
+            } else {
+              pref = [...items].sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))[0];
+            }
+          }
+          return pref || items[0];
+        };
+
+        const qId = searchParams.get('profile_id');
+        if (qId) {
+          const found = list.find(p => String(p.id) === String(qId));
+          if (found) {
+            setCurrentProfileId(found.id);
+          } else if (list.length > 0) {
+            const pref = getPreferredProfile(list);
+            console.warn(`Hồ sơ ${qId} không tồn tại trong danh sách, tự động chọn hồ sơ ưu tiên: ${pref?.id}`);
+            setCurrentProfileId(pref.id);
+            navigate(`/tu-vi?profile_id=${pref.id}`, { replace: true });
+          } else {
+            navigate('/birth-profile');
+          }
+        } else if (list.length > 0) {
+          const pref = getPreferredProfile(list);
+          setCurrentProfileId(pref.id);
+        } else {
           navigate('/birth-profile');
-          return;
         }
-        targetId = list[0].id;
+      } catch (err) {
+        console.error('Lỗi nạp danh sách hồ sơ:', err);
+        if (isMounted) {
+          setError('Không thể tải danh sách hồ sơ. Quý bạn vui lòng kiểm tra kết nối mạng và thử lại.');
+          setLoading(false);
+        }
+      }
+    };
+    loadProfiles();
+    return () => { isMounted = false; };
+  }, [searchParams, navigate]);
+
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // 2. Tải lá số theo currentProfileId (Tải nhanh tức thì < 200ms, không đợi AI)
+  useEffect(() => {
+    if (!currentProfileId) return;
+
+    let isMounted = true;
+    const fetchLaSo = async () => {
+      setLoading(true);
+      setError(null);
+      setLuanGiaiData(null);
+
+      // BƯỚC 1: LẤY DỮ LIỆU LÁ SỐ CỰC NHANH (< 200ms)
+      let laSo = null;
+      let chartError = null;
+      try {
+        const res = await tuViService.getChartOnly(currentProfileId);
+        const data = res.data?.du_lieu || res.data;
+        laSo = data.la_so || data;
+      } catch (err1) {
+        try {
+          const res = await tuViService.getLaSo(currentProfileId, true);
+          const data = res.data?.du_lieu || res.data;
+          laSo = data.la_so || data;
+        } catch (err2) {
+          console.error("Lỗi tải lá số:", err2);
+          chartError = err2;
+        }
       }
 
-      const res = await tuViService.getLaSo(targetId);
-      const data = res.data?.du_lieu || res.data;
-      const fromCache =
-        res.headers?.['x-from-cache'] === '1' ||
-        (typeof navigator !== 'undefined' && !navigator.onLine);
-      setIsOfflineData(Boolean(fromCache));
+      if (!isMounted) return;
 
-      setLaSoData(data.la_so);
-      setLuanGiaiData(data.luan_giai);
-      setQuotaTrigger((prev) => prev + 1);
-
-      // Mặc định chọn cung Mệnh
-      const cungList = data.la_so?.cac_cung || [];
-      const menhCung = cungList.find((c) => (c.ten_cung_chuc_nang || '').includes('Mệnh')) || cungList[0];
-      setSelectedPalace(menhCung);
-    } catch (err) {
-      if (err.response) {
-        const detail = err.response.data?.detail || err.response.data?.loi;
-        setError(typeof detail === 'string' ? detail : 'Không thể tải lá số Tử Vi.');
+      if (laSo && (laSo.palaces || laSo.data?.palaces)) {
+        setLaSoData(laSo);
+        const pList = laSo.palaces || laSo.data?.palaces || [];
+        const menh = pList.find(p => p.name && (p.name.includes('Mệnh') || p.name.includes('命'))) || pList[0];
+        setSelectedPalace(menh);
+        setLoading(false); // HIỂN THỊ BẢNG LÁ SỐ NGAY LẬP TỨC!
       } else {
-        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng.');
+        const is404 = chartError?.response?.status === 404;
+        const msg = is404
+          ? 'Không tìm thấy thông tin lá số cho hồ sơ này (có thể đã bị xoá). Quý bạn vui lòng chọn hồ sơ khác từ danh sách.'
+          : 'Hệ thống đang bận tải dữ liệu lá số. Quý bạn vui lòng nhấn "Thử lại" bên dưới.';
+        setError(msg);
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
+
+      // BƯỚC 2: TẢI LUẬN GIẢI AI CHẠY NGẦM (KHÔNG LÀM TREO GIAO DIỆN)
+      setAiLoading(true);
+      tuViService.getLaSo(currentProfileId, false)
+        .then((fullRes) => {
+          if (!isMounted) return;
+          const fullData = fullRes.data?.du_lieu || fullRes.data;
+          if (fullData.luan_giai) {
+            setLuanGiaiData(fullData.luan_giai);
+            setQuotaTrigger((prev) => prev + 1);
+          }
+          if (!laSo && fullData.la_so) {
+            setLaSoData(fullData.la_so);
+            const pList = fullData.la_so.palaces || fullData.la_so.data?.palaces || [];
+            const menh = pList.find(p => p.name && (p.name.includes('Mệnh') || p.name.includes('命'))) || pList[0];
+            setSelectedPalace(menh);
+            setError(null);
+          }
+        })
+        .catch((aiErr) => {
+          if (!isMounted) return;
+          console.warn("Luận giải AI chưa sẵn sàng:", aiErr);
+          setLuanGiaiData({
+            thanh_cong: false,
+            thong_bao: 'Hệ thống AI đang bận kết nối. Quý bạn chỉ cần nhấn lại là được.',
+            cau_tra_loi: null
+          });
+        })
+        .finally(() => {
+          if (isMounted) {
+            setAiLoading(false);
+            setLoading(false);
+          }
+        });
+    };
+
+    fetchLaSo();
+    return () => { isMounted = false; };
+  }, [currentProfileId]);
+
+  const handleRetryGeneral = useCallback(() => {
+    if (!currentProfileId) return;
+    setAiLoading(true);
+    tuViService.getLaSo(currentProfileId, false)
+      .then((fullRes) => {
+        const fullData = fullRes.data?.du_lieu || fullRes.data;
+        if (fullData.luan_giai) {
+          setLuanGiaiData(fullData.luan_giai);
+          setQuotaTrigger((prev) => prev + 1);
+        }
+      })
+      .catch((aiErr) => {
+        console.warn("Lỗi khi thử lại luận giải:", aiErr);
+        setLuanGiaiData({
+          thanh_cong: false,
+          thong_bao: 'Hệ thống AI đang bận kết nối. Quý bạn chỉ cần nhấn lại là được.',
+          cau_tra_loi: null
+        });
+      })
+      .finally(() => {
+        setAiLoading(false);
+      });
+  }, [currentProfileId]);
+
+
+  // 3. Trích xuất dữ liệu tổng thể lá số
+  const chartData = useMemo(() => {
+    if (!laSoData) return null;
+    const d = laSoData.data || laSoData;
+    const palaces = laSoData.palaces || d.palaces || [];
+
+    const userName = d.name || laSoData.thong_tin_co_ban?.ho_ten || 'Mệnh Chủ';
+    const solarDate = laSoData.solarDate || d.solarDate || '1990-01-01';
+    const solarParts = solarDate.split('-');
+    const solarYear = solarParts[0] || '1990';
+    const solarMonth = parseInt(solarParts[1] || '1', 10);
+    const solarDay = parseInt(solarParts[2] || '1', 10);
+
+    const baziParts = (laSoData.chineseDate || d.chineseDate || '').split(' - ');
+    const yearCanChi = baziParts[0] || d.can_chi_tuoi || '';
+    const monthCanChi = baziParts[1] || '';
+    const dayCanChi = baziParts[2] || '';
+    const hourCanChi = baziParts[3] || '';
+
+    const amDuong = d.am_duong_ban_menh || laSoData.thong_tin_co_ban?.am_duong_nam_nu || '';
+    const napAmVal = d.loai_hanh_cua_ban_menh || laSoData.ngu_hanh_nap_am || '';
+    const cucVal = d.cuc_cua_tuoi || laSoData.cuc?.ten || '';
+    const canLuongVal = d.can_luong || laSoData.can_luong || '';
+    const menhChuVal = d.menh_chu || laSoData.menh_chu || '';
+    const thanChuVal = d.than_chu || laSoData.than_chu || '';
+    const viewYearStr = d.view_year || '';
+    const hourDisplay = d.hour || laSoData.thong_tin_co_ban?.gio_sinh || '';
+
+    const menhPalace = palaces.find(p => p.name && (p.name.includes('Mệnh') || p.name.includes('命'))) || palaces[0];
+    const menhBranch = menhPalace ? menhPalace.earthlyBranch : 'Dần';
+    const defaultMenhIndex = BRANCH_INDEX_MAP[menhBranch] ?? 2;
+
+    return {
+      d,
+      palaces,
+      userName,
+      solarYear,
+      solarMonth,
+      solarDay,
+      yearCanChi,
+      monthCanChi,
+      dayCanChi,
+      hourCanChi,
+      amDuong,
+      napAmVal,
+      cucVal,
+      canLuongVal,
+      menhChuVal,
+      thanChuVal,
+      viewYearStr,
+      hourDisplay,
+      defaultMenhIndex
+    };
+  }, [laSoData]);
+
+  // Highlight Tam Hợp & Xung Chiếu
+  const relatedBranchIds = useMemo(() => {
+    if (hoveredBranchId === null) return null;
+    const bIdx = hoveredBranchId;
+    const tamHop1 = (bIdx + 4) % 12;
+    const tamHop2 = (bIdx + 8) % 12;
+    const xungChieu = (bIdx + 6) % 12;
+    return [bIdx, tamHop1, tamHop2, xungChieu];
+  }, [hoveredBranchId]);
+
+  // Chuyển đổi hồ sơ
+  const handleProfileChange = (e) => {
+    const newId = e.target.value;
+    setCurrentProfileId(newId);
+    navigate(`/tu-vi?profile_id=${newId}`);
   };
 
-  useEffect(() => {
-    const pId = searchParams.get('profile_id');
-    fetchLaSo(pId);
-  }, [searchParams]);
+  // Safe list of profiles
+  const safeProfiles = useMemo(() => (Array.isArray(profiles) ? profiles.filter((p) => p && p.id) : []), [profiles]);
 
-  const basicInfo = laSoData?.thong_tin_co_ban || {};
-  const cucInfo = laSoData?.cuc || {};
-  const cacCung = laSoData?.cac_cung || [];
+  // Thông tin tính toán Năm xem & Tháng xem (tính theo Dương lịch quy đổi Âm lịch)
+  const viewingLunar = useMemo(() => {
+    return getLunarInfoForSolarMonth(xemThang, xemNam);
+  }, [xemThang, xemNam]);
 
-  // Tính quan hệ Ngũ Hành giữa Mệnh và Cục
-  const tuongSinhTuongKhac = useMemo(() => {
-    if (!laSoData?.ngu_hanh_nap_am || !cucInfo?.ngu_hanh) return '';
-    const menhHanh = laSoData.ngu_hanh_nap_am.split(' ').pop();
-    const cucHanh = cucInfo.ngu_hanh;
-    if (menhHanh === cucHanh) return 'Mệnh Cục Tỷ Hòa (Cuộc đời bình ổn, hài hòa)';
-    
-    // Tương sinh
-    const sinhMap = { 'Kim': 'Thủy', 'Thủy': 'Mộc', 'Mộc': 'Hỏa', 'Hỏa': 'Thổ', 'Thổ': 'Kim' };
-    if (sinhMap[cucHanh] === menhHanh) return `Cục (${cucHanh}) sinh Mệnh (${menhHanh}) — Đại Cát! Được hoàn cảnh ưu ái.`;
-    if (sinhMap[menhHanh] === cucHanh) return `Mệnh (${menhHanh}) sinh Cục (${cucHanh}) — Vất vả, phải cống hiến cho thời cuộc.`;
-
-    // Tương khắc
-    const khacMap = { 'Kim': 'Mộc', 'Mộc': 'Thổ', 'Thổ': 'Thủy', 'Thủy': 'Hỏa', 'Hỏa': 'Kim' };
-    if (khacMap[cucHanh] === menhHanh) return `Cục (${cucHanh}) khắc Mệnh (${menhHanh}) — Gian nan, hay gặp nghịch cảnh thử thách.`;
-    if (khacMap[menhHanh] === cucHanh) return `Mệnh (${menhHanh}) khắc Cục (${cucHanh}) — Bản lĩnh vượt khó, tự tay lập nghiệp.`;
-    return '';
-  }, [laSoData, cucInfo]);
-
-  // Tìm các cung liên hệ của cung đang chọn (Tam hợp, Xung chiếu)
-  const relatedPalaces = useMemo(() => {
-    if (!selectedPalace || cacCung.length < 12) return null;
-    const pos = selectedPalace.vi_tri_dia_chi;
-    const xungPos = (pos + 6) % 12;
-    const tamHop1 = (pos + 4) % 12;
-    const tamHop2 = (pos + 8) % 12;
-
-    const findCung = (p) => cacCung.find((c) => c.vi_tri_dia_chi === p);
-    return {
-      xungChieu: findCung(xungPos),
-      tamHop: [findCung(tamHop1), findCung(tamHop2)],
-    };
-  }, [selectedPalace, cacCung]);
+  const ageAtViewYear = useMemo(() => {
+    const birthY = chartData?.solarYear || (chartData?.d?.year ? parseInt(chartData.d.year, 10) : 1995);
+    return Math.max(1, xemNam - birthY + 1);
+  }, [xemNam, chartData]);
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
-      {/* Header thanh điều hướng - Chuẩn Nâu Đỏ Trầm #6B2B1F */}
+      {/* HEADER TOP NAVBAR */}
       <header className="bg-primary text-text-on-primary border-b border-[#552218] px-4 sm:px-8 py-3.5 shadow-subtle sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
               to="/dashboard"
@@ -291,26 +493,60 @@ export default function TuViPage() {
               <IconArrowLeft size={18} />
             </Link>
             <div>
-              <h1 className="font-heading text-xl sm:text-2xl font-bold tracking-wide text-text-on-primary flex items-center gap-2">
+              <h1 className="font-heading text-lg sm:text-xl font-bold tracking-wide text-text-on-primary flex items-center gap-2">
                 <span>Tử Vi Đẩu Số Toàn Thư</span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-[#552218] text-accent font-bold border border-accent/30">
-                  Kinh Điển 108 Sao
-                </span>
               </h1>
-              <p className="text-xs text-text-on-primary/80 font-body hidden sm:block">
-                Thiên Bàn 12 Cung Chuẩn Cổ Học — Phân Cột Cát Hung & Luận Vận Hạn Trọn Đời
+              <p className="text-xs text-text-on-primary/80 font-body hidden md:block">
+                Thiên Bàn 12 Cung Chuẩn Cổ Học — Phân Cột Cát Hung & Đồ Họa Chiếu Sao Xuyên Tâm
               </p>
             </div>
           </div>
 
+          {/* QUICK PROFILE SWITCHER DROPDOWN */}
           <div className="flex items-center gap-3">
+            {safeProfiles.length > 0 && (
+              <div className="flex items-center gap-2 bg-[#552218] px-2.5 py-1.5 rounded-btn border border-accent/30 text-xs font-body">
+                <IconUser size={15} className="text-accent flex-shrink-0" />
+                <select
+                  value={currentProfileId || ''}
+                  onChange={handleProfileChange}
+                  className="bg-transparent text-text-on-primary font-bold outline-none cursor-pointer text-xs"
+                >
+                  {safeProfiles.map((prof) => (
+                    <option key={prof.id} value={prof.id} className="bg-[#431A12] text-text-on-primary">
+                      {prof.ho_ten || 'Hồ sơ chưa đặt tên'} ({prof.gioi_tinh === 'nam' ? 'Nam' : 'Nữ'})
+                    </option>
+                  ))}
+                </select>
+                <Link
+                  to="/birth-profile"
+                  className="ml-1 text-accent hover:text-white transition-colors"
+                  title="Thêm hồ sơ mới"
+                >
+                  <IconPlus size={15} />
+                </Link>
+              </div>
+            )}
             <QuotaBadge refreshTrigger={quotaTrigger} />
           </div>
         </div>
       </header>
 
-      {/* Nội dung chính */}
+      {/* MAIN CONTAINER */}
       <main className="max-w-7xl mx-auto px-2 sm:px-6 py-6 space-y-6">
+        {/* THANH NHẬP THÔNG TIN AN SAO LẬP LÁ SỐ NHANH TRÊN ĐẦU LÁ SỐ */}
+        <TuViQuickInputBar
+          currentProfile={safeProfiles.find((p) => String(p.id) === String(currentProfileId))}
+          onProfileCreated={(newId) => {
+            birthProfileService.getAll().then((res) => {
+              const list = res.data?.du_lieu || res.data || [];
+              setProfiles(list);
+              setCurrentProfileId(newId);
+              navigate(`/tu-vi?profile_id=${newId}`);
+            });
+          }}
+        />
+
         {error && (
           <ErrorMessage
             message={error}
@@ -319,417 +555,465 @@ export default function TuViPage() {
           />
         )}
 
-        {isOfflineData && !loading && (
-          <aside
-            role="status"
-            className="p-3 sm:p-3.5 rounded-card bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between shadow-subtle"
-          >
-            <div className="flex items-center gap-2.5">
-              <IconInfoCircle size={18} className="text-accent flex-shrink-0" />
-              <span>
-                <strong>Chế độ ngoại tuyến:</strong> Bạn đang xem bản đã lưu offline (dữ liệu từ bộ nhớ đệm).
-              </span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold border border-amber-300 flex-shrink-0">
-              Bản lưu đệm
-            </span>
-          </aside>
-        )}
-
         {loading ? (
           <div className="card-base p-12 text-center space-y-4 shadow-card">
-            <LoadingSpinner size="lg" text="Đang an toàn diện 108 vì sao và khởi tạo Thiên Bàn Tử Vi..." />
+            <LoadingSpinner size="lg" text="Đang khởi tạo Thiên Bàn Tử Vi chuẩn giao diện tuvi.vn..." />
             <p className="font-body text-xs text-text-secondary max-w-sm mx-auto">
-              Hệ thống an sao kinh điển kết hợp Vòng Thái Tuế, Bác Sĩ, Tràng Sinh, Tứ Hóa, Tuần Triệt và định hình lá số chuẩn xác.
+              Hệ thống đang an sao 12 cung, 14 chính tinh đắc hãm, tuần triệt, tứ hóa và chuẩn bị đồ họa chiếu sao Tam Hợp.
             </p>
           </div>
-        ) : laSoData ? (
+        ) : chartData ? (
           <>
-            {/* KHỐI THIÊN BÀN 12 CUNG KINH ĐIỂN */}
-            <div className="card-base p-3 sm:p-6 space-y-4 shadow-card">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-border pb-3">
-                <div>
-                  <h2 className="font-heading text-xl sm:text-2xl font-bold text-primary flex items-center gap-2">
-                    <IconCompass size={24} className="text-accent" />
-                    <span>Thiên Bàn 12 Cung Bản Mệnh</span>
-                  </h2>
-                  <p className="text-xs text-text-secondary font-body">
-                    Chính tinh in đậm kèm độ sáng (M/V/Đ/H). Cột trái là Cát Tinh, cột phải là Hung/Sát Tinh. Bấm vào ô cung để xem luận bàn chi tiết.
-                  </p>
-                </div>
-                {selectedPalace && (
-                  <div className="text-xs font-body px-3 py-1.5 rounded-btn bg-[#FAF5EE] border border-surface-border text-text-primary self-start sm:self-auto flex items-center gap-1.5 shadow-subtle">
-                    <span>Đang xem:</span>
-                    <strong className="text-primary font-bold">{selectedPalace.ten_cung_chuc_nang}</strong>
-                    <span className="font-mono text-accent">({getCanChiCung(selectedPalace)})</span>
-                    {selectedPalace.la_cung_than && (
-                      <span className="px-1.5 py-0.2 rounded-full bg-rose-700 text-white font-bold text-[10px] shadow-xs">
-                        THÂN
-                      </span>
-                    )}
+            {/* BỐ CỤC 2 CỘT: CỘT TRÁI (LÁ SỐ TỬ VI) & CỘT PHẢI (SIDEBAR TÙY CHỈNH & LÁ SỐ ĐÃ TẠO) */}
+            <div className="flex flex-col lg:flex-row items-start gap-6">
+              {/* CỘT TRÁI: LÁ SỐ 12 CUNG + CHI TIẾT CUNG CHỌN */}
+              <div className="flex-1 min-w-0 w-full space-y-6">
+                {/* LÁ SỐ TỬ VI CHUẨN GIAO DIỆN TUVI.VN */}
+                <div className={`tuvi-container ${isGrayscale ? 'grayscale' : ''}`}>
+                  <div className="tuvi-grid-wrapper">
+                    {/* HUY HIỆU TUẦN / TRIỆT TẠI BIÊN GIỚI CUNG */}
+                    <div className="badge-tuan-triet badge-triet-default">TRIỆT</div>
+                    <div className="badge-tuan-triet badge-tuan-default">TUẦN</div>
+
+                    {/* BẢNG GRID 4X4 */}
+                    <div className="tuvi-chart-grid" id="tuviGrid">
+                      {/* Ô THIÊN BÀN TRUNG TÂM (2x2) */}
+                      <div className="center-box">
+                        {/* Đồ họa đường kẻ Tam Hợp & Xung Chiếu (ẩn nếu tắt xem cung chiếu) */}
+                        {showChieuLine && (
+                          <div
+                            className={`view-con-giap-la-so list-line-${
+                              hoveredBranchId !== null ? hoveredBranchId : chartData.defaultMenhIndex
+                            }`}
+                            id="list-line-la-so"
+                            style={{ display: 'block' }}
+                          />
+                        )}
+
+                    <div className="center-content">
+                      <div className="center-header-branding" style={{ marginBottom: '16px' }}>
+                        <div className="brand-chart-title" style={{ fontSize: '20px', letterSpacing: '2px', fontWeight: 800 }}>LÁ SỐ TỬ VI</div>
+                      </div>
+
+                      {/* Bảng thông tin cá nhân 2 cột */}
+                      <div className="center-info-grid">
+                        <div className="info-row">
+                          <span className="info-label">Họ tên:</span>
+                          <span className="info-val">{chartData.userName}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Năm:</span>
+                          <span className="info-val">
+                            {chartData.solarYear}
+                            <span className="info-val-sub">{chartData.yearCanChi}</span>
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Tháng:</span>
+                          <span className="info-val">
+                            {chartData.solarMonth} (3)
+                            <span className="info-val-sub">{chartData.monthCanChi}</span>
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Ngày:</span>
+                          <span className="info-val">
+                            {chartData.solarDay} (3)
+                            <span className="info-val-sub">{chartData.dayCanChi}</span>
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Giờ:</span>
+                          <span className="info-val">
+                            {chartData.hourDisplay}
+                            <span className="info-val-sub">{chartData.hourCanChi}</span>
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Năm xem:</span>
+                          <span className="info-val">
+                            {xemNam}
+                            <span className="info-val-sub">{viewingLunar.yearCanChi} ({ageAtViewYear}t)</span>
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Tháng xem:</span>
+                          <span className="info-val">
+                            Tháng {xemThang} (DL)
+                            <span className="info-val-sub">Th.{viewingLunar.lunarMonth} ÂL ({viewingLunar.monthCanChi})</span>
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Âm dương:</span>
+                          <span className="info-val">{chartData.amDuong}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Bản mệnh:</span>
+                          <span className="info-val">
+                            {chartData.napAmVal} - {chartData.cucVal}
+                          </span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Cân lượng:</span>
+                          <span className="info-val">{chartData.canLuongVal}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Chủ mệnh:</span>
+                          <span className="info-val">{chartData.menhChuVal}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Chủ thân:</span>
+                          <span className="info-val">{chartData.thanChuVal}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Lai nhân cung:</span>
+                          <span className="info-val">Mệnh</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* BÀN CỜ 4x4 TRUYỀN THỐNG VỚI CUỘN NGANG VÀ VIỀN NHÃ NHẶN */}
-              <div className="overflow-x-auto pb-2">
-                <div className="min-w-[880px] grid grid-cols-4 grid-rows-4 gap-2 bg-[#F4EDE2]/70 p-2 rounded-card border border-surface-border">
-                  {/* Render 12 cung theo vị trí Grid cố định 4x4 */}
-                  {cacCung.map((cung) => {
-                    const pos = PALACE_GRID_POSITIONS[cung.vi_tri_dia_chi] || { row: 1, col: 1, name: '' };
-                    const isSelected = selectedPalace?.vi_tri_dia_chi === cung.vi_tri_dia_chi;
-                    const { chinhTinh, catTinh, satTinh, allStars } = phanLoaiSao(cung);
-                    const canChiText = getCanChiCung(cung);
+                  {/* 12 CUNG ĐỊA CHI */}
+                  {chartData.palaces.map((palace, idx) => {
+                    const branch = palace.earthlyBranch;
+                    const config = BRANCH_CONFIG[branch] || { gridRow: 1, gridCol: 1, elementText: '', elementClass: '', defaultStem: '' };
+                    const bIdx = BRANCH_INDEX_MAP[branch] ?? 0;
 
-                    // Tìm sao Tràng Sinh nếu có trong cung
-                    const saoTrangSinh = allStars.find((s) => TRANG_SINH_STARS.includes(s.ten));
+                    // Hover state
+                    let hoverClass = '';
+                    if (relatedBranchIds !== null) {
+                      if (relatedBranchIds.includes(bIdx)) {
+                        hoverClass = 'cung-view-hover';
+                      } else {
+                        hoverClass = 'none-cung-view-hover';
+                      }
+                    }
+
+                    const isSelected = selectedPalace?.earthlyBranch === branch;
+                    const stemLetter = STEM_ABBR[palace.heavenlyStem] || config.defaultStem || palace.heavenlyStem?.charAt(0) || '';
+                    const canChiAbbr = `${stemLetter}.${branch}`;
+                    const daivanAge = (palace.decadal && Array.isArray(palace.decadal.range)) ? palace.decadal.range[0] : (idx * 10 + 5);
+
+                    // Phân loại sao Cát / Hung
+                    const leftStars = [];
+                    const rightStars = [];
+
+                    // 14 Chính Tinh
+                    if (palace.majorStars) {
+                      palace.majorStars.forEach(s => {
+                        const info = getStarInfo(s.name);
+                        const bTag = formatBrightness(s.brightness);
+                        const sign = info.polarity ? info.polarity : '';
+                        leftStars.push({
+                          text: `${sign}${s.name.toUpperCase()} ${bTag}`.trim(),
+                          cssClass: `star-line star-major ${info.elementClass}`,
+                          key: `major-${s.name}`
+                        });
+                      });
+                    }
+
+                    // Phụ tinh
+                    const minorList = (palace.minorStars || []).concat(palace.adjectiveStars || []);
+                    minorList.forEach(s => {
+                      const info = getStarInfo(s.name);
+                      const bTag = formatBrightness(s.brightness);
+                      const displayText = bTag ? `${s.name} ${bTag}` : s.name;
+                      const starObj = {
+                        text: displayText,
+                        cssClass: `star-line ${info.elementClass}`,
+                        key: `minor-${s.name}`
+                      };
+                      if (info.isGood) leftStars.push(starObj);
+                      else rightStars.push(starObj);
+                    });
+
+                    // Vòng Bác Sĩ & Vòng Thái Tuế
+                    const addedNames = new Set(leftStars.map(s => s.text).concat(rightStars.map(s => s.text)));
+                    if (palace.boshi12 && !addedNames.has(palace.boshi12)) {
+                      const info = getStarInfo(palace.boshi12);
+                      const sObj = { text: palace.boshi12, cssClass: `star-line ${info.elementClass}`, key: `boshi-${palace.boshi12}` };
+                      if (info.isGood) leftStars.push(sObj); else rightStars.push(sObj);
+                      addedNames.add(palace.boshi12);
+                    }
+                    if (palace.suiqian12 && !addedNames.has(palace.suiqian12)) {
+                      const info = getStarInfo(palace.suiqian12);
+                      const sObj = { text: palace.suiqian12, cssClass: `star-line ${info.elementClass}`, key: `sui-${palace.suiqian12}` };
+                      if (info.isGood) leftStars.push(sObj); else rightStars.push(sObj);
+                      addedNames.add(palace.suiqian12);
+                    }
+                    if (palace.jiangqian12) {
+                      const jName = palace.jiangqian12 === 'Hàm Trì' ? 'Đào Hoa' : palace.jiangqian12;
+                      if (!addedNames.has(jName)) {
+                        const info = getStarInfo(jName);
+                        const sObj = { text: jName, cssClass: `star-line ${info.elementClass}`, key: `jiang-${jName}` };
+                        if (info.isGood) leftStars.push(sObj); else rightStars.push(sObj);
+                        addedNames.add(jName);
+                      }
+                    }
+
+                    // Tứ hóa
+                    if (palace.majorStars) {
+                      palace.majorStars.forEach(s => {
+                        if (s.mutagen) {
+                          const mutText = s.mutagen.startsWith('Hóa ') ? s.mutagen : `Hóa ${s.mutagen}`;
+                          const info = getStarInfo(mutText);
+                          const sObj = { text: mutText, cssClass: `star-line ${info.elementClass}`, key: `mut-${s.name}` };
+                          if (info.isGood) leftStars.push(sObj); else rightStars.push(sObj);
+                        }
+                      });
+                    }
 
                     return (
                       <div
-                        key={cung.vi_tri_dia_chi}
-                        onClick={() => setSelectedPalace(cung)}
+                        key={branch}
                         style={{
-                          gridRow: pos.row,
-                          gridColumn: pos.col,
+                          gridRow: config.gridRow,
+                          gridColumn: config.gridCol
                         }}
-                        className={`min-h-[190px] sm:min-h-[215px] p-2 rounded-btn cursor-pointer transition-all flex flex-col justify-between select-none ${
-                          isSelected
-                            ? 'bg-surface border-2 border-accent shadow-md ring-2 ring-accent/30'
-                            : 'bg-surface/95 border border-surface-border hover:border-accent/70 hover:bg-[#FAF5EE]/70 shadow-subtle'
+                        className={`palace-cell cell-${config.elementClass} ${hoverClass} ${
+                          isSelected ? 'ring-2 ring-accent' : ''
                         }`}
+                        data-branch={branch}
+                        data-branch-id={bIdx}
+                        onClick={() => setSelectedPalace(palace)}
+                        onMouseEnter={() => setHoveredBranchId(bIdx)}
+                        onMouseLeave={() => setHoveredBranchId(null)}
                       >
-                        {/* 1. Header ô cung: Tên cung, Can Chi, Huy hiệu Thân, Tuần, Triệt */}
-                        <div className="border-b border-surface-border/60 pb-1">
-                          <div className="flex items-center justify-between">
-                            <span className="font-heading text-xs sm:text-sm font-bold truncate tracking-tight text-primary uppercase">
-                              {cung.ten_cung_chuc_nang}
-                            </span>
-                            <span className="text-[10px] sm:text-xs font-mono font-bold px-1.5 py-0.2 rounded bg-[#FAF5EE] text-text-primary border border-surface-border">
-                              {canChiText}
+                        {/* HEADER CUNG */}
+                        <div className="palace-header">
+                          <div className="header-left">
+                            <span className="canchi-abbr">{canChiAbbr}</span>
+                            <span className="cung-element">{config.elementText}</span>
+                          </div>
+                          <div className="header-center">
+                            <span className={`palace-name ${config.elementClass}`}>
+                              {(palace.name || '').toUpperCase()}
+                              {palace.isBodyPalace && <span className="badge-than-tag ml-1">&lt;THÂN&gt;</span>}
                             </span>
                           </div>
-
-                          {/* Dải huy hiệu trạng thái: THÂN, TUẦN, TRIỆT */}
-                          <div className="flex items-center gap-1 mt-0.5">
-                            {cung.la_cung_than && (
-                              <span className="px-1.5 py-0.2 rounded-full bg-rose-700 text-white font-bold text-[9px] shadow-xs">
-                                THÂN
-                              </span>
-                            )}
-                            {cung.co_tuan && (
-                              <span className="px-1.5 py-0.2 rounded font-bold text-[9px] bg-amber-100 text-amber-900 border border-amber-300">
-                                TUẦN
-                              </span>
-                            )}
-                            {cung.co_triet && (
-                              <span className="px-1.5 py-0.2 rounded font-bold text-[9px] bg-rose-100 text-rose-900 border border-rose-300">
-                                TRIỆT
-                              </span>
-                            )}
+                          <div className="header-right">
+                            <span className="daivan-age">{daivanAge}</span>
+                            <span
+                              className={`thang-luu ${
+                                MONTH_TRACKING[branch] === `Th.${viewingLunar.lunarMonth}`
+                                  ? 'font-bold text-[#8B1C13] bg-[#8B1C13]/15 px-1 py-0.5 rounded ring-1 ring-[#8B1C13]/40'
+                                  : ''
+                              }`}
+                              title={
+                                MONTH_TRACKING[branch] === `Th.${viewingLunar.lunarMonth}`
+                                  ? `Tháng xem hiện tại: Tháng ${xemThang} Dương lịch (~ Th.${viewingLunar.lunarMonth} ÂL)`
+                                  : `Lưu Nguyệt: ${MONTH_TRACKING[branch] || ''}`
+                              }
+                            >
+                              {MONTH_TRACKING[branch] || ''}
+                            </span>
                           </div>
                         </div>
 
-                        {/* 2. Phần Chính Tinh (In đậm, độ sáng M/V/Đ/H, Tứ Hóa) */}
-                        <div className="py-1 min-h-[34px]">
-                          {chinhTinh.length > 0 ? (
-                            <div className="flex flex-wrap gap-x-2 gap-y-0.5 items-center">
-                              {chinhTinh.map((s, idx) => {
-                                const style = getElementStyle(s.ngu_hanh);
-                                return (
-                                  <div key={idx} className="flex items-center leading-tight">
-                                    <span className={`text-xs sm:text-sm font-bold font-heading ${style.text}`}>
-                                      {s.ten}
-                                    </span>
-                                    {renderDacHam(s.dac_ham)}
-                                    {renderHoaBadge(s.hoa)}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-text-secondary italic font-body">
-                              Vô chính diệu
-                            </span>
-                          )}
-                        </div>
-
-                        {/* 3. Phần Phụ Tinh Chia 2 Cột: Cát Tinh (trái) vs Hung/Sát Tinh (phải) */}
-                        <div className="grid grid-cols-2 gap-1 border-t border-surface-border/40 pt-1 flex-1 text-[10px] sm:text-[11px] font-body overflow-hidden">
-                          {/* Cột Trái: CÁT TINH */}
-                          <div className="space-y-0.5 border-r border-surface-border/40 pr-1">
-                            {catTinh.map((s, idx) => {
-                              const style = getElementStyle(s.ngu_hanh);
-                              return (
-                                <div key={idx} className="flex items-center justify-between leading-snug">
-                                  <span className={`truncate font-bold ${style.text}`}>
-                                    {s.ten}
-                                  </span>
-                                  {renderHoaBadge(s.hoa)}
-                                </div>
-                              );
-                            })}
+                        {/* BODY CUNG (2 CỘT) */}
+                        <div className="palace-body">
+                          <div className="col-cat">
+                            {leftStars.map(st => (
+                              <div key={st.key} className={st.cssClass}>
+                                {st.text}
+                              </div>
+                            ))}
                           </div>
-
-                          {/* Cột Phải: HUNG/SÁT TINH & BẠI TINH */}
-                          <div className="space-y-0.5 pl-1">
-                            {satTinh.map((s, idx) => (
-                              <div key={idx} className="flex items-center justify-between leading-snug text-rose-800 font-medium">
-                                <span className="truncate font-bold">
-                                  {s.ten}
-                                </span>
-                                {renderDacHam(s.dac_ham)}
-                                {renderHoaBadge(s.hoa)}
+                          <div className="col-hung">
+                            {rightStars.map(st => (
+                              <div key={st.key} className={st.cssClass}>
+                                {st.text}
                               </div>
                             ))}
                           </div>
                         </div>
 
-                        {/* 4. Footer ô cung: Đại Vận, Tràng Sinh, Tiểu Hạn */}
-                        <div className="border-t border-surface-border/50 pt-1 flex items-center justify-between text-[10px] font-mono text-text-secondary">
-                          <div className="font-bold text-primary text-[11px]" title={`Đại vận từ ${cung.dai_van_tuoi} đến ${(cung.dai_van_tuoi || 0) + 9} tuổi`}>
-                            {cung.dai_van_tuoi !== undefined ? cung.dai_van_tuoi : ''}
-                          </div>
-                          {saoTrangSinh && (
-                            <div className="text-[10px] font-serif font-bold italic text-purple-800" title="Vòng Tràng Sinh">
-                              {saoTrangSinh.ten}
-                            </div>
-                          )}
-                          <div className="text-[10px]" title={`Tiểu hạn năm ${cung.tieu_han_chi}`}>
-                            {cung.tieu_han_chi || ''}
-                          </div>
+                        {/* FOOTER CUNG */}
+                        <div className="palace-footer">
+                          <span className="footer-left">{DV_TRACKING[branch] || ''}</span>
+                          <span className="footer-center">{palace.changsheng12 || ''}</span>
+                          <span className="footer-right">{LN_TRACKING[branch] || ''}</span>
                         </div>
                       </div>
                     );
                   })}
+                </div>
+              </div>
 
-                  {/* THIÊN TÂM / Ô TRUNG TÂM (2x2 ở giữa Thiên Bàn) - Chuẩn Nền Trắng Sáng */}
-                  <div
-                    style={{ gridRow: '2 / span 2', gridColumn: '2 / span 2' }}
-                    className="bg-surface/98 border-2 border-accent/50 rounded-card p-3 sm:p-5 flex flex-col justify-between shadow-subtle relative overflow-hidden"
-                  >
-                    {/* Header Trung Tâm */}
-                    <div className="text-center space-y-1 border-b border-surface-border/70 pb-2">
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="bg-[#FAF5EE] text-primary px-3 py-0.5 rounded-full border border-surface-border text-[10px] sm:text-xs tracking-widest inline-flex items-center gap-1.5 uppercase font-medium">
-                          <IconCompass size={14} className="text-accent" />
-                          LÁ SỐ TỬ VI ĐẨU SỐ TOÀN THƯ
-                        </span>
-                      </div>
-                      <h3 className="font-heading text-lg sm:text-2xl font-bold text-primary">
-                        {basicInfo.ho_ten || 'Mệnh Chủ'}
-                      </h3>
-                      <div className="text-xs font-body text-text-secondary">
-                        {basicInfo.am_duong_nam_nu || (basicInfo.gioi_tinh === 'nam' ? 'Dương Nam' : 'Âm Nữ')}
-                      </div>
-                    </div>
-
-                    {/* Bảng Thông Số Chi Tiết - chia ô rõ ràng với đường viền nhã nhặn */}
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs font-body py-2 divide-x divide-surface-border">
-                      <div className="space-y-1 pr-2">
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Dương Lịch:</span>
-                          <strong className="text-text-primary font-medium">
-                            {basicInfo.ngay_duong_str || (basicInfo.ngay_sinh_duong ? `${basicInfo.ngay_sinh_duong.slice(8, 10)}/${basicInfo.ngay_sinh_duong.slice(5, 7)}/${basicInfo.ngay_sinh_duong.slice(0, 4)}` : '--')}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Giờ Sinh:</span>
-                          <strong className="text-text-primary font-medium">
-                            {basicInfo.gio_sinh_str || (basicInfo.gio_sinh !== undefined ? `Giờ ${basicInfo.chi_gio || basicInfo.gio_sinh}` : '--')}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Âm Lịch:</span>
-                          <strong className="text-accent font-bold">
-                            {basicInfo.ngay_am_str || (basicInfo.ngay_sinh_am ? `${basicInfo.ngay_sinh_am.slice(8, 10)}/${basicInfo.ngay_sinh_am.slice(5, 7)}/${basicInfo.ngay_sinh_am.slice(0, 4)} (Âm)` : '--')}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Năm Can Chi:</span>
-                          <strong className="text-primary font-bold">
-                            {basicInfo.can_chi_nam || laSoData.can_chi_nam || '--'}
-                          </strong>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1 pl-3">
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Bản Mệnh:</span>
-                          <strong className="text-primary font-bold">
-                            {laSoData.ngu_hanh_nap_am || '--'}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Cục Số:</span>
-                          <strong className="text-accent font-bold">
-                            {cucInfo.ten || cucInfo.cuc_so || '--'}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Mệnh Cư:</span>
-                          <strong className="text-primary font-bold">
-                            {getMenhCuText(laSoData, cacCung)}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-text-secondary">Thân Cư:</span>
-                          <strong className="text-rose-700 font-bold">{getThanCuText(laSoData, cacCung)}</strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer Thiên Tâm: Mệnh Chủ, Thân Chủ, Tương sinh Mệnh - Cục */}
-                    <div className="border-t border-surface-border/70 pt-2 text-[11px] font-body space-y-1 bg-[#FAF5EE]/70 -mx-3 -mb-3 sm:-mx-5 sm:-mb-5 p-2.5 rounded-b-card text-text-secondary">
-                      <div className="flex items-center justify-between">
-                        <div>Mệnh Chủ: <strong className="text-text-primary font-medium">{laSoData.menh_chu || '--'}</strong></div>
-                        <div>Thân Chủ: <strong className="text-text-primary font-medium">{laSoData.than_chu || '--'}</strong></div>
-                        <div>Đại Vận: <strong className="text-accent font-bold">{laSoData.chieu_dai_van || 'Thuận'}</strong></div>
-                      </div>
-                      {tuongSinhTuongKhac && (
-                        <div className="text-[10px] text-accent font-medium text-center truncate">
-                          {tuongSinhTuongKhac}
-                        </div>
-                      )}
-                    </div>
+                {/* FOOTER LEGEND */}
+                <div className="tuvi-footer-legend">
+                  <div className="legend-brightness">
+                    <span className="legend-b-item"><span className="legend-b-code">M</span>: Miếu địa</span>
+                    <span className="legend-b-item"><span className="legend-b-code">V</span>: Vượng địa</span>
+                    <span className="legend-b-item"><span className="legend-b-code">Đ</span>: Đắc địa</span>
+                    <span className="legend-b-item"><span className="legend-b-code">B</span>: Bình hòa</span>
+                    <span className="legend-b-item"><span className="legend-b-code">H</span>: Hãm địa</span>
+                  </div>
+                  <div className="legend-elements">
+                    <span className="legend-el-item"><span className="color-block bg-kim"></span> Kim</span>
+                    <span className="legend-el-item"><span className="color-block bg-moc"></span> Mộc</span>
+                    <span className="legend-el-item"><span className="color-block bg-thuy"></span> Thủy</span>
+                    <span className="legend-el-item"><span className="color-block bg-hoa"></span> Hỏa</span>
+                    <span className="legend-el-item"><span className="color-block bg-tho"></span> Thổ</span>
+                  </div>
+                  <div className="legend-chart-id">
+                    ID: #{chartData.d?.id || currentProfileId || 'tuvi-vn'}
                   </div>
                 </div>
               </div>
 
-              {/* BẢNG CHI TIẾT CUNG ĐANG CHỌN (INSPECTOR CHUYÊN SÂU) */}
-              {selectedPalace && (() => {
-                const { chinhTinh: selChinhTinh, catTinh: selCatTinh, satTinh: selSatTinh, allStars: selAllStars } = phanLoaiSao(selectedPalace);
-                const selCanChi = getCanChiCung(selectedPalace);
-                return (
-                  <div className="mt-4 p-4 sm:p-5 rounded-card bg-[#FAF5EE] border border-accent/40 animate-fadeIn space-y-4 shadow-subtle">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-surface-border/70 pb-3">
-                      <div className="flex items-center gap-2.5">
-                        <IconStar size={22} className="text-accent" />
-                        <h3 className="font-heading text-lg sm:text-xl font-bold text-primary">
-                          Chi Tiết Cung {selectedPalace.ten_cung_chuc_nang} — An Tại {selCanChi}
-                        </h3>
-                        {selectedPalace.la_cung_than && (
-                          <span className="px-2 py-0.5 rounded-full bg-rose-700 text-white font-bold text-xs shadow-xs">
-                            CUNG AN THÂN
+              {/* BẢNG CHI TIẾT CUNG ĐANG CHỌN (CHỈ HIỂN THỊ NẾU showPalaceDetail === true) */}
+              {showPalaceDetail && selectedPalace && (
+                <div className="p-4 sm:p-5 rounded-card bg-[#FAF6EE] border border-[#E2D9C8] space-y-4 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2D9C8] pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <IconStar size={22} className="text-[#8B1C13]" />
+                      <h3 className="font-heading text-lg sm:text-xl font-bold text-[#4A3B32]">
+                        Chi Tiết Cung {selectedPalace.name || ''} — An Tại Cung {selectedPalace.earthlyBranch || ''}
+                      </h3>
+                      {selectedPalace.isBodyPalace && (
+                        <span className="px-2 py-0.5 rounded-full bg-[#8B1C13] text-white font-bold text-xs shadow-xs">
+                          CUNG AN THÂN
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-text-secondary font-body">
+                      <span>Đại vận: <strong className="text-primary font-bold">{selectedPalace.decadal?.range && Array.isArray(selectedPalace.decadal.range) ? `${selectedPalace.decadal.range[0]} - ${selectedPalace.decadal.range[1]}` : '--'} tuổi</strong></span>
+                      <span>•</span>
+                      <span>Hành cung: <strong className="text-primary font-bold">{selectedPalace.heavenlyStem} {selectedPalace.earthlyBranch}</strong></span>
+                    </div>
+                  </div>
+
+                  {/* Danh sách tinh tú chi tiết */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-body">
+                    <div className="p-3 bg-white rounded-btn border border-[#E2D9C8] shadow-xs">
+                      <h4 className="font-heading font-bold text-[#4A3B32] mb-2 flex items-center gap-1.5 uppercase text-xs">
+                        <span>Chính Tinh ({selectedPalace.majorStars?.length || 0})</span>
+                      </h4>
+                      {selectedPalace.majorStars && selectedPalace.majorStars.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPalace.majorStars.map(s => {
+                            const info = getStarInfo(s.name);
+                            const bTag = formatBrightness(s.brightness);
+                            return (
+                              <span key={s.name} className={`px-2 py-1 rounded bg-[#FAF6EE] font-bold border border-surface-border/50 ${info.elementClass}`}>
+                                {s.name} {bTag}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="text-text-secondary italic">Vô chính diệu</span>
+                      )}
+                    </div>
+
+                    <div className="p-3 bg-white rounded-btn border border-[#E2D9C8] shadow-xs">
+                      <h4 className="font-heading font-bold text-[#4A3B32] mb-2 flex items-center gap-1.5 uppercase text-xs">
+                        <span>Phụ Tinh & Vòng Sao</span>
+                      </h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(selectedPalace.minorStars || []).concat(selectedPalace.adjectiveStars || []).map(s => {
+                          const info = getStarInfo(s.name);
+                          return (
+                            <span key={s.name} className={`px-2 py-0.5 rounded text-[11px] bg-surface border border-surface-border/40 ${info.elementClass}`}>
+                              {s.name}
+                            </span>
+                          );
+                        })}
+                        {selectedPalace.changsheng12 && (
+                          <span className="px-2 py-0.5 rounded text-[11px] bg-purple-50 text-purple-800 font-bold border border-purple-200">
+                            {selectedPalace.changsheng12}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-text-secondary font-body">
-                        <span>Đại vận: <strong className="text-primary font-bold">{selectedPalace.dai_van_tuoi !== undefined ? `${selectedPalace.dai_van_tuoi} - ${selectedPalace.dai_van_tuoi + 9}` : '--'} tuổi</strong></span>
-                        <span>•</span>
-                        <span>Hội tụ: <strong className="text-primary font-bold">{selAllStars.length} tinh tú</strong></span>
-                      </div>
-                    </div>
-
-                    {/* Thông tin Tam hợp & Xung chiếu */}
-                    {relatedPalaces && (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-body">
-                        <div className="p-2.5 rounded-btn bg-surface border border-surface-border shadow-subtle">
-                          <span className="text-text-secondary text-[11px] block">Xung Chiếu (Đối Cung):</span>
-                          <strong className="text-primary font-heading font-bold text-sm">
-                            {relatedPalaces.xungChieu?.ten_cung_chuc_nang} ({getCanChiCung(relatedPalaces.xungChieu)})
-                          </strong>
-                        </div>
-                        <div className="p-2.5 rounded-btn bg-surface border border-surface-border sm:col-span-2 shadow-subtle">
-                          <span className="text-text-secondary text-[11px] block">Tam Hợp Chiếu:</span>
-                          <strong className="text-accent font-heading font-bold text-sm">
-                            {relatedPalaces.tamHop[0]?.ten_cung_chuc_nang} ({getCanChiCung(relatedPalaces.tamHop[0])})
-                            {' — '}
-                            {relatedPalaces.tamHop[1]?.ten_cung_chuc_nang} ({getCanChiCung(relatedPalaces.tamHop[1])})
-                          </strong>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Danh sách toàn bộ tinh tú trong cung phân loại cụ thể */}
-                    <div className="space-y-3">
-                      {/* Chính Tinh */}
-                      {selChinhTinh.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-heading font-bold text-primary mb-1.5 uppercase tracking-wide">
-                            Chính Tinh ({selChinhTinh.length})
-                          </h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                            {selChinhTinh.map((s, idx) => {
-                              const style = getElementStyle(s.ngu_hanh);
-                              return (
-                                <div key={idx} className="p-2.5 rounded-btn bg-surface border border-surface-border space-y-1 shadow-subtle">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1">
-                                      <strong className={`text-sm font-bold ${style.text}`}>{s.ten}</strong>
-                                      {renderDacHam(s.dac_ham)}
-                                      {renderHoaBadge(s.hoa)}
-                                    </div>
-                                    <span className={`text-[10px] px-1.5 py-0.2 rounded border ${style.badge}`}>
-                                      Hành {s.ngu_hanh}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] text-text-secondary line-clamp-2">
-                                    {s.chuc_nang}
-                                  </p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Cát Tinh & Quý Tinh */}
-                      {selCatTinh.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-heading font-bold text-emerald-800 mb-1.5 uppercase tracking-wide">
-                            Cát Tinh & Văn Tinh, Quý Tinh ({selCatTinh.length})
-                          </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-xs">
-                            {selCatTinh.map((s, idx) => {
-                              const style = getElementStyle(s.ngu_hanh);
-                              return (
-                                <div key={idx} className="p-2 rounded-btn bg-surface border border-surface-border flex items-center justify-between shadow-subtle">
-                                  <div className="truncate">
-                                    <span className={`font-bold ${style.text}`}>{s.ten}</span>
-                                    {renderHoaBadge(s.hoa)}
-                                  </div>
-                                  <span className="text-[10px] font-mono text-text-secondary ml-1">
-                                    {s.ngu_hanh}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Hung/Sát Tinh & Bại Tinh */}
-                      {selSatTinh.length > 0 && (
-                        <div>
-                          <h4 className="text-xs font-heading font-bold text-rose-800 mb-1.5 uppercase tracking-wide">
-                            Hung Sát Tinh & Bại Tinh ({selSatTinh.length})
-                          </h4>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-xs">
-                            {selSatTinh.map((s, idx) => (
-                              <div key={idx} className="p-2 rounded-btn bg-surface border border-surface-border flex items-center justify-between shadow-subtle">
-                                <div className="truncate">
-                                  <span className="font-medium text-rose-800">{s.ten}</span>
-                                  {renderDacHam(s.dac_ham)}
-                                  {renderHoaBadge(s.hoa)}
-                                </div>
-                                <span className="text-[10px] font-mono text-text-secondary ml-1">
-                                  {s.ngu_hanh}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
-                );
-              })()}
+                </div>
+              )}
             </div>
 
+            {/* CỘT PHẢI: SIDEBAR TÙY CHỈNH LÁ SỐ & LÁ SỐ ĐÃ TẠO */}
+            <TuViCustomizerSidebar
+              isGrayscale={isGrayscale}
+              setIsGrayscale={setIsGrayscale}
+              showChieuLine={showChieuLine}
+              setShowChieuLine={setShowChieuLine}
+              showPalaceDetail={showPalaceDetail}
+              setShowPalaceDetail={setShowPalaceDetail}
+              xemNam={xemNam}
+              setXemNam={setXemNam}
+              xemThang={xemThang}
+              setXemThang={setXemThang}
+              profiles={safeProfiles}
+              currentProfileId={currentProfileId}
+              onSelectProfile={(pId) => {
+                setCurrentProfileId(pId);
+                navigate(`/tu-vi?profile_id=${pId}`);
+              }}
+            />
+          </div>
+
             {/* BẢN LUẬN GIẢI CHUYÊN SÂU TỪ ORCHESTRATOR */}
-            <InterpretationTabs luanGiai={luanGiaiData} systemName="Tử Vi Đẩu Số" />
+            <InterpretationTabs
+              luanGiai={luanGiaiData}
+              systemName="Tử Vi Đẩu Số"
+              isLoading={aiLoading}
+              birthProfileId={currentProfileId}
+              chartData={chartData}
+              onRetryGeneral={handleRetryGeneral}
+            />
+
           </>
-        ) : null}
+        ) : (
+          <div className="card-base p-8 text-center space-y-4 max-w-md mx-auto shadow-card border border-amber-200 bg-amber-50/50 rounded-xl my-8">
+            <IconInfoCircle size={44} className="mx-auto text-accent" />
+            <h3 className="font-heading text-lg font-bold text-primary">Chưa Thể Hiển Thị Lá Số</h3>
+            <p className="font-body text-xs text-text-secondary leading-relaxed">
+              {error || 'Hồ sơ đã chọn không tồn tại hoặc dữ liệu chưa sẵn sàng. Quý bạn vui lòng chọn hồ sơ khác hoặc tạo mới.'}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => {
+                  if (currentProfileId) {
+                    setLoading(true);
+                    setError(null);
+                    tuViService.getChartOnly(currentProfileId)
+                      .then(res => {
+                        const data = res.data?.du_lieu || res.data;
+                        const ls = data.la_so || data;
+                        if (ls) setLaSoData(ls);
+                      })
+                      .catch(() => {})
+                      .finally(() => setLoading(false));
+                  }
+                }}
+                className="px-4 py-2 bg-primary text-white rounded-btn text-xs font-bold hover:bg-primary-hover flex items-center gap-1.5 transition-colors shadow-xs"
+              >
+                <IconRefresh size={15} /> Thử lại
+              </button>
+              {safeProfiles.length > 0 && (
+                <button
+                  onClick={() => {
+                    const next = safeProfiles.find(p => String(p.id) !== String(currentProfileId)) || safeProfiles[0];
+                    if (next) {
+                      setCurrentProfileId(next.id);
+                      navigate(`/tu-vi?profile_id=${next.id}`);
+                    }
+                  }}
+                  className="px-4 py-2 bg-white border border-primary/30 text-primary rounded-btn text-xs font-bold hover:bg-primary/5 flex items-center gap-1.5 transition-colors"
+                >
+                  <IconUser size={15} /> Chọn hồ sơ khác
+                </button>
+              )}
+              <Link
+                to="/birth-profile"
+                className="px-4 py-2 bg-accent text-white rounded-btn text-xs font-bold hover:brightness-110 flex items-center gap-1.5 transition-colors shadow-xs"
+              >
+                <IconPlus size={15} /> Thêm hồ sơ mới
+              </Link>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

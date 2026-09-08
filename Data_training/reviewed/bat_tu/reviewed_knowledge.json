@@ -2,131 +2,485 @@
   {
     "loai": "can_chi",
     "ten": "Giáp Mộc",
-    "noi_dung_moi": "Dương Mộc, cây đại thụ hiên ngang, tính cương trực, có chí tiến thủ, thích che chở người khác.",
+    "noi_dung_moi": "Dương Mộc, đại diện cây đại thụ ngút ngàn, tính cách cương trực, có chí tiến thủ mạnh mẽ, tinh thần trách nhiệm và năng lực che chở bao bọc người khác. Giáp Mộc ưa được Đinh Hỏa tiết tú và Canh Kim đẽo gọt thành rường cột.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 20
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Ất Mộc",
-    "noi_dung_moi": "Âm Mộc, cây cỏ dây leo, mềm dẻo, khéo léo thích nghi cao độ, giỏi tùy cơ ứng biến.",
+    "noi_dung_moi": "Âm Mộc, đại diện hoa cỏ cành mềm, tính tình nhu thuận, linh hoạt, khả năng thích nghi phi thường trước mọi nghịch cảnh. Ất Mộc ưa Bính Hỏa sưởi ấm và Quý Thủy tưới nhuận sinh trưởng.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 21
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Bính Hỏa",
-    "noi_dung_moi": "Dương Hỏa, ánh mặt trời chói lọi, nhiệt huyết, quang minh, thẳng thắn nhưng dễ nóng vội.",
+    "noi_dung_moi": "Dương Hỏa, đại diện mặt trời chiếu sáng muôn loài, tính khí quang minh lỗi lạc, nhiệt tình hăng hái, hào phóng, nhưng dễ nóng vội. Bính Hỏa ưa Nhâm Thủy soi bóng tạo thành thế Thủy Hỏa ký tế.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 22
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Đinh Hỏa",
-    "noi_dung_moi": "Âm Hỏa, ngọn đèn nến lung linh, ấm áp, sâu sắc, cẩn trọng và kiên nhẫn.",
+    "noi_dung_moi": "Âm Hỏa, đại diện ngọn đèn nến, ánh lửa nhân tạo ấm áp, tính cách sâu lắng, tỉ mỉ, kiên định, thấu đáo và trọng lễ nghĩa. Đinh Hỏa ưa Giáp Mộc tương sinh để duy trì ánh sáng trường cửu.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 23
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Mậu Thổ",
-    "noi_dung_moi": "Dương Thổ, đất đồi núi cao dày, vững chãi, trung thực, bao dung, trọng chữ tín.",
+    "noi_dung_moi": "Dương Thổ, đại diện núi non gò đất cao dày, tính cách trầm ổn, kiên định, trọng chữ tín, độ lượng bao dung, có thể ngăn chặn nước lũ. Mậu Thổ cần Giáp Mộc khai thông và Bính Hỏa sưởi ấm.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 24
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Kỷ Thổ",
-    "noi_dung_moi": "Âm Thổ, đất đồng ruộng phù sa, màu mỡ, nuôi dưỡng vạn vật, mềm mỏng và độ lượng.",
+    "noi_dung_moi": "Âm Thổ, đại diện đất ruộng vườn mầu mỡ, nuôi dưỡng vạn vật tốt tươi, tính tình ôn hòa, mềm mỏng, khéo thu vén và giàu lòng trắc ẩn. Kỷ Thổ ưa Bính Hỏa sưởi và Quý Thủy tưới tắm.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 25
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Canh Kim",
-    "noi_dung_moi": "Dương Kim, sắt thép kiếm kích, sắc bén, quyết đoán, dũng cảm và chuộng nghĩa khí.",
+    "noi_dung_moi": "Dương Kim, đại diện quặng sắt thép kiếm kích sắc bén, tính cương nghị, quả quyết, thẳng thắn trọng nghĩa khí, không ngại thử thách. Canh Kim đắc Đinh Hỏa luyện tạo thành đại khí quý báu.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 25
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Tân Kim",
-    "noi_dung_moi": "Âm Kim, ngọc ngà châu báu, tinh xảo, thanh cao, coi trọng danh dự và thẩm mỹ.",
+    "noi_dung_moi": "Âm Kim, đại diện vàng bạc châu báu ngọc ngà, tính thanh tú, sắc sảo, tự tôn cao, có khiếu thẩm mỹ và phẩm cách cao sang. Tân Kim ưa Nhâm Thủy gội rửa cho sáng ngời rực rỡ.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 26
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Nhâm Thủy",
-    "noi_dung_moi": "Dương Thủy, dòng sông lớn biển cả cuộn sóng, thông minh mưu lược, hào phóng xông xáo.",
+    "noi_dung_moi": "Dương Thủy, đại diện sông to biển lớn, tính cách khoáng đạt, thông minh cơ biến, mưu lược uyên thâm, ưa tự do tự tại. Nhâm Thủy vượng cần Mậu Thổ đắp đê ngăn đập để hội tụ công danh.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 26
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "can_chi",
     "ten": "Quý Thủy",
-    "noi_dung_moi": "Âm Thủy, mưa móc sương mai, nhẹ nhàng, sâu lắng, thấm nhuần muôn loài, giàu linh cảm.",
+    "noi_dung_moi": "Âm Thủy, đại diện sương mai mưa nguồn nhu thuận, tính tình trầm tĩnh, nhạy bén trực giác, bao dung độ lượng và mềm dẻo thẩm thấu. Quý Thủy ưa Tân Kim sinh trợ và Bính Hỏa quang minh.",
     "nguon_goc": {
-      "ten_file": "Dự-đóan-theo-tứ-trụ-thiệu-vỹ-hoa-bản-đẹp-pdf-dantocking.com.pdf",
-      "trang": 15
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 27
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "can_chi",
+    "ten": "Tàng Can Trong 12 Địa Chi",
+    "noi_dung_moi": "Địa Chi chứa ẩn Tàng Can biểu trưng cho thiên thời địa lợi: Tý chứa Quý Thủy; Sửu chứa Kỷ (bản khí), Quý, Tân; Dần chứa Giáp (bản khí), Bính, Mậu; Mão chứa Ất; Thìn chứa Mậu, Ất, Quý; Tỵ chứa Bính, Mậu, Canh; Ngọ chứa Đinh, Kỷ; Mùi chứa Kỷ, Đinh, Ất; Thân chứa Canh, Nhâm, Mậu; Dậu chứa Tân; Tuất chứa Mậu, Tân, Đinh; Hợi chứa Nhâm, Giáp.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 28
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cung_vi",
+    "ten": "Nhật Chủ Trong Tứ Trụ",
+    "noi_dung_moi": "Can của Trụ Ngày chính là Nhật Chủ (Nguyên Thần), đại diện cho bản ngã và cốt tủy của sinh mệnh. Bảy chữ còn lại và các tàng can đều xoay quanh Nhật Chủ để xét sự sinh khắc, chế hóa, phù ức, điều hầu.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 31
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Chính Quan",
+    "noi_dung_moi": "Ngũ hành khắc Nhật Chủ khác dấu Âm Dương. Tượng trưng cho quan chức, danh dự, pháp luật, đạo đức, kỷ cương, sự nghiệp chính thống; đối với nữ mệnh là người chồng chính thức. Chính Quan ưa Ấn Tinh hộ vệ và Tài Tinh sinh trợ.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 47
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Thất Sát (Thiên Quan)",
+    "noi_dung_moi": "Ngũ hành khắc Nhật Chủ cùng dấu Âm Dương. Tượng trưng cho quyền uy tối cao, dũng khí, tính quyết đoán mãnh liệt, khó khăn thử thách. Thất Sát cần Thực Thần khắc chế hoặc Ấn Tinh hóa giải để chuyển hung thành đại cát cát tướng phong vương.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 48
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Chính Ấn",
+    "noi_dung_moi": "Ngũ hành sinh Nhật Chủ khác dấu Âm Dương. Tượng trưng cho học vấn, bằng cấp, danh tiếng thanh cao, lòng từ bi, sự chở che của mẹ và quý nhân. Chính Ấn kỵ gặp Tài Tinh phá hoại (Tài phá Ấn).",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 49
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Thiên Ấn (Kiêu Thần)",
+    "noi_dung_moi": "Ngũ hành sinh Nhật Chủ cùng dấu Âm Dương. Tượng trưng cho trí tuệ độc đáo, giác quan thứ sáu, tài năng nghệ thuật khác biệt, y thuật huyền học, tính tình cô độc thâm trầm. Khi gặp Thực Thần dễ sinh Kiêu thần đoạt Thực nên cần Tài Tinh chế ngự.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 50
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Tỷ Kiên",
+    "noi_dung_moi": "Ngũ hành đồng đẳng cùng dấu Âm Dương với Nhật Chủ. Tượng trưng cho lòng tự lập, ý chí kiên định, anh em đồng chí hướng, bạn bè tri kỷ. Thân nhược gặp Tỷ Kiên là đắc lực tương trợ; Thân vượng gặp Tỷ Kiên dễ cố chấp tranh giành.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 51
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Kiếp Tài",
+    "noi_dung_moi": "Ngũ hành đồng đẳng khác dấu Âm Dương với Nhật Chủ. Tượng trưng cho tính cách quyết liệt, cạnh tranh, dám mạo hiểm đột phá, nhiệt tình nhưng dễ tranh đoạt tài lộc, hao tổn của cải nếu thân vượng thiếu chế ngự.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 52
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Thực Thần",
+    "noi_dung_moi": "Ngũ hành Nhật Chủ sinh ra cùng dấu Âm Dương. Là phúc thọ tinh tú, tượng trưng cho ăn mặc sung túc, tính tình hòa nhã, tài năng nghệ thuật, tuổi thọ, con cái đối với nữ mệnh, và năng lực sinh ra tài lộc dồi dào.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 53
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Thương Quan",
+    "noi_dung_moi": "Ngũ hành Nhật Chủ sinh ra khác dấu Âm Dương. Tượng trưng cho tài năng phát tiết kiệt xuất, thông minh sắc sảo, tài hùng biện, thích sáng tạo cải cách. Kỵ nhất gặp Chính Quan trực tiếp tạo thành thế Thương quan kiến Quan vi họa bách đoan.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 54
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Chính Tài",
+    "noi_dung_moi": "Ngũ hành Nhật Chủ khắc phục khác dấu Âm Dương. Tượng trưng cho tài sản tích lũy chính đáng qua lao động, công việc ổn định, đức tính cần kiệm, trách nhiệm; đối với nam mệnh là người vợ hiền chính thức.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 55
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "thap_than",
+    "ten": "Thiên Tài",
+    "noi_dung_moi": "Ngũ hành Nhật Chủ khắc phục cùng dấu Âm Dương. Tượng trưng cho tài lộc dồi dào bất ngờ, cơ hội đầu tư kinh doanh thương mại, của cải ngoại lai, tính tình hào sảng phóng khoáng; đối với nam mệnh là cha và nhân tình.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 56
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cung_vi",
+    "ten": "Ý Nghĩa Cung Vị Trụ Năm",
+    "noi_dung_moi": "Trụ Năm là cội rễ tổ tiên, ông bà, dòng tộc, thời kỳ ấu thơ từ 1 đến 16 tuổi. Can Năm là cội phúc, Chi Năm là gốc rễ gia phong. Trụ Năm tốt đẹp cho thấy xuất thân gia giáo, thừa hưởng âm đức bề trên.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 37
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cung_vi",
+    "ten": "Ý Nghĩa Cung Vị Trụ Tháng (Nguyệt Lệnh)",
+    "noi_dung_moi": "Trụ Tháng đại diện cho cha mẹ, anh em bè bạn, giai đoạn thanh niên lập thân từ 17 đến 32 tuổi. Chi Tháng là Đề Cương Nguyệt Lệnh điều phối khí hậu nóng lạnh toàn cục, nắm giữ then chốt định cách cục và vượng suy của cả lá số.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 38
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cung_vi",
+    "ten": "Ý Nghĩa Cung Vị Trụ Ngày",
+    "noi_dung_moi": "Trụ Ngày là bản thân mệnh chủ (Can Ngày = Nhật Chủ) và Cung Phối Ngẫu (Chi Ngày = Vợ/Chồng). Thời kỳ trung niên rực rỡ từ 33 đến 48 tuổi, quyết định sức khỏe nội tại, bản lĩnh tự chủ và hạnh phúc hôn nhân.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 39
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cung_vi",
+    "ten": "Ý Nghĩa Cung Vị Trụ Giờ",
+    "noi_dung_moi": "Trụ Giờ là Cung Con Cái, hậu duệ kế thừa, sự nghiệp quy túc và giai đoạn hậu vận từ 49 tuổi trở đi. Trụ Giờ đắc khí vững vàng giúp về già an nhàn hưởng phúc, con cháu hiếu thảo thành đạt.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 40
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "dai_van",
+    "ten": "Quy Tắc Tính Đại Vận Tử Bình",
+    "noi_dung_moi": "Đại Vận khởi từ Trụ Tháng: Dương Nam Âm Nữ tính tiến tới (thuận hành); Âm Nam Dương Nữ tính lùi lại (nghịch hành). Số ngày từ ngày sinh đến tiết khí tương ứng chia 3 để tính tuổi khởi vận (3 ngày tương ứng 1 năm tuổi). Mỗi đại vận quản 10 năm.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 58
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Thiên Ất Quý Nhân",
+    "noi_dung_moi": "Vạn thần chi chủ, đệ nhất cát tinh trong Tử Bình. Chủ về gặp hung hóa cát, quý nhân phò trợ, tai qua nạn khỏi, danh hiển quyền quý. Khẩu quyết: Giáp Mậu Canh Ngưu Dương, Ất Kỷ Thử Hầu hương, Bính Đinh Trư Kê vị, Nhâm Quý Thố Xà tàng, Lục Tân phùng Mã Hổ.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 92
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Văn Xương Quý Nhân",
+    "noi_dung_moi": "Chủ về trí tuệ thông minh xuất chúng, học vấn đỗ đạt cao, tài hoa văn chương trác tuyệt, thi cử đỗ đạt vinh hiển. Tra theo Nhật Can: Giáp Tỵ, Ất Ngọ, Bính Mậu Thân, Đinh Kỷ Dậu, Canh Hợi, Tân Tý, Nhâm Dần, Quý Mão.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 95
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Dịch Mã",
+    "noi_dung_moi": "Chủ về sự năng động, di chuyển, đi xa, xuất ngoại, thay đổi vị trí công tác và vận may trên con đường dịch chuyển. Thân Tý Thìn mã tại Dần; Dần Ngọ Tuất mã tại Thân; Tỵ Dậu Sửu mã tại Hợi; Hợi Mão Mùi mã tại Tỵ.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 96
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Hoa Cái",
+    "noi_dung_moi": "Chủ về tính tình thanh cao, cô độc, có năng khiếu nghệ thuật bẩm sinh, duyên nợ triết lý tôn giáo, nghiên cứu huyền học tinh thông. Thân Tý Thìn kiến Thìn; Dần Ngọ Tuất kiến Tuất; Tỵ Dậu Sửu kiến Sửu; Hợi Mão Mùi kiến Mùi.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 97
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Đào Hoa (Hàm Trì)",
+    "noi_dung_moi": "Chủ về sự quyến rũ, phong lưu tình ái, nhân duyên xã hội rộng mở, năng khiếu cảm thụ nghệ thuật thẩm mỹ. Thân Tý Thìn kiến Dậu; Dần Ngọ Tuất kiến Mão; Tỵ Dậu Sửu kiến Ngọ; Hợi Mão Mùi kiến Tý.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 98
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Lộc Thần (Lộc Vị)",
+    "noi_dung_moi": "Chủ về bổng lộc triều đình, tài chính vững vàng, cơm no áo ấm, bình an phát đạt. Giáp tại Dần, Ất tại Mão, Bính Mậu tại Tỵ, Đinh Kỷ tại Ngọ, Canh tại Thân, Tân tại Dậu, Nhâm tại Hợi, Quý tại Tý.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 99
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "than_sat",
+    "ten": "Kình Dương (Dương Nhận)",
+    "noi_dung_moi": "Thần sát dũng mãnh quả cảm, tượng trưng như gươm bén. Nếu đắc dụng và có Quan Sát ước thúc sẽ lập đại công nghiệp hiển hách; nếu quá vượng mà vô chế thì dễ sinh nóng nảy tranh đoạt tổn thương.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 100
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "can_chi",
+    "ten": "Địa Chi Không Vong (Tuần Không)",
+    "noi_dung_moi": "Trong chu kỳ 60 Hoa Giáp, 10 Thiên Can phối cùng 12 Địa Chi dư ra 2 Chi gọi là Không Vong (Tuần Không). Trụ nào rơi vào Không Vong thì năng lực cát hung của trụ đó bị suy giảm hoặc hư hao, cần phùng Xung hoặc Hợp để phá Không.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 86
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "cach_cuc",
+    "ten": "Định Cách Cục Bát Tự",
+    "noi_dung_moi": "Cách Cục lấy Tàng Can của Lệnh Tháng thấu xuất lên Thiên Can làm chủ yếu: Thấu Chính Quan thành Chính Quan cách; Thấu Thất Sát thành Thất Sát cách; Thấu Ấn thành Chính Ấn/Thiên Ấn cách; Thấu Tài thành Tài cách; Thấu Thực Thương thành Thực Thần/Thương Quan cách. Nếu không thấu thì lấy Bản Khí của Chi Tháng. Nếu Chi tháng là Lộc của Can ngày gọi là Kiến Lộc cách; là Kình Dương gọi là Dương Nhận cách.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 108
     },
     "do_tin_cay": 0.98
   },
   {
     "loai": "dung_than",
-    "ten": "Dụng Thần Phù Ức",
-    "noi_dung_moi": "Quy tắc ức cường phù nhược: Nhật can quá yếu thì dùng Ấn Tỷ phò trợ; Nhật can quá vượng thì dùng Quan Sát, Thực Thương, Tài tinh để khắc chế tiết bớt.",
+    "ten": "Thẩm Định Thân Vượng Nhược Tử Bình",
+    "noi_dung_moi": "Tử Bình đánh giá Thân Vượng/Nhược dựa trên 3 tiêu chuẩn cốt lõi (tuyệt đối không dùng điểm số tự chế): 1. Đắc Lệnh: Chi Tháng tàng can mang Tỷ Kiên, Kiếp Tài hoặc Chính Ấn, Thiên Ấn trợ Thân (phải nêu đích danh tàng can, cấm suy diễn chung chung theo Ngũ Hành tương sinh); 2. Đắc Địa: Nhật Chủ có gốc rễ thông căn cùng hành (tàng Tỷ Kiên hoặc Kiếp Tài) tại các Địa Chi (chỉ rõ Chi nào, can nào; tuyệt đối cấm tính Ấn vào Đắc Địa); 3. Đắc Thế: Các Thiên Can lộ (Năm, Tháng, Giờ) mang Tỷ Kiên, Kiếp Tài, Chính Ấn, Thiên Ấn trợ Thân (chỉ tính đúng 4 thần trợ Thân này; các Can thuộc phe tiết/khắc Thân như Tài, Quan, Thương/Thực tuyệt đối không tính vào Đắc Thế).",
     "nguon_goc": {
       "ten_file": "Du Bao Theo Tu Binh.pdf",
-      "trang": 80
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 134
     },
-    "do_tin_cay": 0.97
+    "do_tin_cay": 0.98
   },
   {
     "loai": "dung_than",
-    "ten": "Dụng Thần Điều Hậu",
-    "noi_dung_moi": "Cân bằng hàn nhiệt: Sinh mùa đông giá lạnh cần Hỏa ấm sưởi ấm; Sinh mùa hè nắng cháy cần Thủy mát tưới nhuần.",
+    "ten": "Phù Ức Dụng Thần",
+    "noi_dung_moi": "Quy tắc trung hòa bổ khuyết cốt lõi: Thân Nhược cần Phù trợ (Dụng thần là Ấn Tinh sinh Thân hoặc Tỷ Kiếp trợ Thân); Thân Vượng cần Ức chế hoặc Tiết hao (Dụng thần là Quan Sát chế ngự, Thực Thương tiết tú sinh tài, hoặc Tài Tinh tiêu hao lực).",
     "nguon_goc": {
       "ten_file": "Du Bao Theo Tu Binh.pdf",
-      "trang": 80
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 135
     },
-    "do_tin_cay": 0.97
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "dieu_hau",
+    "ten": "Điều Hầu Dụng Thần",
+    "noi_dung_moi": "Nguyên lý khí tiết thiên nhiên: Người sinh mùa Đông (tháng Hợi, Tý, Sửu) khí hàn thủy lạnh đất đóng băng, tối cần HỎA (Bính, Đinh) để sưởi ấm giải hàn phát sinh vạn vật. Người sinh mùa Hè (tháng Tỵ, Ngọ, Mùi) khí hỏa viêm nhiệt đất khô cằn, tối cần THỦY (Nhâm, Quý) để tưới tắm dưỡng nhuận. Thiếu Điều Hầu thì dù cách cục đẹp cũng gian nan trắc trở.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 151
+    },
+    "do_tin_cay": 0.98
   },
   {
     "loai": "dung_than",
-    "ten": "Dụng Thần Thông Quan",
-    "noi_dung_moi": "Hòa giải xung khắc: Hai hành tương khắc mạnh mẽ (như Mộc khắc Thổ) thì dùng Hỏa làm trung gian thông suốt (Mộc sinh Hỏa, Hỏa sinh Thổ).",
+    "ten": "Thông Quan Dụng Thần",
+    "noi_dung_moi": "Khi trong Bát Tự có 2 ngũ hành đối kháng kịch liệt (như Kim khắc Mộc gay gắt), cần dùng hành trung gian làm cầu nối Thông Quan (Kim sinh Thủy, Thủy sinh Mộc; lấy Thủy làm Dụng Thần Thông Quan hóa giải chiến tranh). Thủy Hỏa đối đầu dùng Mộc; Hỏa Kim chiến đấu dùng Thổ.",
     "nguon_goc": {
       "ten_file": "Du Bao Theo Tu Binh.pdf",
-      "trang": 80
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 140
     },
-    "do_tin_cay": 0.97
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "phong_thuy",
+    "ten": "Ứng Dụng Cải Mệnh Theo Dụng Thần",
+    "noi_dung_moi": "Dụng Thần là phương tiện điều chỉnh hướng trung hòa hung cát. Sách Trần Khang Ninh chỉ rõ: Dụng Thần Hỏa ứng màu đỏ tím, số may mắn 2, 7, hướng Nam; Dụng Thần Thủy ứng màu đen xanh dương, số 1, 6, hướng Bắc; Dụng Thần Mộc ứng màu xanh lục, số 3, 8, hướng Đông; Dụng Thần Kim ứng màu trắng bạc xám, số 4, 9, hướng Tây; Dụng Thần Thổ ứng màu vàng nâu, số 5, 0, hướng Trung ương.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 134
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "luan_doan",
+    "ten": "Luận Đoán Phú Quý Sang Hèn",
+    "noi_dung_moi": "Phú quý dựa trên sự hữu lực của Dụng Thần và Cách Cục: Tài Quan đắc địa, Ấn Thụ tương sinh thì phú quý song toàn. Thân vượng đắc Thực Thương sinh Tài là phú ông cự thương; Thân vượng đắc Quan Sát hữu chế là quan cao chức trọng hiển vinh hiển hách.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 181
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "luan_doan",
+    "ten": "Luận Đoán Hôn Nhân Lứa Đôi",
+    "noi_dung_moi": "Xem Cung Phu Thê (Chi Ngày) và Tài Tinh (nam) hoặc Quan Sát (nữ). Chi Ngày tương sinh hòa hợp với Can Ngày thì vợ chồng ân ái, đồng tâm hiệp lực. Chi Ngày bị xung phá, hình hại thì hôn nhân dễ trắc trở cần nhẫn nại thấu hiểu để hóa giải.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 218
+    },
+    "do_tin_cay": 0.98
+  },
+  {
+    "loai": "luan_doan",
+    "ten": "Ngũ Hành Hỷ Dụng Thần Với Nghề Nghiệp",
+    "noi_dung_moi": "Hỷ Dụng Thần Mộc hợp giáo dục, nông lâm, xuất bản; Hỏa hợp năng lượng, điện tử, truyền thông, nghệ thuật; Thổ hợp bất động sản, xây dựng, bảo hiểm; Kim hợp tài chính, ngân hàng, cơ khí, luật; Thủy hợp logistics, thương mại, du lịch, viễn thông.",
+    "nguon_goc": {
+      "ten_file": "Du Bao Theo Tu Binh.pdf",
+      "tac_gia": "Trần Khang Ninh",
+      "trang": 206
+    },
+    "do_tin_cay": 0.98
   }
 ]

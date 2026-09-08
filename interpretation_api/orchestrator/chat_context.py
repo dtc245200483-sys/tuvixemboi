@@ -35,10 +35,12 @@ def _to_uuid(val: Any) -> Any:
 def lay_lich_su_chat(
     user_id: Union[str, uuid.UUID],
     so_luong_gan_nhat: int = 5,
+    session_id: Optional[Union[str, uuid.UUID]] = None,
     db: Optional[Session] = None
 ) -> List[Dict[str, Any]]:
     """
     Lấy N tin nhắn gần nhất của người dùng từ ChatHistory.
+    Nếu có session_id, cô lập chỉ lấy lịch sử thuộc phiên trò chuyện đó.
     Sắp xếp theo trình tự thời gian tự nhiên (để truyền vào prompt).
     """
     if not db or not user_id:
@@ -46,10 +48,13 @@ def lay_lich_su_chat(
 
     try:
         uid = _to_uuid(user_id)
+        query = db.query(ChatHistory).filter(ChatHistory.user_id == uid)
+        if session_id:
+            sid = _to_uuid(session_id)
+            query = query.filter(ChatHistory.session_id == sid)
+
         records = (
-            db.query(ChatHistory)
-            .filter(ChatHistory.user_id == uid)
-            .order_by(desc(ChatHistory.created_at))
+            query.order_by(desc(ChatHistory.created_at))
             .limit(so_luong_gan_nhat)
             .all()
         )
@@ -63,6 +68,7 @@ def lay_lich_su_chat(
                 "content": r.cau_hoi,
                 "he_thong": r.he_thong,
                 "reference_id": str(r.reference_id) if r.reference_id else None,
+                "session_id": str(r.session_id) if r.session_id else None,
                 "created_at": r.created_at
             })
             history.append({
@@ -70,6 +76,7 @@ def lay_lich_su_chat(
                 "content": r.tra_loi,
                 "he_thong": r.he_thong,
                 "reference_id": str(r.reference_id) if r.reference_id else None,
+                "session_id": str(r.session_id) if r.session_id else None,
                 "created_at": r.created_at
             })
         return history
@@ -84,10 +91,12 @@ def luu_lich_su_chat(
     cau_hoi: str,
     tra_loi: str,
     reference_id: Optional[Union[str, uuid.UUID]] = None,
+    session_id: Optional[Union[str, uuid.UUID]] = None,
     db: Optional[Session] = None
 ) -> Optional[ChatHistory]:
     """
     Lưu lại cuộc trao đổi vào bảng ChatHistory sau khi luận giải thành công.
+    Hỗ trợ liên kết session_id cho từng cuộc trò chuyện độc lập.
     """
     if not db or not user_id:
         return None
@@ -95,10 +104,12 @@ def luu_lich_su_chat(
     try:
         uid = _to_uuid(user_id)
         ref_id = _to_uuid(reference_id) if reference_id else None
-        
+        s_id = _to_uuid(session_id) if session_id else None
+
         entry = ChatHistory(
             id=uuid.uuid4(),
             user_id=uid,
+            session_id=s_id,
             he_thong=he_thong,
             cau_hoi=cau_hoi,
             tra_loi=tra_loi,

@@ -10,7 +10,21 @@ Tất cả các phép tính toán học, an sao, độ sáng Miếu Vượng Đ�
 Cung Thân, Can Cung, Tứ Hóa, Tuần Triệt, Đại Vận, Tiểu Hạn hoàn toàn chính xác.
 """
 
+import os
+import sys
+import json
+import subprocess
+import logging
+from datetime import datetime, date
 from typing import Dict, List, Any, Tuple
+
+logger = logging.getLogger(__name__)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+CALCULATOR_JS = os.path.join(CURRENT_DIR, "iztro_calculator.js")
+BRANCH_INDEX_MAP = {
+    'Tý': 0, 'Sửu': 1, 'Dần': 2, 'Mão': 3, 'Thìn': 4, 'Tỵ': 5,
+    'Ngọ': 6, 'Mùi': 7, 'Thân': 8, 'Dậu': 9, 'Tuất': 10, 'Hợi': 11
+}
 from astro_engine.tu_vi.constants.cung import (
     CUNG_CHUC_NANG,
     CUNG_DIA_CHI,
@@ -517,200 +531,200 @@ def tinh_tieu_han(gioi_tinh: str, chi_nam_idx: int) -> Dict[int, str]:
 
 
 def lap_la_so(
-    ngay_sinh_am: int,
-    thang_sinh_am: int,
-    nam_sinh_am: int,
-    gio_sinh_chi: str,
-    gioi_tinh: str
+    ngay_sinh_am: int = None,
+    thang_sinh_am: int = None,
+    nam_sinh_am: int = None,
+    gio_sinh_chi: str = None,
+    gioi_tinh: str = "nam",
+    ho_ten: str = "",
+    ngay_sinh_duong = None,
+    gio_sinh: int = 12,
+    phut_sinh: int = 0,
+    calendar: str = None,
+    view_year: int = None,
+    view_month: int = None,
+    **kwargs
 ) -> Dict[str, Any]:
     """
-    Lập toàn diện Lá Số Tử Vi Đẩu Số Kinh Điển (108+ Sao).
-    Bao gồm đầy đủ thông tin:
-    - Cung Mệnh & Cung Thân (Thân cư...).
-    - Can Chi năm sinh & Can Chi 12 Cung (Ngũ Hổ Độn).
-    - Cục số & Ngũ Hành Nạp Âm.
-    - 14 Chính Tinh kèm độ sáng Miếu/Vượng/Đắc/Hãm (M, V, Đ, B, H).
-    - Đầy đủ Vòng Thái Tuế, Vòng Bác Sĩ, Vòng Tràng Sinh, Tứ Hóa, Tuần Triệt và toàn bộ Phụ Tinh.
-    - Phân tách rành mạch Cát Tinh và Sát Tinh trên từng cung.
-    - Đại Vận (tuổi bắt đầu) và Tiểu Hạn tại từng cung.
-    - Mệnh Chủ & Thân Chủ.
+    Lập toàn diện Lá Số Tử Vi Đẩu Số chuẩn xác tuyệt đối qua engine Iztro & Nam Phái tuvi.vn.
+    Hỗ trợ đầy đủ: 14 Chính Tinh đắc hãm, Tuần Triệt, Lưu Niên, Nạp Âm 60 Hoa Giáp,
+    Cân lượng chỉ (Cân xương tính số), Tứ Hóa, Tam Hợp, Xung Chiếu.
     """
-    # 1. Xác định Can Chi năm sinh
-    can_nam = CAN_LIST[(nam_sinh_am + 6) % 10]
-    chi_nam = CUNG_DIA_CHI[(nam_sinh_am + 8) % 12]
-    nam_can_chi = f"{can_nam} {chi_nam}"
-    can_nam_idx = CAN_TO_IDX[can_nam]
-    chi_nam_idx = CHI_TO_IDX[chi_nam]
-
-    # 2. Ngũ hành nạp âm của năm sinh
-    nap_am_nam = tinh_ngu_hanh_nap_am(nam_can_chi)
-
-    # 3. Xác định vị trí cung Mệnh và Cung Thân
-    cung_menh_pos = xac_dinh_cung_menh(thang_sinh_am, gio_sinh_chi)
-    cung_than_pos = xac_dinh_cung_than(thang_sinh_am, gio_sinh_chi)
-
-    # 4. An 12 cung chức năng
-    info_12_cung = an_12_cung(cung_menh_pos)
-
-    # 5. Xác định Cung Thân cư ở cung nào
-    chuc_nang_cung_than = info_12_cung["dia_chi_to_chuc_nang"][cung_than_pos]
-    than_cu_str = f"Thân cư {chuc_nang_cung_than}"
-
-    # 6. Tính Thiên Can cho 12 cung
-    can_12_cung = tinh_can_12_cung(can_nam_idx)
-
-    # 7. Xác định Cục
-    cuc_data = xac_dinh_cuc(nam_can_chi, cung_menh_pos)
-    cuc_so = cuc_data["so_cuc"]
-
-    # 8. An sao Tử Vi & 14 Chính Tinh
-    tu_vi_pos = an_sao_tu_vi(cuc_data, ngay_sinh_am)
-    chinh_tinh_pos = an_14_chinh_tinh(tu_vi_pos)
-
-    # 9. An Tuần Không & Triệt Không
-    tuan_pos, triet_pos = an_tuan_triet(can_nam_idx, chi_nam_idx)
-
-    # 10. An toàn bộ các sao còn lại (Thái Tuế, Bác Sĩ, Tràng Sinh, Tứ Hóa, Phụ Tinh)
-    sao_result = an_toan_bo_sao(
-        ngay_sinh_am=ngay_sinh_am,
-        thang_sinh_am=thang_sinh_am,
-        gio_sinh_chi=gio_sinh_chi,
-        nam_sinh_can_chi=nam_can_chi,
-        gioi_tinh=gioi_tinh,
-        cuc_so=cuc_so,
-        chinh_tinh_pos=chinh_tinh_pos,
-        cung_menh_pos=cung_menh_pos
-    )
-    sao_positions = sao_result["sao_positions"]
-    hoa_map = sao_result["hoa_map"]
-
-    # 11. Tính Đại Vận & Tiểu Hạn
-    dai_van = tinh_dai_van(cuc_data, gioi_tinh, cung_menh_pos, nam_can_chi)
-    dai_van_by_cung = {dv["cung_vi_tri"]: dv["tuoi_bat_dau"] for dv in dai_van}
-    tieu_han_by_cung = tinh_tieu_han(gioi_tinh, chi_nam_idx)
-
-    # 12. Mệnh Chủ & Thân Chủ
-    menh_chu = MENH_CHU_MAP.get(CUNG_DIA_CHI[cung_menh_pos], "Tử Vi")
-    than_chu = THAN_CHU_MAP.get(chi_nam, "Hỏa Tinh")
-
-    # 13. Gom và phân loại sao cho từng cung Địa Chi (0-11)
-    chinh_tinh_theo_cung: Dict[int, List[Dict[str, Any]]] = {i: [] for i in range(12)}
-    cat_tinh_theo_cung: Dict[int, List[Dict[str, Any]]] = {i: [] for i in range(12)}
-    sat_tinh_theo_cung: Dict[int, List[Dict[str, Any]]] = {i: [] for i in range(12)}
-    all_sao_theo_cung: Dict[int, List[Dict[str, Any]]] = {i: [] for i in range(12)}
-
-    # A. Phân bổ 14 Chính Tinh
-    for star in CHINH_TINH:
-        ten = star["ten"]
-        if ten in chinh_tinh_pos:
-            pos = chinh_tinh_pos[ten]
-            dac_ham = CHINH_TINH_DAC_HAM.get(ten, {}).get(pos, "B")
-            hoa = hoa_map.get(ten)
-            star_dict = {
-                "ten": ten,
-                "loai": "chinh_tinh",
-                "ngu_hanh": star["ngu_hanh"],
-                "dac_ham": dac_ham,
-                "hoa": hoa,
-                "chuc_nang": star["chuc_nang"]
-            }
-            chinh_tinh_theo_cung[pos].append(star_dict)
-            all_sao_theo_cung[pos].append(star_dict)
-
-    # B. Phân bổ Phụ Tinh, Vòng Thái Tuế, Bác Sĩ, Tràng Sinh, Tứ Hóa
-    # Danh mục tra cứu nhanh thuộc tính
-    all_star_meta = {}
-    for s in VONG_THAI_TUE:
-        all_star_meta[s["ten"]] = s
-    for s in VONG_BAC_SI:
-        all_star_meta[s["ten"]] = s
-    for s in VONG_TRANG_SINH:
-        all_star_meta[s["ten"]] = s
-    for k, v in PHU_TINH_CHI_TIET.items():
-        all_star_meta[k] = {"ten": k, **v}
-    for k, v in TU_HOA_INFO.items():
-        all_star_meta[k] = {"ten": k, **v}
-
-    for star_name, pos in sao_positions.items():
-        meta = all_star_meta.get(star_name, {"loai": "cat_tinh", "ngu_hanh": "Thổ", "y_nghia": ""})
-        loai = meta.get("loai", "cat_tinh")
-        ngu_hanh = meta.get("ngu_hanh", "Thổ")
-        y_nghia = meta.get("y_nghia", "")
-        hoa = hoa_map.get(star_name)
-
-        # Tính độ sáng cho sát tinh nếu có
-        dac_ham = ""
-        if star_name in SAT_TINH_DAC_HAM:
-            dac_ham = SAT_TINH_DAC_HAM[star_name].get(pos, "H")
-
-        star_obj = {
-            "ten": star_name,
-            "loai": loai,
-            "ngu_hanh": ngu_hanh,
-            "dac_ham": dac_ham,
-            "hoa": hoa,
-            "y_nghia": y_nghia
-        }
-        all_sao_theo_cung[pos].append(star_obj)
-
-        if loai in ["sat_tinh", "bai_tinh"]:
-            sat_tinh_theo_cung[pos].append(star_obj)
+    # 1. Chuẩn hóa ngày tháng năm sinh & lịch
+    if ngay_sinh_duong is not None:
+        if hasattr(ngay_sinh_duong, "year"):
+            year = ngay_sinh_duong.year
+            month = ngay_sinh_duong.month
+            day = ngay_sinh_duong.day
         else:
-            cat_tinh_theo_cung[pos].append(star_obj)
+            parts = str(ngay_sinh_duong).split("-")
+            year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
+        cal = "solar" if calendar is None else calendar
+    else:
+        year = nam_sinh_am or 1990
+        month = thang_sinh_am or 1
+        day = ngay_sinh_am or 1
+        cal = "lunar" if calendar is None else calendar
 
-    # 14. Đóng gói danh sách 12 cung chi tiết
+    # Giờ & Phút sinh
+    if gio_sinh_chi and gio_sinh_chi in CHI_TO_IDX:
+        time_index = CHI_TO_IDX[gio_sinh_chi]
+        hour = time_index * 2
+        minute = 0
+    else:
+        hour = gio_sinh if gio_sinh is not None else 12
+        minute = phut_sinh if phut_sinh is not None else 0
+        time_index = int(((hour + 1) % 24) // 2)
+
+    g_str = "nam" if str(gioi_tinh).lower() in ["nam", "male", "m", "true"] else "nu"
+    name = ho_ten or kwargs.get("name", "Mệnh Chủ")
+
+    v_year = view_year or datetime.now().year
+    v_month = view_month or 7
+
+    params = {
+        "name": name,
+        "year": year,
+        "month": month,
+        "day": day,
+        "hour": hour,
+        "min": minute,
+        "timeIndex": time_index,
+        "gender": g_str,
+        "calendar": cal,
+        "viewYear": v_year,
+        "viewMonth": v_month
+    }
+
+    # 2. Thực thi qua Node.js iztro_calculator
+    try:
+        proc = subprocess.run(
+            ["node", CALCULATOR_JS],
+            input=json.dumps(params, ensure_ascii=False),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            cwd=CURRENT_DIR,
+            timeout=10
+        )
+        if proc.returncode != 0:
+            raise RuntimeError(f"iztro_calculator lỗi (code {proc.returncode}): {proc.stderr}")
+        res = json.loads(proc.stdout)
+    except Exception as e:
+        logger.error(f"Lỗi khi chạy iztro_calculator: {e}")
+        raise
+
+    # 3. Trích xuất và cấu trúc dữ liệu tương thích
+    data = res.get("data", {})
+    palaces = res.get("palaces") or data.get("palaces", [])
+
+    menh_palace = next((p for p in palaces if "Mệnh" in p.get("name", "")), palaces[0] if palaces else {})
+    than_palace = next((p for p in palaces if p.get("isBodyPalace")), menh_palace)
+
+    cung_menh_pos = BRANCH_INDEX_MAP.get(menh_palace.get("earthlyBranch"), 0)
+    cung_than_pos = BRANCH_INDEX_MAP.get(than_palace.get("earthlyBranch"), 0)
+
     cac_cung = []
-    for pos in range(12):
-        chuc_nang = info_12_cung["dia_chi_to_chuc_nang"][pos]
-        can_cung = can_12_cung[pos]
-        chi_cung = CUNG_DIA_CHI[pos]
+    for p in palaces:
+        branch = p.get("earthlyBranch", "")
+        b_idx = BRANCH_INDEX_MAP.get(branch, 0)
+        chuc_nang = p.get("name", "")
+        can = p.get("heavenlyStem", "")
+
+        chinh_tinh = [{
+            "ten": s["name"],
+            "dac_ham": s.get("brightness", ""),
+            "hoa": s.get("mutagen", ""),
+            "loai": "chinh_tinh"
+        } for s in p.get("majorStars", [])]
+
+        cat_tinh = [{
+            "ten": s["name"],
+            "dac_ham": s.get("brightness", ""),
+            "hoa": s.get("mutagen", ""),
+            "loai": "cat_tinh"
+        } for s in p.get("goodStars", [])]
+
+        sat_tinh = [{
+            "ten": s["name"],
+            "dac_ham": s.get("brightness", ""),
+            "hoa": s.get("mutagen", ""),
+            "loai": "sat_tinh"
+        } for s in p.get("badStars", [])]
+
         cac_cung.append({
-            "vi_tri_dia_chi": pos,
-            "ten_dia_chi": chi_cung,
-            "can_cung": can_cung,
-            "can_chi_cung": f"{can_cung} {chi_cung}",
+            "vi_tri_dia_chi": b_idx,
+            "ten_dia_chi": branch,
+            "can_cung": can,
+            "can_chi_cung": f"{can} {branch}",
             "ten_cung_chuc_nang": chuc_nang,
-            "la_cung_than": (pos == cung_than_pos),
-            "co_tuan": (pos in tuan_pos),
-            "co_triet": (pos in triet_pos),
-            "dai_van_tuoi": dai_van_by_cung.get(pos, cuc_so),
-            "tieu_han_chi": tieu_han_by_cung.get(pos, ""),
-            "chinh_tinh": chinh_tinh_theo_cung[pos],
-            "cat_tinh": cat_tinh_theo_cung[pos],
-            "sat_tinh": sat_tinh_theo_cung[pos],
-            "danh_sach_sao": all_sao_theo_cung[pos]
+            "la_cung_than": p.get("isBodyPalace", False),
+            "co_tuan": p.get("hasTuan", False),
+            "co_triet": p.get("hasTriet", False),
+            "dai_van_tuoi": p.get("decadal", {}).get("range", [0])[0] if p.get("decadal") else b_idx * 10 + 5,
+            "tieu_han_chi": "",
+            "chinh_tinh": chinh_tinh,
+            "cat_tinh": cat_tinh,
+            "sat_tinh": sat_tinh,
+            "danh_sach_sao": chinh_tinh + cat_tinh + sat_tinh
         })
 
-    is_duong_nam = CAN_TO_IDX[can_nam] % 2 == 0
-    gioi_tinh_clean = gioi_tinh.strip().lower()
-    is_nam = gioi_tinh_clean in ["nam", "male", "m"]
-    chieu_dai_van = "Thuận" if ((is_duong_nam and is_nam) or (not is_duong_nam and not is_nam)) else "Nghịch"
+    cac_cung.sort(key=lambda c: c["vi_tri_dia_chi"])
 
-    return {
+    CUC_NUM = {'Nhị': 2, 'Tam': 3, 'Tứ': 4, 'Ngũ': 5, 'Lục': 6, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6}
+    cuc_str = str(data.get("cuc_cua_tuoi", ""))
+    so_cuc = 3
+    for k, v in CUC_NUM.items():
+        if k in cuc_str:
+            so_cuc = v
+            break
+
+    chinh_tinh_vi_tri = {}
+    for p in palaces:
+        b_idx = BRANCH_INDEX_MAP.get(p.get("earthlyBranch", ""), 0)
+        for s in p.get("majorStars", []):
+            chinh_tinh_vi_tri[s["name"]] = b_idx
+
+    cuc_obj = {
+        "ten": data.get("cuc_cua_tuoi"),
+        "cuc_so": so_cuc,
+        "so_cuc": so_cuc,
+        "can_chi_cung_menh": f"{menh_palace.get('heavenlyStem')} {menh_palace.get('earthlyBranch')}",
+        "nap_am_cung_menh": NAP_AM_60_HOA_GIAP.get(f"{menh_palace.get('heavenlyStem')} {menh_palace.get('earthlyBranch')}", "")
+    }
+
+    can_chi_nam_str = data.get("can_chi_tuoi") or ""
+    dai_van = tinh_dai_van(cuc_obj, g_str, cung_menh_pos, can_chi_nam_str)
+
+    result = {
+        **res,  # code, msg, success, data, palaces, overlay, v.v.
         "thong_tin_co_ban": {
-            "ngay_am": ngay_sinh_am,
-            "thang_am": thang_sinh_am,
-            "nam_am": nam_sinh_am,
-            "can_chi_nam": nam_can_chi,
-            "gio_sinh": gio_sinh_chi,
-            "gioi_tinh": gioi_tinh,
-            "am_duong_nam_nu": f"{'Dương' if is_duong_nam else 'Âm'} {'Nam' if is_nam else 'Nữ'}"
+            "ho_ten": name,
+            "ngay_am": data.get("day"),
+            "thang_am": data.get("month"),
+            "nam_am": data.get("year"),
+            "can_chi_nam": data.get("can_chi_tuoi"),
+            "gio_sinh": f"{hour:02d}:{minute:02d}",
+            "gioi_tinh": "Nam" if g_str == "nam" else "Nữ",
+            "am_duong_nam_nu": data.get("am_duong_ban_menh")
         },
         "cung_menh_vi_tri": cung_menh_pos,
-        "ten_cung_menh": CUNG_DIA_CHI[cung_menh_pos],
+        "ten_cung_menh": menh_palace.get("earthlyBranch"),
         "cung_than_vi_tri": cung_than_pos,
-        "ten_cung_than": CUNG_DIA_CHI[cung_than_pos],
-        "than_cu": than_cu_str,
-        "menh_chu": menh_chu,
-        "than_chu": than_chu,
-        "chieu_dai_van": chieu_dai_van,
-        "cuc": cuc_data,
-        "ngu_hanh_nap_am": nap_am_nam,
-        "tuan_khong_vi_tri": tuan_pos,
-        "triet_khong_vi_tri": triet_pos,
-        "cac_cung": cac_cung,
-        "cac_sao_theo_cung": all_sao_theo_cung,
-        "chinh_tinh_vi_tri": chinh_tinh_pos,
-        "phu_tinh_vi_tri": sao_positions,
-        "dai_van": dai_van
+        "ten_cung_than": than_palace.get("earthlyBranch"),
+        "than_cu": f"Thân cư {than_palace.get('name')}",
+        "menh_chu": data.get("menh_chu"),
+        "than_chu": data.get("than_chu"),
+        "chieu_dai_van": "Thuận" if "Thuận" in data.get("am_duong_ban_menh", "") else "Nghịch",
+        "cuc": cuc_obj,
+        "dai_van": dai_van,
+        "chinh_tinh_vi_tri": chinh_tinh_vi_tri,
+        "tuan_khong_vi_tri": [BRANCH_INDEX_MAP.get(p.get("earthlyBranch")) for p in palaces if p.get("hasTuan")],
+        "triet_khong_vi_tri": [BRANCH_INDEX_MAP.get(p.get("earthlyBranch")) for p in palaces if p.get("hasTriet")],
+        "ngu_hanh_nap_am": data.get("loai_hanh_cua_ban_menh"),
+        "can_luong": data.get("can_luong"),
+        "cac_cung": cac_cung
     }
+
+    return result
+

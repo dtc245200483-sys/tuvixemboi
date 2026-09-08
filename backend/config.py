@@ -40,9 +40,12 @@ class Settings(BaseSettings):
 
     # 2. AI Module & Vector Store
     ai_api_key: str = Field("", description="API Key cho dịch vụ AI bên ngoài (Gemini, OpenAI)")
-    ai_provider: str = Field("gemini", description="Nhà cung cấp dịch vụ AI")
+    ai_provider: str = Field("freellmapi", description="Nhà cung cấp dịch vụ AI (freellmapi, gemini, deepseek)")
     vector_db_path: str = Field("./knowledge_base/vector_store", description="Đường dẫn lưu trữ ChromaDB vector store")
     content_safety_api_key: str = Field("", description="API Key kiểm duyệt an toàn nội dung")
+    freellm_db_path: str = Field(r"D:\AI github\freellmapi\server\data\freeapi.db", description="Đường dẫn đến file SQLite chứa API keys của FreeLLMAPI")
+    freellm_encryption_key: str = Field("2ac1f647a1367841a052fa585f31800b66189d3af5a48e0befd7301a9265da48", description="Khóa giải mã AES-GCM cho database FreeLLMAPI")
+    freellm_model: str = Field("openai/gpt-oss-120b", description="Model AI sử dụng cho FreeLLMProvider")
 
     # 3. Giám sát & Môi trường
     sentry_dsn: str = Field("", description="Sentry DSN ghi nhận crash log")

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Bộ 12 Test Cases Tích Hợp Toàn Luồng cho API Orchestration Layer (backend/api/):
 1. Đăng ký -> đăng nhập -> tạo BirthProfile -> xác nhận trả về đúng APIResponse với ngày âm lịch đã tính.
@@ -509,3 +509,70 @@ def test_12_cors_policy():
     resp_get = client.get("/health", headers={"Origin": "http://localhost:5173"})
     assert resp_get.status_code == 200
     assert resp_get.headers.get("access-control-allow-origin") == "http://localhost:5173"
+
+
+# ==============================================================================
+# TEST 13: ENDPOINT LUẬN GIẢI THEO CHỦ ĐỀ GỢI Ý (GET /tu-vi/{id}/topic)
+# ==============================================================================
+def test_13_tu_vi_topic_endpoint(authenticated_client):
+    headers = authenticated_client
+    profile_id = _get_or_create_profile_id(headers)
+
+    mock_topic_ai = AIResponse(
+        text=json.dumps({
+            "chu_de": "Công danh sự nghiệp",
+            "noi_dung": "Cung Quan Lộc sáng sủa, có tiềm năng phát triển vững vàng.",
+            "muc_do_tin_cay": 0.90
+        }, ensure_ascii=False),
+        provider="freellmapi",
+        tokens_used=120,
+        thoi_gian_xu_ly_ms=80,
+        thanh_cong=True,
+        loi_neu_co=None,
+        bi_cat_ngang=False
+    )
+
+    with patch("ai_module.client.AIClient.goi_ai_voi_retry", return_value=mock_topic_ai):
+        resp = client.get(f"/tu-vi/{profile_id}/topic?topic=cong_danh", headers=headers)
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["thanh_cong"] is True
+    assert data["du_lieu"]["topic"] == "cong_danh"
+    assert data["du_lieu"]["tieu_de"] == "Công danh sự nghiệp"
+    assert "Cung Quan Lộc" in data["du_lieu"]["luan_giai"]["cau_tra_loi"]["noi_dung"]
+
+
+# ==============================================================================
+# TEST 14: ENDPOINT HỎI ĐÁP AI THEO LÁ SỐ (POST /tu-vi/{id}/chat)
+# ==============================================================================
+def test_14_tu_vi_chat_endpoint(authenticated_client):
+    headers = authenticated_client
+    profile_id = _get_or_create_profile_id(headers)
+
+    mock_chat_ai = AIResponse(
+        text=json.dumps({
+            "chu_de": "hoi_dap_tu_vi",
+            "noi_dung": "Dựa trên cung Mệnh có Tử Vi, bạn là người độc lập, tự chủ và có tư duy quản lý tốt.",
+            "muc_do_tin_cay": 0.90
+        }, ensure_ascii=False),
+        provider="freellmapi",
+        tokens_used=150,
+        thoi_gian_xu_ly_ms=100,
+        thanh_cong=True,
+        loi_neu_co=None,
+        bi_cat_ngang=False
+    )
+
+    with patch("ai_module.client.AIClient.goi_ai_voi_retry", return_value=mock_chat_ai):
+        resp = client.post(
+            f"/tu-vi/{profile_id}/chat",
+            json={"cau_hoi": "Tôi có hợp làm quản lý không?"},
+            headers=headers
+        )
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["thanh_cong"] is True
+    assert "Tử Vi" in data["du_lieu"]["tra_loi"]
+

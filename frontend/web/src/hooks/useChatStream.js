@@ -7,37 +7,54 @@ export default function useChatStream() {
   const [isSending, setIsSending] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [lastFailedMessage, setLastFailedMessage] = useState(null);
 
+  // ---- Session state ----
+  const [sessions, setSessions] = useState([]);
+  const [activeSessionId, setActiveSessionId] = useState(null);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+
   const isInitialLoaded = useRef(false);
 
-  // Load chat history from backend
-  const loadHistory = useCallback(async (reset = false) => {
+  // ==============================================================
+  // Load danh sách sessions
+  // ==============================================================
+  const loadSessions = useCallback(async () => {
+    try {
+      setIsLoadingSessions(true);
+      const res = await chatService.getSessions();
+      const list = res.data?.du_lieu?.danh_sach || [];
+      setSessions(list);
+    } catch (err) {
+      console.error('Lỗi khi tải danh sách sessions:', err);
+    } finally {
+      setIsLoadingSessions(false);
+    }
+  }, []);
+
+  // ==============================================================
+  // Load tin nhắn của 1 session cụ thể (có phân trang)
+  // ==============================================================
+  const loadSessionMessages = useCallback(async (sessionId, reset = false) => {
+    if (!sessionId) return;
     try {
       setIsLoadingHistory(true);
       const targetPage = reset ? 1 : page;
-      const res = await chatService.getHistory({
+      const res = await chatService.getSessionMessages(sessionId, {
         page: targetPage,
-        page_size: 15,
+        page_size: 20,
       });
-
       const duLieu = res.data?.du_lieu;
-      if (!duLieu) {
-        setHasMore(false);
-        return;
-      }
+      if (!duLieu) { setHasMore(false); return; }
 
       const danhSach = duLieu.danh_sach || [];
       const total = duLieu.tong_so || 0;
-
-      // Each item in history is a pair: cau_hoi (user) and tra_loi (ai)
-      // Since history is returned descending (newest first), reverse each batch to be chronological
-      const convertedMessages = [];
       const sortedItems = [...danhSach].reverse();
 
+      const convertedMessages = [];
       for (const item of sortedItems) {
         if (item.cau_hoi) {
           convertedMessages.push({
@@ -69,31 +86,129 @@ export default function useChatStream() {
         setPage((prev) => prev + 1);
       }
 
-      const currentLoadedCount = (targetPage) * (duLieu.kich_thuoc_trang || 15);
-      setHasMore(currentLoadedCount < total);
+      const loaded = targetPage * (duLieu.kich_thuoc_trang || 20);
+      setHasMore(loaded < total);
     } catch (err) {
-      console.error('Lỗi khi tải lịch sử chat:', err);
+      console.error('Lỗi khi tải tin nhắn session:', err);
     } finally {
       setIsLoadingHistory(false);
     }
   }, [page]);
 
-  // Load initial page on mount
+  // ==============================================================
+  // Tải lịch sử chung (legacy - dùng cho chat không có session)
+  // ==============================================================
+  const loadHistory = useCallback(async (reset = false) => {
+    if (activeSessionId) {
+      await loadSessionMessages(activeSessionId, reset);
+      return;
+    }
+    // Nếu không có session đang chọn thì không tải gì
+    setMessages([]);
+    setHasMore(false);
+  }, [activeSessionId, loadSessionMessages]);
+
+  // Load initial sessions on mount
   useEffect(() => {
     if (!isInitialLoaded.current) {
       isInitialLoaded.current = true;
-      loadHistory(true);
+      loadSessions();
     }
-  }, [loadHistory]);
+  }, [loadSessions]);
 
-  // Send a message
+  // ==============================================================
+  // Chọn 1 session - tải tin nhắn của session đó
+  // ==============================================================
+  const selectSession = useCallback(async (sessionId) => {
+    setActiveSessionId(sessionId);
+    setMessages([]);
+    setPage(1);
+    setHasMore(false);
+    setError(null);
+    setQuotaExceeded(false);
+    if (sessionId) {
+      try {
+        setIsLoadingHistory(true);
+        const res = await chatService.getSessionMessages(sessionId, { page: 1, page_size: 20 });
+        const duLieu = res.data?.du_lieu;
+        if (!duLieu) return;
+
+        const danhSach = duLieu.danh_sach || [];
+        const total = duLieu.tong_so || 0;
+        const sortedItems = [...danhSach].reverse();
+
+        const convertedMessages = [];
+        for (const item of sortedItems) {
+          if (item.cau_hoi) {
+            convertedMessages.push({
+              id: `${item.id}-user`,
+              sender: 'user',
+              noi_dung: item.cau_hoi,
+              created_at: item.created_at,
+              reference_id: item.reference_id,
+              status: 'sent',
+            });
+          }
+          if (item.tra_loi) {
+            convertedMessages.push({
+              id: `${item.id}-ai`,
+              sender: 'ai',
+              noi_dung: item.tra_loi,
+              he_thong: item.he_thong,
+              created_at: item.created_at,
+              status: 'sent',
+            });
+          }
+        }
+        setMessages(convertedMessages);
+        setPage(2);
+        setHasMore(20 < total);
+      } catch (err) {
+        console.error('Lỗi khi chọn session:', err);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    }
+  }, []);
+
+  // ==============================================================
+  // Bắt đầu cuộc trò chuyện mới
+  // ==============================================================
+  const startNewSession = useCallback(() => {
+    setActiveSessionId(null);
+    setMessages([]);
+    setPage(1);
+    setHasMore(false);
+    setError(null);
+    setQuotaExceeded(false);
+    setLastFailedMessage(null);
+  }, []);
+
+  // ==============================================================
+  // Xóa 1 session
+  // ==============================================================
+  const deleteSession = useCallback(async (sessionId) => {
+    try {
+      await chatService.deleteSession(sessionId);
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      if (activeSessionId === sessionId) {
+        startNewSession();
+      }
+    } catch (err) {
+      console.error('Lỗi khi xóa session:', err);
+    }
+  }, [activeSessionId, startNewSession]);
+
+  // ==============================================================
+  // Gửi tin nhắn
+  // ==============================================================
   const sendMessage = async ({ text, attachedImage = null, referenceId = null, heThongUuTien = null }) => {
     if (!text?.trim() && !attachedImage) return;
 
     const trimmedText = text?.trim() || 'Xin mời luận giải giúp tôi hình ảnh đính kèm.';
     const tempId = `msg-usr-${Date.now()}`;
 
-    // Kiểm tra kết nối mạng: Chặn gửi khi ngoại tuyến và thông báo rõ ràng
+    // Kiểm tra offline
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       const userMsg = {
         id: tempId,
@@ -114,13 +229,7 @@ export default function useChatStream() {
       };
       setMessages((prev) => [...prev, userMsg, offlineNotice]);
       setError('Bạn đang ngoại tuyến. Cần kết nối mạng để gửi tin nhắn chat.');
-      setLastFailedMessage({
-        tempId,
-        text: trimmedText,
-        attachedImage,
-        referenceId,
-        heThongUuTien,
-      });
+      setLastFailedMessage({ tempId, text: trimmedText, attachedImage, referenceId, heThongUuTien });
       return;
     }
 
@@ -140,7 +249,7 @@ export default function useChatStream() {
     let effectiveReferenceId = referenceId;
 
     try {
-      // 1. If an image file is attached without referenceId, upload it first
+      // 1. Upload ảnh nếu cần
       if (attachedImage?.file && !effectiveReferenceId) {
         const formData = new FormData();
         formData.append('file', attachedImage.file);
@@ -156,22 +265,33 @@ export default function useChatStream() {
         }
       }
 
-      // 2. Call chat API
+      // 2. Gọi chat API với session_id
       const payload = {
         cau_hoi: trimmedText,
         reference_id: effectiveReferenceId || null,
         he_thong: heThongUuTien || (effectiveReferenceId ? 'nhan_tuong' : null),
+        session_id: activeSessionId || null,
       };
 
       const res = await chatService.sendMessage(payload);
       const resData = res.data?.du_lieu || {};
 
-      // Mark user message as sent
+      // 3. Cập nhật activeSessionId từ response (khi tạo session mới tự động)
+      if (resData.session_id && !activeSessionId) {
+        setActiveSessionId(resData.session_id);
+        // Tải lại danh sách sessions
+        await loadSessions();
+      } else if (resData.session_id && activeSessionId !== resData.session_id) {
+        setActiveSessionId(resData.session_id);
+        await loadSessions();
+      }
+
+      // 4. Mark user message sent
       setMessages((prev) =>
         prev.map((m) => (m.id === tempId ? { ...m, status: 'sent' } : m))
       );
 
-      // Create AI message
+      // 5. Tạo AI message
       const chiTiet = resData.chi_tiet || {};
       const aiMsg = {
         id: `msg-ai-${Date.now()}`,
@@ -200,7 +320,6 @@ export default function useChatStream() {
 
       if (status === 429) {
         setQuotaExceeded(true);
-        // Mark user message sent and add in-chat friendly quota message
         setMessages((prev) =>
           prev.map((m) => (m.id === tempId ? { ...m, status: 'sent' } : m))
         );
@@ -217,7 +336,6 @@ export default function useChatStream() {
         setMessages((prev) => [...prev, quotaNotice]);
         notifyQuotaUpdated();
       } else {
-        // Mark user message as error
         setMessages((prev) =>
           prev.map((m) => (m.id === tempId ? { ...m, status: 'error' } : m))
         );
@@ -235,20 +353,18 @@ export default function useChatStream() {
     }
   };
 
-  // Retry sending last failed message
+  // Retry gửi lại tin nhắn lỗi
   const retryLastMessage = async () => {
     if (!lastFailedMessage) return;
     const { tempId, text, attachedImage, referenceId, heThongUuTien } = lastFailedMessage;
-
-    // Remove failed user message before resending
     setMessages((prev) => prev.filter((m) => m.id !== tempId));
     setLastFailedMessage(null);
     setError(null);
-
     await sendMessage({ text, attachedImage, referenceId, heThongUuTien });
   };
 
   return {
+    // Messages
     messages,
     isSending,
     isLoadingHistory,
@@ -258,5 +374,13 @@ export default function useChatStream() {
     sendMessage,
     loadHistory,
     retryLastMessage,
+    // Sessions
+    sessions,
+    activeSessionId,
+    isLoadingSessions,
+    loadSessions,
+    selectSession,
+    startNewSession,
+    deleteSession,
   };
 }

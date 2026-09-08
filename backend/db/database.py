@@ -36,6 +36,29 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 
+def init_db():
+    """
+    Khởi tạo các bảng và thực hiện auto-migration an toàn nếu có bảng/cột mới.
+    """
+    import db.models  # Nạp toàn bộ models
+    Base.metadata.create_all(bind=engine)
+
+    # Kiểm tra cột session_id trong chat_histories
+    with engine.connect() as conn:
+        try:
+            from sqlalchemy import text
+            if "sqlite" in settings.database_url:
+                cols = [row[1] for row in conn.execute(text("PRAGMA table_info(chat_histories)")).fetchall()]
+                if "session_id" not in cols:
+                    conn.execute(text("ALTER TABLE chat_histories ADD COLUMN session_id CHAR(36)"))
+                    conn.commit()
+            else:
+                conn.execute(text("ALTER TABLE chat_histories ADD COLUMN IF NOT EXISTS session_id UUID REFERENCES chat_sessions(id) ON DELETE CASCADE"))
+                conn.commit()
+        except Exception:
+            pass
+
+
 def get_db() -> Generator[Session, None, None]:
     """
     Dependency injection generator cung cấp SQLAlchemy session cho FastAPI endpoints.

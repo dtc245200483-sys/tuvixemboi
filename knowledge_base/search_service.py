@@ -6,6 +6,7 @@ Ph?c v? Interpretation Agent tra c?u ch?nh x?c tri th?c huy?n h?c theo ??ng name
 """
 
 import time
+import copy
 import logging
 from typing import List, Dict, Any, Optional
 
@@ -32,6 +33,9 @@ def _kiem_tra_namespace(namespace: str):
     return clean_ns
 
 
+_search_cache: Dict[str, List[Dict[str, Any]]] = {}
+
+
 def search(
     query: str,
     namespace: str,
@@ -40,12 +44,12 @@ def search(
     custom_db_path: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
-    1. T?m ki?m ng? ngh?a trong ??ng collection c?a namespace:
-    - T?o embedding cho query.
-    - T?m top_k k?t qu? g?n nh?t trong namespace.
-    - L?c b? k?t qu? c? ?? li?n quan th?p h?n `nguong_lien_quan`.
-    - Tr? v? danh s?ch [{id, ten, noi_dung_moi, nguon_goc, do_tin_cay, do_lien_quan}], s?p x?p gi?m d?n theo ?? li?n quan.
-    - Ghi log th?i gian x? l? v? s? l??ng k?t qu?.
+    1. Tìm kiếm ngữ nghĩa trong đúng collection của namespace (có cache bộ nhớ):
+    - Kiểm tra cache kết quả tìm kiếm để trả về tức thì (< 1ms).
+    - Tạo embedding cho query.
+    - Tìm top_k kết quả gần nhất trong namespace.
+    - Lọc bỏ kết quả có độ liên quan thấp hơn `nguong_lien_quan`.
+    - Trả về danh sách kết quả sắp xếp giảm dần theo độ liên quan.
     """
     clean_ns = _kiem_tra_namespace(namespace)
     t_start = time.perf_counter()
@@ -53,7 +57,12 @@ def search(
     if not query or not query.strip():
         return []
 
-    # T?m ki?m trong vector store
+    cache_key = f"{clean_ns}:{query.strip().lower()}:{top_k}:{nguong_lien_quan}:{custom_db_path or ''}"
+    if cache_key in _search_cache:
+        logger.debug(f"[SEARCH_CACHE_HIT] {cache_key}")
+        return copy.deepcopy(_search_cache[cache_key])
+
+    # Tìm kiếm trong vector store
     raw_results = tim_kiem(
         namespace=clean_ns,
         query=query,
@@ -86,6 +95,9 @@ def search(
         f"[SEARCH] Query: '{query}' | Namespace: '{clean_ns}' | "
         f"K?t qu?: {len(ket_qua)} (top_k={top_k}) | ?? tr?: {t_elapsed_ms:.2f}ms"
     )
+
+    if len(_search_cache) < 1024:
+        _search_cache[cache_key] = copy.deepcopy(ket_qua)
 
     return ket_qua
 

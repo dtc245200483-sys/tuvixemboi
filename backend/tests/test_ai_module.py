@@ -236,3 +236,24 @@ def test_8_khoi_tao_provider_mac_dinh_theo_config():
     with patch.object(settings, "ai_provider", "gemini"):
         client = AIClient()
         assert client.current_provider_name == "gemini"
+
+    with patch.object(settings, "ai_provider", "freellmapi"):
+        client = AIClient()
+        assert client.current_provider_name == "freellmapi"
+
+
+def test_9_freellm_provider_key_decryption_and_rotation():
+    """Test 9: Ki?m tra FreeLLMProvider n?p key t? database v? lu?n chuy?n key th?nh c?ng."""
+    from ai_module.providers.freellm_provider import FreeLLMProvider
+    provider = FreeLLMProvider()
+    # Phải nạp được ít nhất 1 key từ freeapi.db
+    assert len(provider._keys_pool) >= 1
+    # Kiểm tra key mask
+    masked = provider._mask_key(provider._keys_pool[0])
+    assert masked.startswith("gsk_") or masked.startswith("***")
+    assert "..." in masked
+
+    # Kiểm tra round-robin luân chuyển key
+    key1 = provider._get_next_key()
+    assert key1 is not None
+

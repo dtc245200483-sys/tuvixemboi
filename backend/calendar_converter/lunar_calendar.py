@@ -8,8 +8,8 @@ xử lý chính xác từng ngày Sóc (New Moon), Trung khí và quy tắc thá
 """
 
 import math
-from datetime import date
-from typing import Dict, Any, Tuple
+from datetime import date, datetime, timezone, timedelta
+from typing import Dict, Any, Tuple, Optional, List
 
 from calendar_converter.constants import (
     THIEN_CAN,
@@ -364,3 +364,218 @@ def lunar_to_solar(ngay_am: int, thang_am: int, nam_am: int, la_thang_nhuan: boo
         "thang": m,
         "nam": y
     }
+
+
+# ==============================================================================
+# BÁT TỰ TỬ BÌNH - XÁC ĐỊNH 12 NGUYỆT LỆNH THEO LỊCH TIẾT KHÍ (BƯỚC 0 & 0b)
+# Căn cứ: Sách "Dự Báo Theo Tử Bình" - Trần Khang Ninh (2006), trang 15, 58-60.
+# ==============================================================================
+
+TIET_12_CHINH = [
+    {"ten": "Lập Xuân", "kinh_do": 315.0, "chi": "Dần", "thang_idx": 1},
+    {"ten": "Kinh Trập", "kinh_do": 345.0, "chi": "Mão", "thang_idx": 2},
+    {"ten": "Thanh Minh", "kinh_do": 15.0,  "chi": "Thìn", "thang_idx": 3},
+    {"ten": "Lập Hạ",    "kinh_do": 45.0,  "chi": "Tỵ",  "thang_idx": 4},
+    {"ten": "Mang Chủng", "kinh_do": 75.0,  "chi": "Ngọ", "thang_idx": 5},
+    {"ten": "Tiểu Thử",  "kinh_do": 105.0, "chi": "Mùi", "thang_idx": 6},
+    {"ten": "Lập Thu",   "kinh_do": 135.0, "chi": "Thân", "thang_idx": 7},
+    {"ten": "Bạch Lộ",   "kinh_do": 165.0, "chi": "Dậu", "thang_idx": 8},
+    {"ten": "Hàn Lộ",    "kinh_do": 195.0, "chi": "Tuất", "thang_idx": 9},
+    {"ten": "Lập Đông",  "kinh_do": 225.0, "chi": "Hợi", "thang_idx": 10},
+    {"ten": "Đại Tuyết", "kinh_do": 255.0, "chi": "Tý",  "thang_idx": 11},
+    {"ten": "Tiểu Hàn",  "kinh_do": 285.0, "chi": "Sửu", "thang_idx": 12},
+]
+
+
+def tinh_kinh_do_mat_troi_chinh_xac(dt_utc: datetime) -> float:
+    """Tính kinh độ hoàng đạo Mặt Trời (độ 0..360) tại thời khắc UTC chuẩn xác theo Jean Meeus."""
+    epoch_2000 = datetime(2000, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+    diff_days = (dt_utc - epoch_2000).total_seconds() / 86400.0
+    jd = 2451545.0 + diff_days
+    T = (jd - 2451545.0) / 36525.0
+    M = 357.52910 + 35999.05029 * T - 0.0001537 * T * T
+    C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * math.sin(M * DR) + (0.019993 - 0.000101 * T) * math.sin(2 * M * DR) + 0.000289 * math.sin(3 * M * DR)
+    L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T
+    return (L0 + C) % 360.0
+
+
+def tim_thoi_diem_tiet_khi(target_deg: float, approx_dt_utc: datetime) -> datetime:
+    """Dùng phương pháp chia đôi tìm thời khắc đạt kinh độ tiết khí chính xác đến phút."""
+    t_start = approx_dt_utc - timedelta(days=7)
+    t_end = approx_dt_utc + timedelta(days=7)
+    for _ in range(50):
+        t_mid = t_start + (t_end - t_start) / 2
+        deg = tinh_kinh_do_mat_troi_chinh_xac(t_mid)
+        diff = (deg - target_deg + 180) % 360 - 180
+        if diff < 0:
+            t_start = t_mid
+        else:
+            t_end = t_mid
+    return t_mid
+
+
+def xac_dinh_tiet_khi_chuan(
+    ngay: int, thang: int, nam: int,
+    gio: int = 12, phut: int = 0,
+    mui_gio: float = 7.0
+) -> Dict[str, Any]:
+    """
+    Xác định tiết khí chính xác và Nguyệt Lệnh (Chi tháng Bát Tự) theo đúng Lịch Tiết Khí.
+    """
+    tz_local = timezone(timedelta(hours=mui_gio))
+    dt_local = datetime(nam, thang, ngay, gio, phut, tzinfo=tz_local)
+    dt_utc = dt_local.astimezone(timezone.utc)
+
+    deg = tinh_kinh_do_mat_troi_chinh_xac(dt_utc)
+    term_idx = int(((deg - 315.0) % 360.0) // 30)
+    current_term = TIET_12_CHINH[term_idx]
+    next_term = TIET_12_CHINH[(term_idx + 1) % 12]
+
+    # Tìm thời điểm tiết khí trước và sau
+    t_prev_utc = tim_thoi_diem_tiet_khi(current_term["kinh_do"], dt_utc - timedelta(days=15))
+    t_next_utc = tim_thoi_diem_tiet_khi(next_term["kinh_do"], dt_utc + timedelta(days=15))
+
+    t_prev_local = t_prev_utc.astimezone(tz_local)
+    t_next_local = t_next_utc.astimezone(tz_local)
+
+    dist_from_prev_days = (dt_utc - t_prev_utc).total_seconds() / 86400.0
+    dist_to_next_days = (t_next_utc - dt_utc).total_seconds() / 86400.0
+
+    return {
+        "kinh_do_mat_troi": round(deg, 4),
+        "tiet_hien_tai": current_term["ten"],
+        "chi_thang": current_term["chi"],
+        "thang_idx": current_term["thang_idx"],
+        "tiet_ke_tiep": next_term["ten"],
+        "thoi_diem_tiet_truoc": t_prev_local.strftime("%Y-%m-%d %H:%M"),
+        "thoi_diem_tiet_ke_tiep": t_next_local.strftime("%Y-%m-%d %H:%M"),
+        "khoang_cach_ngay_tu_tiet_truoc": round(dist_from_prev_days, 2),
+        "khoang_cach_ngay_toi_tiet_ke_tiep": round(dist_to_next_days, 2),
+        "raw_dist_prev_days": dist_from_prev_days,
+        "raw_dist_next_days": dist_to_next_days,
+    }
+
+
+def xac_dinh_can_chi_thang_tiet_khi(
+    nam_can: str,
+    ngay_duong: int, thang_duong: int, nam_duong: int,
+    gio_sinh: int = 12, phut_sinh: int = 0,
+    mui_gio: float = 7.0
+) -> Dict[str, Any]:
+    """
+    Xác định Can Chi tháng sinh theo đúng 100% LỊCH TIẾT KHÍ và quy tắc Ngũ Hổ Độn.
+    """
+    tiet_info = xac_dinh_tiet_khi_chuan(ngay_duong, thang_duong, nam_duong, gio_sinh, phut_sinh, mui_gio)
+    chi_thang = tiet_info["chi_thang"]
+    thang_idx = tiet_info["thang_idx"]  # 1=Dần, 2=Mão, 3=Thìn, 4=Tỵ...
+
+    can_nam_idx = THIEN_CAN.index(nam_can)
+    can_thang_1_idx = (can_nam_idx % 5 * 2 + 2) % 10
+    can_thang_idx = (can_thang_1_idx + thang_idx - 1) % 10
+
+    return {
+        "can": THIEN_CAN[can_thang_idx],
+        "chi": chi_thang,
+        "tiet_khi": tiet_info["tiet_hien_tai"],
+        "chi_tiet": f"Nguyệt lệnh {chi_thang} khởi từ tiết {tiet_info['tiet_hien_tai']}"
+    }
+
+
+def xac_dinh_can_chi_nam_tiet_khi(
+    ngay_duong: int, thang_duong: int, nam_duong: int,
+    gio_sinh: int = 12, phut_sinh: int = 0,
+    mui_gio: float = 7.0
+) -> Dict[str, Any]:
+    """
+    Xác định Can Chi năm sinh theo Lập Xuân (tiết 315 độ).
+    Nếu sinh trước Lập Xuân thì tính theo năm trước (nam_duong - 1).
+    """
+    tz_local = timezone(timedelta(hours=mui_gio))
+    dt_local = datetime(nam_duong, thang_duong, ngay_duong, gio_sinh, phut_sinh, tzinfo=tz_local)
+    dt_utc = dt_local.astimezone(timezone.utc)
+    t_lap_xuan_utc = tim_thoi_diem_tiet_khi(315.0, datetime(nam_duong, 2, 4, 12, 0, tzinfo=timezone.utc))
+
+    nam_tinh = nam_duong if dt_utc >= t_lap_xuan_utc else (nam_duong - 1)
+    can_idx = (nam_tinh + 6) % 10
+    chi_idx = (nam_tinh + 8) % 12
+    return {
+        "can": THIEN_CAN[can_idx],
+        "chi": DIA_CHI[chi_idx],
+        "nam_tinh": nam_tinh
+    }
+
+
+def kiem_tra_vung_bien_4_tru(
+    nam_duong: int, thang_duong: int, ngay_duong: int,
+    gio_sinh: int = 12, phut_sinh: int = 0,
+    mui_gio: float = 7.0
+) -> Dict[str, Any]:
+    """
+    BƯỚC 0b: Khái quát hóa kiểm tra vùng biên rủi ro cho cả 4 Trụ (Năm, Tháng, Ngày, Giờ).
+    """
+    tz_local = timezone(timedelta(hours=mui_gio))
+    dt_local = datetime(nam_duong, thang_duong, ngay_duong, gio_sinh, phut_sinh, tzinfo=tz_local)
+    dt_utc = dt_local.astimezone(timezone.utc)
+
+    # 1. TRỤ NĂM (Ranh giới Lập Xuân 315 độ)
+    t_lap_xuan_utc = tim_thoi_diem_tiet_khi(315.0, datetime(nam_duong, 2, 4, 12, 0, tzinfo=timezone.utc))
+    t_lap_xuan_local = t_lap_xuan_utc.astimezone(tz_local)
+    dist_lap_xuan_days = (dt_utc - t_lap_xuan_utc).total_seconds() / 86400.0
+
+    nam_vung_bien = abs(dist_lap_xuan_days) <= 3.0
+    nam_status = "VÙNG BIÊN (Cách Lập Xuân <= 3 ngày)" if nam_vung_bien else "An toàn"
+    nam_desc = f"Lập Xuân năm {nam_duong} lúc {t_lap_xuan_local.strftime('%H:%M ngày %d/%m/%Y')}. Cách giờ sinh {abs(dist_lap_xuan_days):.1f} ngày."
+
+    # 2. TRỤ THÁNG (Ranh giới 12 tiết)
+    tiet_info = xac_dinh_tiet_khi_chuan(ngay_duong, thang_duong, nam_duong, gio_sinh, phut_sinh, mui_gio)
+    min_dist_month_days = min(tiet_info["raw_dist_prev_days"], tiet_info["raw_dist_next_days"])
+    thang_vung_bien = min_dist_month_days <= 2.0
+    thang_status = "VÙNG BIÊN (Cách mốc đổi tiết <= 2 ngày)" if thang_vung_bien else "An toàn"
+    thang_desc = (
+        f"Nằm giữa tiết {tiet_info['tiet_hien_tai']} ({tiet_info['thoi_diem_tiet_truoc']}) "
+        f"và {tiet_info['tiet_ke_tiep']} ({tiet_info['thoi_diem_tiet_ke_tiep']}). "
+        f"Cách tiết trước {tiet_info['khoang_cach_ngay_tu_tiet_truoc']} ngày, cách tiết sau {tiet_info['khoang_cach_ngay_toi_tiet_ke_tiep']} ngày."
+    )
+
+    # 3. TRỤ NGÀY (Chu kỳ 60 ngày, ranh giới giờ Tý 23h-24h)
+    ngay_vung_bien = (gio_sinh == 23 or (gio_sinh == 0 and phut_sinh < 60))
+    ngay_status = "VÙNG BIÊN (Giờ Tý sớm/muộn 23h00-00h59)" if ngay_vung_bien else "An toàn"
+    ngay_desc = (
+        "Giờ sinh thuộc khung 23h-24h (áp dụng quy ước Tý đổi ngày mới phương Đông)" if gio_sinh == 23
+        else "Chu kỳ 60 ngày liên tục, không phụ thuộc tiết khí, an toàn."
+    )
+
+    # 4. TRỤ GIỜ (Khung 2 tiếng, cảnh báo nếu cách ranh giới <= 10 phút)
+    min_total = gio_sinh * 60 + phut_sinh
+    moc_gio = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140, 1260, 1380]
+    min_dist_hour = min(abs(min_total - m) for m in moc_gio)
+    gio_vung_bien = min_dist_hour <= 10
+    gio_status = f"VÙNG BIÊN (Cách ranh giới khung giờ {min_dist_hour} phút)" if gio_vung_bien else "An toàn"
+    gio_desc = f"Cách ranh giới chuyển chi giờ gần nhất {min_dist_hour} phút."
+
+    return {
+        "tru_nam": {"trang_thai": nam_status, "la_vung_bien": nam_vung_bien, "chi_tiet": nam_desc},
+        "tru_thang": {"trang_thai": thang_status, "la_vung_bien": thang_vung_bien, "chi_tiet": thang_desc},
+        "tru_ngay": {"trang_thai": ngay_status, "la_vung_bien": ngay_vung_bien, "chi_tiet": ngay_desc},
+        "tru_gio": {"trang_thai": gio_status, "la_vung_bien": gio_vung_bien, "chi_tiet": gio_desc},
+        "co_tru_nao_vung_bien": any([nam_vung_bien, thang_vung_bien, ngay_vung_bien, gio_vung_bien]),
+        "tiet_khi": tiet_info
+    }
+
+
+def tinh_tuoi_khoi_van_chuan(
+    ngay_duong: int, thang_duong: int, nam_duong: int,
+    gio_sinh: int, phut_sinh: int,
+    di_thuan: bool,
+    mui_gio: float = 7.0
+) -> int:
+    """
+    Tính tuổi khởi vận theo sách Trần Khang Ninh (tr.58-60):
+    - Đếm số ngày thực tế từ giờ sinh đến tiết kế tiếp (nếu thuận) hoặc tiết trước (nếu nghịch).
+    - Chia cho 3, lấy phần nguyên (floor), bỏ số dư.
+    """
+    tiet_info = xac_dinh_tiet_khi_chuan(ngay_duong, thang_duong, nam_duong, gio_sinh, phut_sinh, mui_gio)
+    so_ngay = tiet_info["raw_dist_next_days"] if di_thuan else tiet_info["raw_dist_prev_days"]
+    tuoi = math.floor(so_ngay / 3.0)
+    return max(1, int(tuoi))
+

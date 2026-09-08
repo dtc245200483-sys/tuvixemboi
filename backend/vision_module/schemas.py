@@ -35,4 +35,5 @@ class DacDiemMat(BaseModel):
     hinh_dang_mieng: str = Field(..., description="Đặc điểm hình thái miệng và môi (khóe miệng, độ dày môi, viền môi)")
     hinh_dang_cam: str = Field(..., description="Đặc điểm hình thái cằm và quai hàm (tròn, vuông, nhọn, chẻ)")
     vi_tri_not_ruoi: List[str] = Field(default_factory=list, description="Danh sách vị trí nốt ruồi quan sát thấy nếu có")
+    ti_vet_da_lieu_hoac_mun: List[str] = Field(default_factory=list, description="Danh sách mụn, vết thâm mụn hoặc tì vết tạm thời (không phải nốt ruồi)")
     mo_ta_them: str = Field(default="", description="Chi tiết hình thái tổng thể (tỷ lệ tam đình, lông mày...)")

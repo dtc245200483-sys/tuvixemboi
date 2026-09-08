@@ -138,8 +138,30 @@ def start_backend():
     """Khởi động Backend FastAPI qua Uvicorn"""
     global backend_process, backend_log_file
     if is_port_in_use(8000):
-        print("[✓] Backend API đã đang chạy sẵn trên cổng 8000.")
-        return
+        # Kiểm tra xem có đúng là tuvixemboi backend không
+        try:
+            req = urllib.request.Request("http://127.0.0.1:8000/health")
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                if resp.status == 200:
+                    print("[✓] Backend API tuvixemboi đã đang chạy sẵn trên cổng 8000.")
+                    return
+        except Exception:
+            pass
+
+        print("[!] Cổng 8000 đang bị chiếm dụng bởi tiến trình khác, đang giải phóng...")
+        if os.name == "nt":
+            try:
+                # Tìm PID chiếm cổng 8000 và tắt
+                out = subprocess.check_output('netstat -ano | findstr :8000', shell=True).decode('utf-8', errors='ignore')
+                for line in out.strip().split('\n'):
+                    if "LISTENING" in line:
+                        parts = line.strip().split()
+                        pid = parts[-1]
+                        subprocess.run(["taskkill", "/F", "/T", "/PID", pid], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                time.sleep(1)
+            except Exception:
+                pass
+
 
     print("[*] Đang khởi động Backend FastAPI (Uvicorn 8000)...")
     env = os.environ.copy()

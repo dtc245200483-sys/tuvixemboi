@@ -46,16 +46,20 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     da_dong_y_sinh_trac_hoc = Column(Boolean, default=False, nullable=False)
     thoi_gian_dong_y_sinh_trac_hoc = Column(DateTime(timezone=True), nullable=True)
+    is_premium = Column(Boolean, default=False, nullable=False)
+    premium_expires_at = Column(DateTime(timezone=True), nullable=True)
+    default_birth_profile_id = Column(Uuid(as_uuid=True), nullable=True)
 
     # Quan hệ 1-N với các bảng nghiệp vụ (Cascade Delete khi xóa tài khoản User)
     birth_profiles = relationship("BirthProfile", back_populates="user", cascade="all, delete-orphan")
     que_kinh_dich_results = relationship("QueKinhDichResult", back_populates="user", cascade="all, delete-orphan")
     tuong_anh_results = relationship("TuongAnhResult", back_populates="user", cascade="all, delete-orphan")
     chat_histories = relationship("ChatHistory", back_populates="user", cascade="all, delete-orphan")
+    chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
     usage_quotas = relationship("UsageQuota", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
-        return f"<User id={self.id} email={self.email} is_active={self.is_active}>"
+        return f"<User id={self.id} email={self.email} is_active={self.is_active} is_premium={self.is_premium}>"
 
 
 # ==============================================================================
@@ -72,6 +76,8 @@ class BirthProfile(Base):
     phut_sinh = Column(Integer, default=0, nullable=False)  # 0-59
     gioi_tinh = Column(Enum("nam", "nu", name="gioi_tinh_enum"), nullable=False)
     ngay_sinh_am = Column(Date, nullable=True)  # Tính từ calendar_converter để cache
+    is_default = Column(Boolean, default=False, nullable=False)
+    is_quick_chart = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     # Quan hệ
@@ -170,13 +176,30 @@ class TuongAnhResult(Base):
 
 
 # ==============================================================================
-# 7. CHAT HISTORY MODEL
+# 7. CHAT SESSION & CHAT HISTORY MODELS
 # ==============================================================================
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    tieu_de = Column(String(255), nullable=False, default="Cuộc trò chuyện mới")
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    user = relationship("User", back_populates="chat_sessions")
+    messages = relationship("ChatHistory", back_populates="session", cascade="all, delete-orphan", order_by="ChatHistory.created_at.asc()")
+
+    def __repr__(self) -> str:
+        return f"<ChatSession id={self.id} user_id={self.user_id} tieu_de={self.tieu_de}>"
+
+
 class ChatHistory(Base):
     __tablename__ = "chat_histories"
 
     id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    session_id = Column(Uuid(as_uuid=True), ForeignKey("chat_sessions.id", ondelete="CASCADE"), nullable=True, index=True)
     he_thong = Column(Enum("tu_vi", "kinh_dich", "bat_tu", "nhan_tuong", name="he_thong_enum"), nullable=False, index=True)
     reference_id = Column(Uuid(as_uuid=True), nullable=True, index=True)  # Trỏ tới ID của lá số/quẻ/tướng ảnh tương ứng
     cau_hoi = Column(Text, nullable=False)
@@ -184,9 +207,10 @@ class ChatHistory(Base):
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     user = relationship("User", back_populates="chat_histories")
+    session = relationship("ChatSession", back_populates="messages")
 
     def __repr__(self) -> str:
-        return f"<ChatHistory id={self.id} user_id={self.user_id} he_thong={self.he_thong} ref={self.reference_id}>"
+        return f"<ChatHistory id={self.id} user_id={self.user_id} session_id={self.session_id} he_thong={self.he_thong} ref={self.reference_id}>"
 
 
 # ==============================================================================
@@ -241,3 +265,43 @@ class InterpretationCache(Base):
 
     def __repr__(self) -> str:
         return f"<InterpretationCache id={self.id} key={self.cache_key} he_thong={self.he_thong}>"
+
+
+# ==============================================================================
+# FORUM MODELS
+# ==============================================================================
+class ForumPost(Base):
+    __tablename__ = "forum_posts"
+
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    tieu_de = Column(String(500), nullable=False)
+    noi_dung = Column(Text, nullable=False)
+    chu_de = Column(String(50), nullable=False, default="chung", index=True)  # tu-vi | bat-tu | kinh-dich | nhan-tuong | chung
+    an_danh = Column(Boolean, default=False, nullable=False)  # True = ẩn tên, hiển thị "Ẩn Danh"
+    luot_xem = Column(Integer, default=0, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    user = relationship("User", foreign_keys=[user_id])
+    binh_luan = relationship("ForumComment", back_populates="post", cascade="all, delete-orphan", order_by="ForumComment.created_at")
+
+    def __repr__(self) -> str:
+        return f"<ForumPost id={self.id} tieu_de={self.tieu_de[:30]}>"
+
+
+class ForumComment(Base):
+    __tablename__ = "forum_comments"
+
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    post_id = Column(Uuid(as_uuid=True), ForeignKey("forum_posts.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    noi_dung = Column(Text, nullable=False)
+    an_danh = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+
+    post = relationship("ForumPost", back_populates="binh_luan")
+    user = relationship("User", foreign_keys=[user_id])
+
+    def __repr__(self) -> str:
+        return f"<ForumComment id={self.id} post_id={self.post_id}>"

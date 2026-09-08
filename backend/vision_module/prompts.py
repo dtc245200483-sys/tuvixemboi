@@ -35,9 +35,14 @@ Nhiệm vụ của bạn là MÔ TẢ KHÁCH QUAN các đặc điểm hình thá
 
 YÊU CẦU BẮT BUỘC:
 1. CHỈ mô tả hình thái khách quan của các bộ vị: trán, mắt, mũi, miệng, cằm và nốt ruồi quan sát được.
-2. TUYỆT ĐỐI KHÔNG nhận diện danh tính, KHÔNG đoán tên, tuổi chính xác, chủng tộc hay bất kỳ thông tin định danh nào của người trong ảnh.
-3. TUYỆT ĐỐI KHÔNG tự luận giải tướng số, bói toán, tính cách hay vận hạn tương lai.
-4. Trả về kết quả DƯỚI ĐỊNH DẠNG JSON DUY NHẤT theo schema sau, không thêm bất kỳ văn bản ngoài nào:
+2. NGUYÊN TẮC NHẬN DIỆN NỐT RUỒI (RẤT QUAN TRỌNG ĐỂ TRÁNH NHẬN NHẦM):
+   - NỐT RUỒI CỐ ĐỊNH (Melanocytic Nevi / Chu Sa): Phải là đốm sắc tố cố định có ranh giới rõ ràng, màu đen tuyền, nâu sẫm hoặc đỏ hồng tự nhiên, bề mặt phẳng hoặc gồ nhẹ đồng đều, vùng da xung quanh phẳng và cùng tông màu da bình thường, KHÔNG sưng đỏ.
+   - PHÂN BIỆT RẠCH RÒI VỚI MỤN & TÌ VẾT TẠM THỜI: Tuyệt đối KHÔNG nhận định mụn trứng cá, mụn viêm, mụn bọc, cồi mụn, vết thâm sau mụn (PIH), đốm sậm màu do tổn thương da tạm thời là nốt ruồi!
+   - Nếu một đốm có quầng ửng đỏ, đầu nhân mụn, sưng viêm, hoặc là vết thâm sậm màu do mụn: ĐƯA VÀO danh sách "ti_vet_da_lieu_hoac_mun", TUYỆT ĐỐI KHÔNG đưa vào "vi_tri_not_ruoi".
+   - Nếu không chắc chắn 100% đó là nốt ruồi cố định (ví dụ đốm mờ, vết sậm màu giống thâm mụn): Hãy coi đó là tì vết tạm thời hoặc bỏ qua, tuyệt đối không phỏng đoán thành nốt ruồi.
+3. TUYỆT ĐỐI KHÔNG nhận diện danh tính, KHÔNG đoán tên, tuổi chính xác, chủng tộc hay bất kỳ thông tin định danh nào của người trong ảnh.
+4. TUYỆT ĐỐI KHÔNG tự luận giải tướng số, bói toán, tính cách hay vận hạn tương lai.
+5. Trả về kết quả DƯỚI ĐỊNH DẠNG JSON DUY NHẤT theo schema sau, không thêm bất kỳ văn bản ngoài nào:
 
 ```json
 {
@@ -47,7 +52,10 @@ YÊU CẦU BẮT BUỘC:
   "hinh_dang_mieng": "mô tả hình thái miệng (độ dày mỏng của môi, khóe miệng ngang hay hơi cong)",
   "hinh_dang_cam": "mô tả hình thái cằm và hàm (cằm tròn, cằm vuông, cằm nhọn V-line)",
   "vi_tri_not_ruoi": [
-    "vị trí nốt ruồi quan sát thấy rõ (nếu không có thì để danh sách rỗng)"
+    "vị trí nốt ruồi thật sự cố định quan sát thấy rõ (chỉ ghi nhận khi chắc chắn là nốt ruồi sắc tố, không phải mụn hay vết thâm; nếu không có thì để rỗng [])"
+  ],
+  "ti_vet_da_lieu_hoac_mun": [
+    "vị trí các nốt mụn, vết thâm mụn sậm màu, hoặc tì vết da liễu tạm thời quan sát thấy (nếu không có thì để rỗng [])"
   ],
   "mo_ta_them": "mô tả hình thái tổng thể (dáng mặt tròn/trái xoan/chữ điền, độ cân đối của các bộ phận)"
 }

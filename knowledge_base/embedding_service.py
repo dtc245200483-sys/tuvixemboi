@@ -6,7 +6,7 @@ Model m?c ??nh: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 (h? 
 """
 
 import numpy as np
-from typing import List, Union, Optional, Any
+from typing import List, Dict, Union, Optional, Any
 # Model đa ngôn ngữ tối ưu tiếng Việt và Hán Việt
 DEFAULT_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
@@ -26,16 +26,25 @@ def get_embedding_model(model_name: str = DEFAULT_MODEL_NAME):
     return _model_instance
 
 
+_embedding_cache: Dict[str, List[float]] = {}
+
+
 def tao_embedding(text: str, model_name: str = DEFAULT_MODEL_NAME) -> List[float]:
     """
-    T?o vector embedding cho 1 c?u ho?c ?o?n v?n b?n.
-    Output: Danh s?ch c?c s? th?c (float vector, ?? d?i 384).
+    Tạo vector embedding cho 1 câu hoặc đoạn văn bản (có bộ nhớ đệm LRU).
+    Output: Danh sách các số thực (float vector, độ dài 384).
     """
-    if not text or not text.strip():
-        text = " "
+    clean_text = text.strip() if text else " "
+    cache_key = f"{model_name}:{clean_text}"
+    if cache_key in _embedding_cache:
+        return _embedding_cache[cache_key]
+
     model = get_embedding_model(model_name)
-    emb = model.encode(text, convert_to_numpy=True, normalize_embeddings=True)
-    return emb.tolist()
+    emb = model.encode(clean_text, convert_to_numpy=True, normalize_embeddings=True)
+    res = emb.tolist()
+    if len(_embedding_cache) < 2048:
+        _embedding_cache[cache_key] = res
+    return res
 
 
 def tao_embedding_batch(texts: List[str], model_name: str = DEFAULT_MODEL_NAME, batch_size: int = 32) -> List[List[float]]:

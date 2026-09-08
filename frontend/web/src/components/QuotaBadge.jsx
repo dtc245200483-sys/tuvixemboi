@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { IconSparkles, IconRefresh, IconAlertCircle } from '@tabler/icons-react';
+import { IconSparkles, IconRefresh, IconAlertCircle, IconCrown } from '@tabler/icons-react';
 import { quotaService } from '../services/api';
+import QuotaExceededModal from './QuotaExceededModal';
 
 /**
  * Dispatch custom event to notify all QuotaBadge instances to refresh
@@ -14,6 +15,7 @@ export const notifyQuotaUpdated = () => {
 export default function QuotaBadge({ refreshTrigger = 0, className = '' }) {
   const [quotaInfo, setQuotaInfo] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const fetchQuota = async () => {
     try {
@@ -48,40 +50,73 @@ export default function QuotaBadge({ refreshTrigger = 0, className = '' }) {
 
   if (!quotaInfo) return null;
 
+  const isPremium = Boolean(quotaInfo.is_premium);
   const soConLai = quotaInfo.so_luot_con_lai ?? 50;
-  const isLow = soConLai <= 5;
-  const isOut = soConLai <= 0;
+  const isLow = !isPremium && soConLai <= 5;
+  const isOut = !isPremium && soConLai <= 0;
 
   return (
-    <div
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-body transition-all ${
-        isOut
-          ? 'bg-[#FAF0EE] border-[#E6C2BC] text-primary font-semibold'
-          : isLow
-          ? 'bg-[#FAF5EE] border-accent/60 text-primary font-medium'
-          : 'bg-[#FAF5EE] border-surface-border text-text-primary'
-      } ${className}`}
-      title={`Hạn mức: ${quotaInfo.so_luot_da_dung || 0}/${quotaInfo.gioi_han_ngay || 50} lượt trong ngày`}
-    >
-      {isOut ? (
-        <IconAlertCircle size={15} className="text-primary flex-shrink-0" />
-      ) : (
-        <IconSparkles size={15} className="text-accent flex-shrink-0" />
-      )}
-      <span>
-        {isOut
-          ? 'Đã hết lượt hỏi hôm nay'
-          : `Còn ${soConLai} lượt hỏi hôm nay`}
-      </span>
-      <button
-        type="button"
-        onClick={fetchQuota}
-        disabled={loading}
-        className="text-text-secondary hover:text-accent ml-0.5 transition-colors focus:outline-none"
-        aria-label="Làm mới hạn mức"
+    <>
+      <div
+        onClick={() => {
+          if (isOut || isLow || !isPremium) {
+            setShowModal(true);
+          }
+        }}
+        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-body transition-all cursor-pointer ${
+          isPremium
+            ? 'bg-gradient-to-r from-[#FAF2E1] to-[#FFF9E6] border-[#D4AF37] text-[#6B140E] font-bold shadow-xs'
+            : isOut
+            ? 'bg-[#FAF0EE] border-[#E6C2BC] text-primary font-semibold hover:border-red-500'
+            : isLow
+            ? 'bg-[#FAF5EE] border-accent/60 text-primary font-medium hover:border-accent'
+            : 'bg-[#FAF5EE] border-surface-border text-text-primary hover:border-accent/40'
+        } ${className}`}
+        title={
+          isPremium
+            ? 'Tài khoản Premium VIP: Không giới hạn an sao & AI'
+            : `Hạn mức: ${quotaInfo.so_luot_da_dung || 0}/${quotaInfo.gioi_han_ngay || 50} lượt trong ngày. Bấm để xem chi tiết & Nâng cấp`
+        }
       >
-        <IconRefresh size={13} className={loading ? 'animate-spin' : ''} />
-      </button>
-    </div>
+        {isPremium ? (
+          <IconCrown size={15} className="text-[#D4AF37] flex-shrink-0" />
+        ) : isOut ? (
+          <IconAlertCircle size={15} className="text-primary flex-shrink-0 animate-pulse" />
+        ) : (
+          <IconSparkles size={15} className="text-accent flex-shrink-0" />
+        )}
+
+        <span className={isPremium ? 'text-[#6B140E]' : ''}>
+          {isPremium
+            ? '👑 Premium (Không giới hạn)'
+            : isOut
+            ? 'Hết lượt hôm nay (Nâng cấp VIP)'
+            : `Còn ${soConLai} lượt hôm nay`}
+        </span>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            fetchQuota();
+          }}
+          disabled={loading}
+          className="ml-0.5 opacity-70 hover:opacity-100 transition-opacity focus:outline-none"
+          aria-label="Làm mới hạn mức"
+        >
+          <IconRefresh size={13} className={loading ? 'animate-spin' : ''} />
+        </button>
+      </div>
+
+      <QuotaExceededModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        initialSeconds={quotaInfo.so_giay_con_lai_den_reset}
+        onUpgraded={() => {
+          fetchQuota();
+        }}
+      />
+    </>
   );
 }
+

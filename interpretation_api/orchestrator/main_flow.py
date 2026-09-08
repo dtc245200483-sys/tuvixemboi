@@ -42,25 +42,87 @@ from ai_module.client import AIClient
 from ai_module.schemas import AIRequest
 
 try:
+    from astro_engine.bat_tu.validator import kiem_tra_va_chuan_hoa_luan_giai_bat_tu
+except ImportError:
+    kiem_tra_va_chuan_hoa_luan_giai_bat_tu = None
+
+try:
     from content_safety.pipeline import xu_ly_an_toan_noi_dung
-    from middleware.quota_service import kiem_tra_va_tang_quota
+    from middleware.quota_service import kiem_tra_va_tang_quota, hoan_lai_quota
 except ImportError:
     from backend.content_safety.pipeline import xu_ly_an_toan_noi_dung
-    from backend.middleware.quota_service import kiem_tra_va_tang_quota
+    from backend.middleware.quota_service import kiem_tra_va_tang_quota, hoan_lai_quota
 
 logger = logging.getLogger("InterpretationOrchestrator")
 
 
-def _clean_json_str(raw: str) -> str:
+def _extract_clean_content(raw: str, default_subject: str = "") -> Dict[str, Any]:
+    """
+    Bóc tách nội dung luận giải từ chuỗi trả về của AI:
+    - Bóc tách JSON chuẩn nếu có.
+    - Nếu JSON dở dang / lỗi cú pháp, tự động dùng Regex bóc tách trường 'noi_dung' và 'chu_de'.
+    - Loại bỏ hoàn toàn các ký tự JSON wrapper, các ký tự escape \\n, \\" để trả về văn bản sạch 100%.
+    """
+    import re
     s = raw.strip()
-    if s.startswith("```"):
-        lines = s.splitlines()
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].startswith("```"):
-            lines = lines[:-1]
-        s = "\n".join(lines).strip()
-    return s
+    # 1. Loại bỏ thẻ suy nghĩ <think>...</think> nếu có
+    if "<think>" in s and "</think>" in s:
+        s = re.sub(r"<think>.*?</think>", "", s, flags=re.DOTALL).strip()
+    # 2. Loại bỏ code block markdown ```json ... ```
+    s = re.sub(r"^```[a-zA-Z]*\s*", "", s).strip()
+    s = re.sub(r"\s*```$", "", s).strip()
+
+    # Thử parse JSON trực tiếp
+    try:
+        data = json.loads(s)
+        if isinstance(data, dict):
+            content = data.get("noi_dung") or data.get("content") or data.get("cau_tra_loi")
+            if isinstance(content, str) and content.strip():
+                # Nếu nội dung lại bị lồng JSON bên trong
+                if content.strip().startswith("{") and ('"noi_dung"' in content or '"chu_de"' in content):
+                    return _extract_clean_content(content, default_subject)
+                return {
+                    "chu_de": data.get("chu_de") or default_subject,
+                    "noi_dung": content.strip(),
+                    "muc_do_tin_cay": float(data.get("muc_do_tin_cay", 0.85))
+                }
+    except Exception:
+        pass
+
+    # Nếu parse JSON trực tiếp thất bại (do JSON dở dang hoặc unescaped newlines):
+    noi_dung_match = re.search(r'[*"]*noi_dung[*"]*\s*:\s*[*"]*(.*)', s, flags=re.DOTALL)
+    if noi_dung_match:
+        extracted = noi_dung_match.group(1).lstrip(' \t\n\r"*')
+        extracted = re.sub(r'",\s*"muc_do_tin_cay".*$', '', extracted, flags=re.DOTALL)
+        extracted = re.sub(r'"\s*}\s*$', '', extracted, flags=re.DOTALL)
+        extracted = extracted.rstrip(' \t\n\r"}\'').strip()
+
+        try:
+            extracted = json.loads(f'"{extracted}"')
+        except Exception:
+            extracted = extracted.replace('\\n', '\n').replace('\\"', '"').replace('\\\\', '\\')
+
+        chu_de_match = re.search(r'[*"]*chu_de[*"]*\s*:\s*[*"]*([^"*]+)[*"]*', s)
+        subject = chu_de_match.group(1).strip() if chu_de_match else default_subject
+
+        return {
+            "chu_de": subject,
+            "noi_dung": extracted.strip(),
+            "muc_do_tin_cay": 0.85
+        }
+
+    # Nếu không phải JSON, loại bỏ dấu bọc JSON còn sót
+    clean_text = s
+    clean_text = re.sub(r'^\s*\{\s*[*"]*chu_de[*"]*\s*:\s*[^,\n]*,?\s*[*"]*noi_dung[*"]*\s*:\s*[*"]*?', '', clean_text, flags=re.DOTALL)
+    clean_text = re.sub(r'"?\s*(?:,\s*"muc_do_tin_cay"[^}]*)?\}\s*$', '', clean_text)
+    clean_text = clean_text.replace('\\n', '\n').replace('\\"', '"')
+
+    return {
+        "chu_de": default_subject,
+        "noi_dung": clean_text.strip(),
+        "muc_do_tin_cay": 0.85
+    }
+
 
 
 def luan_giai(
@@ -94,15 +156,23 @@ def luan_giai(
             if cached_res:
                 logger.info(f"Lấy thành công kết quả từ cache cho reference_id: {ref_id}")
                 res_copy = copy.deepcopy(cached_res)
+                if (explicit_system == "bat_tu" or res_copy.get("he_thong") == "bat_tu") and kiem_tra_va_chuan_hoa_luan_giai_bat_tu:
+                    cl = res_copy.get("cau_tra_loi")
+                    if isinstance(cl, dict) and cl.get("noi_dung"):
+                        cl["noi_dung"] = kiem_tra_va_chuan_hoa_luan_giai_bat_tu(
+                            cl["noi_dung"],
+                            du_lieu_dau_vao
+                        )
                 res_copy["tu_cache"] = True
                 return res_copy
 
         # 1. Lấy ngữ cảnh lịch sử chat và xác định hệ thống
+        session_id = du_lieu_dau_vao.get("session_id")
         if explicit_system and explicit_system in ["tu_vi", "bat_tu", "kinh_dich", "nhan_tuong"]:
             he_thong = explicit_system
             topic_info = {"he_thong": he_thong, "do_tin_cay": 1.0, "phuong_phap": "explicit"}
         else:
-            lich_su = lay_lich_su_chat(user_id=user_id, so_luong_gan_nhat=5, db=db) if db else []
+            lich_su = lay_lich_su_chat(user_id=user_id, so_luong_gan_nhat=5, session_id=session_id, db=db) if db else []
             topic_info = xac_dinh_he_thong(
                 cau_hoi=cau_hoi,
                 user_id=user_id,
@@ -144,6 +214,13 @@ def luan_giai(
             if cached_res:
                 logger.info(f"Lấy thành công kết quả từ cache cho hệ thống: {he_thong}")
                 res_copy = copy.deepcopy(cached_res)
+                if (he_thong == "bat_tu" or res_copy.get("he_thong") == "bat_tu") and kiem_tra_va_chuan_hoa_luan_giai_bat_tu:
+                    cl = res_copy.get("cau_tra_loi")
+                    if isinstance(cl, dict) and cl.get("noi_dung"):
+                        cl["noi_dung"] = kiem_tra_va_chuan_hoa_luan_giai_bat_tu(
+                            cl["noi_dung"],
+                            du_lieu_dau_vao
+                        )
                 res_copy["tu_cache"] = True
                 return res_copy
 
@@ -178,17 +255,37 @@ def luan_giai(
             logger.warning(f"Lỗi tra cứu Knowledge Base ({he_thong}): {str(e)}")
             tri_thuc_lien_quan = []
 
-        # 5. Ghép prompt luận giải theo đúng hệ thống
+        # 5. Ghép prompt luận giải theo đúng hệ thống (kèm thông tin hồ sơ mệnh chủ nếu có)
+        effective_question = cau_hoi
+        ho_so_mc = du_lieu_dau_vao.get("ho_so_menh_chu")
+        if ho_so_mc and isinstance(ho_so_mc, dict):
+            mc_ten = ho_so_mc.get("ho_ten", "")
+            mc_gioi_tinh = "Nam" if ho_so_mc.get("gioi_tinh") == "nam" else "Nữ"
+            mc_ngay_sinh = ho_so_mc.get("ngay_sinh_duong", "")
+            mc_gio_sinh = ho_so_mc.get("gio_sinh", "")
+            effective_question = (
+                f"{cau_hoi}\n"
+                f"[THÔNG TIN NGƯỜI HỎI (MỆNH CHỦ)]: Họ tên: {mc_ten}, Giới tính: {mc_gioi_tinh}, Ngày sinh: {mc_ngay_sinh}, Giờ: {mc_gio_sinh}h. "
+                f"Hãy xưng hô và đưa ra lời giải đáp tương thích theo thông tin này."
+            )
+
         if he_thong == "tu_vi":
-            prompt = tao_prompt_luan_giai_tu_vi(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=cau_hoi)
+            prompt = tao_prompt_luan_giai_tu_vi(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=effective_question)
         elif he_thong == "bat_tu":
-            prompt = tao_prompt_luan_giai_bat_tu(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=cau_hoi)
+            prompt = tao_prompt_luan_giai_bat_tu(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=effective_question)
         elif he_thong == "kinh_dich":
-            prompt = tao_prompt_luan_giai_kinh_dich(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=cau_hoi)
+            prompt = tao_prompt_luan_giai_kinh_dich(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=effective_question)
         elif he_thong == "nhan_tuong":
-            prompt = tao_prompt_luan_giai_nhan_tuong(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=cau_hoi)
+            prompt = tao_prompt_luan_giai_nhan_tuong(du_lieu_dau_vao, tri_thuc_lien_quan, chu_de=effective_question)
         else:
             raise ValueError(f"Hệ thống không hợp lệ: {he_thong}")
+
+        # Bổ sung quy chuẩn an toàn nội dung nghiêm ngặt chống từ ngữ cực đoan
+        prompt += (
+            "\n\n[QUY CHUẨN AN TOÀN NỘI DUNG VÀ ĐẠO ĐỨC]:\n"
+            "- TUYỆT ĐỐI KHÔNG sử dụng các từ ngữ cực đoan, phán xét đoản mạng, tử vong, chết chóc, tuyệt mệnh, ung thư, tự sát, tự tử.\n"
+            "- Luôn hướng dẫn tích cực, an tâm, gợi mở hướng cải thiện phúc đức, tu tâm dưỡng tính theo triết lý 'Tướng tùy tâm sinh, đức năng thắng số'."
+        )
 
         # 6. Kiểm tra và trừ Usage Quota TRƯỚC KHI gọi AI
         if db and user_id:
@@ -206,38 +303,45 @@ def luan_giai(
                     "nguon_tri_thuc_da_dung": []
                 }
 
-        # 7. Gọi AI Client thống nhất
+        # 7. Gọi AI Client thống nhất (tăng max_tokens lên 2500 để luận giải đầy đủ 8 mục không bị ngắt)
         client = ai_client or AIClient()
-        req = AIRequest(prompt=prompt, temperature=0.2, max_tokens=1500)
+        req = AIRequest(prompt=prompt, temperature=0.2, max_tokens=2500)
         ai_resp = client.goi_ai_voi_retry(req)
 
         if not ai_resp.thanh_cong:
+            if db and user_id:
+                hoan_lai_quota(user_id=user_id, db=db)
             return {
                 "he_thong": he_thong,
                 "thanh_cong": False,
-                "thong_bao": f"Sự cố kết nối dịch vụ AI: {ai_resp.loi_neu_co}",
+                "thong_bao": "Hệ thống AI đang bận kết nối. Quý bạn vui lòng nhấn lại để tiếp tục.",
                 "cau_tra_loi": None,
                 "nguon_tri_thuc_da_dung": []
             }
 
-        # 8. Parse response và xử lý fallback nếu sai định dạng JSON
-        parsed_data = None
-        try:
-            parsed_data = json.loads(_clean_json_str(ai_resp.text))
-        except Exception:
-            prompt_retry = prompt + """\n\nLƯU Ý BẮT BUỘC: Bạn đã trả về sai format. Hãy CHỈ trả về đúng JSON hợp lệ {"chu_de": "...", "noi_dung": "...", "muc_do_tin_cay": 0.8}, không kèm bất kỳ text nào khác ngoài JSON."""
-            req_2 = AIRequest(prompt=prompt_retry, temperature=0.1, max_tokens=1500)
-            ai_resp_2 = client.goi_ai_voi_retry(req_2)
-            try:
-                parsed_data = json.loads(_clean_json_str(ai_resp_2.text))
-            except Exception:
-                return {
-                    "he_thong": he_thong,
-                    "thanh_cong": False,
-                    "thong_bao": "Không thể xử lý phản hồi từ AI do sai định dạng kết quả sau 2 lần thử.",
-                    "cau_tra_loi": None,
-                    "nguon_tri_thuc_da_dung": []
-                }
+        # 8. Bóc tách nội dung luận giải chuẩn sạch 100%, không để lọt vỏ bọc JSON hay ký tự lạ
+        parsed_data = _extract_clean_content(ai_resp.text, default_subject=cau_hoi)
+
+        if not parsed_data.get("noi_dung"):
+            logger.warning(f"[ORCHESTRATOR] Bóc tách nội dung rỗng! ai_resp.text len={len(ai_resp.text)}, preview={repr(ai_resp.text[:300])}")
+            if db and user_id:
+                hoan_lai_quota(user_id=user_id, db=db)
+            return {
+                "he_thong": he_thong,
+                "thanh_cong": False,
+                "thong_bao": "Hệ thống AI đang bận kết nối. Quý bạn vui lòng nhấn lại để tiếp tục.",
+                "cau_tra_loi": None,
+                "nguon_tri_thuc_da_dung": []
+            }
+
+
+
+        # Chuẩn hóa bắt buộc cho Bát Tự theo sách Trần Khang Ninh (trang 30-31)
+        if he_thong == "bat_tu" and kiem_tra_va_chuan_hoa_luan_giai_bat_tu and parsed_data.get("noi_dung"):
+            parsed_data["noi_dung"] = kiem_tra_va_chuan_hoa_luan_giai_bat_tu(
+                parsed_data["noi_dung"],
+                du_lieu_dau_vao
+            )
 
         if not tri_thuc_lien_quan:
             parsed_data["ghi_chu_gioi_han"] = "Phản hồi thận trọng do chưa tìm thấy tri thức cụ thể trong Knowledge Base."
@@ -270,6 +374,7 @@ def luan_giai(
                 cau_hoi=cau_hoi,
                 tra_loi=safe_result.get("cau_tra_loi", {}).get("noi_dung", ""),
                 reference_id=ref_id,
+                session_id=session_id,
                 db=db
             )
 
@@ -282,10 +387,16 @@ def luan_giai(
 
     except Exception as e:
         logger.error(f"Lỗi ngoại lệ trong Interpretation Orchestrator: {str(e)}")
+        if db and user_id:
+            try:
+                hoan_lai_quota(user_id=user_id, db=db)
+            except Exception:
+                pass
         return {
             "he_thong": None,
             "thanh_cong": False,
-            "thong_bao": "Hệ thống gặp sự cố trong quá trình luận giải. Vui lòng thử lại sau.",
+            "thong_bao": "Hệ thống AI đang bận kết nối. Quý bạn vui lòng nhấn lại để tiếp tục.",
             "cau_tra_loi": None,
             "nguon_tri_thuc_da_dung": []
         }
+

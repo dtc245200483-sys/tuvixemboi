@@ -32,8 +32,12 @@ def tao_prompt_luan_giai_nhan_tuong(
     parts.append("""
 === HƯỚNG DẪN LUẬN GIẢI ===
 1. BẠN CHỈ ĐƯỢC LUẬN GIẢI DỰA TRÊN TRI THỨC ĐƯỢC CUNG CẤP Ở TRÊN.
-2. Nhấn mạnh ý nghĩa nhân tướng khách quan, 'tướng tùy tâm sinh', khuyên tu dưỡng đạo đức.
-3. Bắt buộc trả về đúng JSON có cấu trúc:
+2. QUY TẮC PHÂN BIỆT NỐT RUỒI & MỤN/TÌ VẾT TẠM THỜI:
+   - CHỈ luận giải nốt ruồi nếu 'vi_tri_not_ruoi' ghi nhận rõ ràng là nốt ruồi sắc tố cố định.
+   - TUYỆT ĐỐI KHÔNG luận giải các đốm trong 'ti_vet_da_lieu_hoac_mun' (mụn trứng cá, vết thâm mụn sậm màu, sẹo tạm thời) thành nốt ruồi định mệnh hay điềm báo tướng số. Trong Nhân Tướng Học: "Khí trệ sinh mụn, mụn là biểu hiện nội tiết / phong nhiệt tạm thời, không phải bộ vị diện tướng cố định".
+   - Nếu có mụn hoặc tì vết tạm thời, hãy giải thích khách quan, nhắc nhở mệnh chủ giữ tinh thần thư thái, vệ sinh da liễu tốt, tuyệt đối không hoang mang lo lắng.
+3. Nhấn mạnh ý nghĩa nhân tướng khách quan, 'tướng tùy tâm sinh, tướng do tâm đổi', khuyên tu dưỡng đạo đức và sống an nhiên.
+4. Bắt buộc trả về đúng JSON có cấu trúc:
 {
   "chu_de": "%s",
   "noi_dung": "nội dung luận giải chi tiết",

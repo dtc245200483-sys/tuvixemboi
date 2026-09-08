@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Pydantic Schemas cho API Orchestration Layer (backend/api/):
 - APIResponse: Chuẩn hóa envelope pattern {thanh_cong, du_lieu, loi} cho toàn bộ endpoint.
@@ -64,6 +64,8 @@ class BirthProfileResponse(BaseModel):
     gioi_tinh: str
     ngay_sinh_am: Optional[date] = None
     thong_tin_am_lich: Optional[Dict[str, Any]] = None
+    is_default: bool = False
+    is_quick_chart: bool = False
     created_at: datetime
 
 
@@ -74,6 +76,13 @@ class TuViResponse(BaseModel):
     birth_profile_id: str
     la_so: Dict[str, Any]
     luan_giai: Optional[Dict[str, Any]] = None
+
+
+class TuViTopicResponse(BaseModel):
+    birth_profile_id: str
+    topic: str
+    tieu_de: str
+    luan_giai: Dict[str, Any]
 
 
 # ==============================================================================
@@ -119,19 +128,41 @@ class NhanTuongResponse(BaseModel):
 # ==============================================================================
 class ChatRequest(BaseModel):
     cau_hoi: str = Field(..., min_length=1, description="Nội dung câu hỏi gửi tới trợ lý phong thủy")
+    session_id: Optional[str] = Field(None, description="ID phiên trò chuyện nếu có")
+    birth_profile_id: Optional[str] = Field(None, description="ID hồ sơ mệnh chủ đang đàm đạo nếu có")
     reference_id: Optional[str] = Field(None, description="ID lá số/quẻ/ảnh liên quan nếu có")
     he_thong: Optional[str] = Field(None, pattern="^(tu_vi|kinh_dich|bat_tu|nhan_tuong)$", description="Hệ thống cụ thể nếu muốn chỉ định")
 
 
 class ChatResponse(BaseModel):
+    session_id: Optional[str] = None
     he_thong: Optional[str] = None
     cau_hoi: str
     tra_loi: str
     chi_tiet: Optional[Dict[str, Any]] = None
 
 
+class ChatSessionItem(BaseModel):
+    id: str
+    tieu_de: str
+    created_at: datetime
+    updated_at: datetime
+    so_tin_nhan: int = 0
+    tin_nhan_cuoi: Optional[str] = None
+
+
+class ChatSessionListResponse(BaseModel):
+    danh_sach: List[ChatSessionItem]
+    tong_so: int
+
+
+class ChatSessionCreateRequest(BaseModel):
+    tieu_de: Optional[str] = Field("Cuộc trò chuyện mới", description="Tiêu đề cuộc trò chuyện")
+
+
 class ChatHistoryItem(BaseModel):
     id: str
+    session_id: Optional[str] = None
     he_thong: str
     reference_id: Optional[str] = None
     cau_hoi: str
@@ -154,3 +185,6 @@ class QuotaResponse(BaseModel):
     so_luot_con_lai: int
     gioi_han_ngay: int
     con_han_muc: bool
+    is_premium: bool = False
+    so_giay_con_lai_den_reset: Optional[int] = None
+    thoi_gian_reset: Optional[str] = None

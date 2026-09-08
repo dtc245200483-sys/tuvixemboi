@@ -32,10 +32,10 @@ def test_case_1_sample_chart_1():
     Nhật Chủ: Canh (Kim).
     """
     tt = lap_tu_tru(15, 5, 1990, "Thìn")
-    assert tt["tru_nam"] == {"can": "Canh", "chi": "Ngọ"}
-    assert tt["tru_thang"] == {"can": "Tân", "chi": "Tỵ"}
-    assert tt["tru_ngay"] == {"can": "Canh", "chi": "Thìn"}
-    assert tt["tru_gio"] == {"can": "Canh", "chi": "Thìn"}
+    assert tt["tru_nam"]["can"] == "Canh" and tt["tru_nam"]["chi"] == "Ngọ"
+    assert tt["tru_thang"]["can"] == "Tân" and tt["tru_thang"]["chi"] == "Tỵ"
+    assert tt["tru_ngay"]["can"] == "Canh" and tt["tru_ngay"]["chi"] == "Thìn"
+    assert tt["tru_gio"]["can"] == "Canh" and tt["tru_gio"]["chi"] == "Thìn"
 
     nhat_chu = xac_dinh_nhat_chu(tt)
     assert nhat_chu == "Canh"
@@ -61,10 +61,10 @@ def test_case_2_sample_chart_2():
     Nhật Chủ: Giáp (Mộc).
     """
     tt = lap_tu_tru(10, 2, 2024, "Tý")
-    assert tt["tru_nam"] == {"can": "Giáp", "chi": "Thìn"}
-    assert tt["tru_thang"] == {"can": "Bính", "chi": "Dần"}
-    assert tt["tru_ngay"] == {"can": "Giáp", "chi": "Thìn"}
-    assert tt["tru_gio"] == {"can": "Giáp", "chi": "Tý"}
+    assert tt["tru_nam"]["can"] == "Giáp" and tt["tru_nam"]["chi"] == "Thìn"
+    assert tt["tru_thang"]["can"] == "Bính" and tt["tru_thang"]["chi"] == "Dần"
+    assert tt["tru_ngay"]["can"] == "Giáp" and tt["tru_ngay"]["chi"] == "Thìn"
+    assert tt["tru_gio"]["can"] == "Giáp" and tt["tru_gio"]["chi"] == "Tý"
 
     assert xac_dinh_nhat_chu(tt) == "Giáp"
 
@@ -81,10 +81,10 @@ def test_case_3_sample_chart_3():
     Nhật Chủ: Giáp (Mộc).
     """
     tt = lap_tu_tru(2, 9, 1945, "Ngọ")
-    assert tt["tru_nam"] == {"can": "Ất", "chi": "Dậu"}
-    assert tt["tru_thang"] == {"can": "Giáp", "chi": "Thân"}
-    assert tt["tru_ngay"] == {"can": "Giáp", "chi": "Tuất"}
-    assert tt["tru_gio"] == {"can": "Canh", "chi": "Ngọ"}
+    assert tt["tru_nam"]["can"] == "Ất" and tt["tru_nam"]["chi"] == "Dậu"
+    assert tt["tru_thang"]["can"] == "Giáp" and tt["tru_thang"]["chi"] == "Thân"
+    assert tt["tru_ngay"]["can"] == "Giáp" and tt["tru_ngay"]["chi"] == "Tuất"
+    assert tt["tru_gio"]["can"] == "Canh" and tt["tru_gio"]["chi"] == "Ngọ"
 
     assert xac_dinh_nhat_chu(tt) == "Giáp"
 
@@ -156,17 +156,145 @@ def test_case_7_round_trip_determinism():
 
 def test_case_8_boundary_month_transition():
     """
-    Test 8: Test biên: ngày sinh ở đúng ranh giới chuyển tháng âm lịch (ngày đầu/cuối tháng).
-    Xác nhận Can-Chi tháng được xác định đúng, không bị lệch do lấy nhầm tháng:
-    - 19/02/2023 là ngày 29/01 ÂL (cuối tháng 1 ÂL) -> Chi tháng là Dần (tháng 1).
-    - 20/02/2023 là ngày 01/02 ÂL (đầu tháng 2 ÂL) -> Chi tháng là Mão (tháng 2).
+    Test 8: Test biên ranh giới chuyển tiết khí của Trụ Tháng theo Tử Bình:
+    - 05/03/2023 vẫn thuộc tiết Lập Xuân/Vũ Thủy -> Nguyệt lệnh Dần (Giáp Dần).
+    - 06/03/2023 đã bước sang tiết Kinh Trập -> Nguyệt lệnh Mão (Ất Mão).
     """
-    tt_cuoi_thang_1 = lap_tu_tru(19, 2, 2023, "Tý")
-    tt_dau_thang_2 = lap_tu_tru(20, 2, 2023, "Tý")
+    tt_truoc_kinh_trap = lap_tu_tru(5, 3, 2023, "Tý")
+    tt_sau_kinh_trap = lap_tu_tru(6, 3, 2023, "Tý")
 
-    # Năm 2023 là Quý Mão (Can Quý)
-    # Tháng 1 là Giáp Dần
-    assert tt_cuoi_thang_1["tru_thang"] == {"can": "Giáp", "chi": "Dần"}
+    # Trước Kinh Trập: Tháng 1 là Giáp Dần
+    assert tt_truoc_kinh_trap["tru_thang"]["can"] == "Giáp" and tt_truoc_kinh_trap["tru_thang"]["chi"] == "Dần"
 
-    # Tháng 2 là Ất Mão
-    assert tt_dau_thang_2["tru_thang"] == {"can": "Ất", "chi": "Mão"}
+    # Sau Kinh Trập: Tháng 2 là Ất Mão
+    assert tt_sau_kinh_trap["tru_thang"]["can"] == "Ất" and tt_sau_kinh_trap["tru_thang"]["chi"] == "Mão"
+
+
+def test_case_9_thap_than_and_pillar_details():
+    """
+    Test 9: Kiểm tra tính Thập Thần và chi tiết 4 trụ theo sách Trần Khang Ninh.
+    """
+    tt = lap_tu_tru(15, 5, 1990, "Thìn", gioi_tinh="nam")
+    assert "chi_tiet_tru" in tt
+    assert "tru_nam" in tt["chi_tiet_tru"]
+    assert "tru_thang" in tt["chi_tiet_tru"]
+    assert "tru_ngay" in tt["chi_tiet_tru"]
+    assert "tru_gio" in tt["chi_tiet_tru"]
+
+    # Canh Kim ngày gặp Canh Kim năm -> Tỷ Kiên
+    assert tt["chi_tiet_tru"]["tru_nam"]["thap_than"]["ten"] == "Tỷ Kiên"
+    # Canh Kim ngày gặp Tân Kim tháng -> Kiếp Tài
+    assert tt["chi_tiet_tru"]["tru_thang"]["thap_than"]["ten"] == "Kiếp Tài"
+
+
+def test_case_10_cach_cuc_and_dieu_hau():
+    """
+    Test 10: Kiểm tra xác định Cách Cục và Dụng Thần Điều Hầu.
+    """
+    # Sinh mùa Đông (tháng 12 DL / tháng 11 AL): Cần Hỏa Điều Hầu
+    tt_dong = lap_tu_tru(20, 12, 1995, "Tý")
+    assert tt_dong["dung_than_detail"]["dieu_hau"] is not None
+    assert tt_dong["dung_than_detail"]["dieu_hau"]["ngu_hanh"] == "Hỏa"
+
+    # Kiểm tra có cấu trúc cách cục rõ ràng
+    assert "cach_cuc" in tt_dong
+    assert "ten_cach" in tt_dong["cach_cuc"]
+
+
+def test_case_11_dai_van_direction():
+    """
+    Test 11: Kiểm tra chiều Đại Vận (Dương Nam thuận, Âm Nam nghịch).
+    Năm 1990 là Canh Ngọ (Canh = Dương Kim) -> Nam đi THUẬN, Nữ đi NGHỊCH.
+    """
+    tt_nam = lap_tu_tru(15, 5, 1990, "Thìn", gioi_tinh="nam")
+    tt_nu = lap_tu_tru(15, 5, 1990, "Thìn", gioi_tinh="nu")
+
+    dv_nam = tt_nam["dai_van"]
+    dv_nu = tt_nu["dai_van"]
+
+    assert len(dv_nam) == 8
+    assert len(dv_nu) == 8
+    # Vận 1 của Nam và Nữ phải khác nhau do 1 bên thuận 1 bên nghịch
+    assert dv_nam[0]["can_chi"] != dv_nu[0]["can_chi"]
+
+
+def test_case_12_than_sat_and_cai_menh():
+    """
+    Test 12: Kiểm tra Thần Sát và Cải Vận Đời Sống.
+    """
+    tt = lap_tu_tru(10, 2, 2024, "Tý")
+    assert "cai_menh" in tt
+    assert "mau_sac" in tt["cai_menh"]
+    assert "con_so" in tt["cai_menh"]
+    assert "phuong_huong" in tt["cai_menh"]
+    assert "khong_vong" in tt
+
+
+def test_case_13_vuong_nhuoc_chuan_tu_binh_and_validator():
+    """
+    Test 13: Kiểm tra tính chuẩn xác của Thẩm Định Thân Vượng Nhược theo sách Trần Khang Ninh:
+    Lá số 29/05/2006, 9h15 (Bính Tuất - Quý Tỵ - Mậu Ngọ - Đinh Tỵ):
+    1. Đắc Thế: CHỈ CÓ Bính (Thiên Ấn) và Đinh (Chính Ấn). TUYỆT ĐỐI KHÔNG CÓ Quý (Chính Tài).
+       Quý phải nằm ở cans_tiet_khac.
+    2. Đắc Lệnh: Nêu đích danh Bính (Thiên Ấn) và Mậu (Tỷ Kiên).
+    3. Đắc Địa: Chỉ tính tàng can Tỷ Kiên, Kiếp Tài; tuyệt đối không tính Ấn.
+    4. Validator & Mục IV: Không có 40/35/20, không có luận chung chung 'Hỏa sinh Thổ'.
+    """
+    from astro_engine.bat_tu.validator import (
+        tao_noi_dung_chuan_muc_4,
+        kiem_tra_va_chuan_hoa_luan_giai_bat_tu
+    )
+
+    tt = lap_tu_tru(29, 5, 2006, "Tỵ", "Nam", 9, 15)
+    vn = tt["vuong_nhuoc_detail"]
+
+    # 1. Kiểm tra Đắc Thế
+    assert vn["dac_the"] is True
+    bang_chung_the_str = " ".join(vn["bang_chung_the"])
+    assert "Bính" in bang_chung_the_str
+    assert "Đinh" in bang_chung_the_str
+    assert "Quý" not in bang_chung_the_str  # BỎ HẲN Quý khỏi Đắc Thế!
+
+    cans_loai_tru_str = " ".join(vn["cans_tiet_khac"])
+    assert "Quý" in cans_loai_tru_str
+    assert "Chính Tài" in cans_loai_tru_str
+
+    # 2. Kiểm tra Đắc Lệnh
+    assert vn["dac_lenh"] is True
+    bc_lenh_str = " ".join(vn["bang_chung_lenh"])
+    assert "Bính (Thiên Ấn)" in bc_lenh_str
+    assert "Mậu (Tỷ Kiên)" in bc_lenh_str
+
+    # 3. Kiểm tra Đắc Địa
+    assert vn["dac_dia"] is True
+    bc_dia_str = " ".join(vn["bang_chung_dia"])
+    assert "Tỷ Kiên" in bc_dia_str or "Kiếp Tài" in bc_dia_str
+    assert "Chính Ấn" not in bc_dia_str and "Thiên Ấn" not in bc_dia_str
+
+    # 4. Kiểm tra Validator sinh Mục IV
+    m4 = tao_noi_dung_chuan_muc_4(tt)
+    assert "Thân Vượng" in m4
+    assert "40" not in m4 and "35" not in m4 and "20" not in m4
+    assert "Hỏa sinh Thổ, nên Đắc Lệnh" not in m4
+    assert "các Chi đều chứa Thần hỗ trợ" not in m4
+
+    # 5. Kiểm tra kiem_tra_va_chuan_hoa_luan_giai_bat_tu sửa sạch lỗi cũ
+    raw_ai_loi = '''• Mục I. An toàn vùng biên
+• Mục II. Tứ Trụ
+- Mục IV. Đánh giá Khí Lực Bản Thân (Thân Vượng):
+  • Kết luận: Thân Vượng
+  • Bằng chứng:
+    - Đắc Lệnh: Ngày Mậu (Thổ) sinh trong tháng Tỵ (Hỏa) – Hỏa sinh Thổ, nên Đắc Lệnh (điểm Lệnh 40).
+    - Đắc Địa: Ngày Mậu có gốc rễ thông căn vững vàng ở các Chi Năm, Tháng, Giờ (các Chi đều chứa Thần hỗ trợ), nên Đắc Địa (điểm Địa 35).
+    - Đắc Thế: Các Thiên Can còn lại (Bính, Quý, Đinh) đều có Thiên Ấn hoặc Tỷ Kiên hỗ trợ, nên Đắc Thế (điểm Thế 20).
+• Mục V. Định danh Cách Cục
+'''
+    cleaned = kiem_tra_va_chuan_hoa_luan_giai_bat_tu(raw_ai_loi, tt)
+    assert "điểm Lệnh 40" not in cleaned
+    assert "điểm Địa 35" not in cleaned
+    assert "điểm Thế 20" not in cleaned
+    assert "Các Thiên Can còn lại (Bính, Quý, Đinh)" not in cleaned
+    assert "Hỏa sinh Thổ, nên Đắc Lệnh" not in cleaned
+    assert "các Chi đều chứa Thần hỗ trợ" not in cleaned
+
+

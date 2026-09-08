@@ -19,6 +19,20 @@ TU_KHOA_CHAN_CUNG = [
     "tự sát",
     "chết non chắc chắn",
     "họa sát thân không tránh khỏi",
+    "chết sớm",
+    "chết trẻ",
+    "chết yểu",
+    "sẽ chết",
+    "chết chóc",
+    "mất mạng",
+    "tử nạn",
+    "tử vong",
+    "tuyệt mạng",
+    "đoản mạng",
+    "tận số",
+    "đại tang",
+    "họa sát thân",
+    "vô phương cứu tử",
 
     # 2. Mê tín dị đoan cực đoan, trục lợi, ép cúng bái/mua bùa
     "phải bỏ tiền cúng bái",
@@ -57,5 +71,11 @@ TU_KHOA_CAN_MEM_HOA = [
     "sự nghiệp sụp đổ hoàn toàn",
     "gia đình tan nát",
     "vận hạn không thể tránh",
-    "cuộc đời đen đủi tội cùng"
+    "cuộc đời đen đủi tội cùng",
+    "đoản thọ",
+    "bệnh hiểm nghèo khó qua",
+    "tuyệt tự",
+    "sát phu",
+    "sát thê",
+    "không sống thọ"
 ]

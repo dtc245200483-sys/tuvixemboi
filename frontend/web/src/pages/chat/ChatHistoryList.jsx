@@ -132,7 +132,7 @@ export default function ChatHistoryList({
           <div className="w-16 h-16 rounded-2xl bg-[#FAF5EE] border border-accent/40 flex items-center justify-center text-accent mb-4 shadow-sm">
             <IconCompass size={32} />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-primary mb-2">
+          <h2 className="text-2xl sm:text-3xl font-body font-bold text-primary mb-2">
             Đàm Đạo Huyền Học
           </h2>
           <p className="text-sm text-text-secondary max-w-md mb-6 leading-relaxed">

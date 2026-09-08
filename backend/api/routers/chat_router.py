@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 """
 Router Chat Tương tác Đa hệ thống:
-- POST /chat: Đặt câu hỏi tự do (Topic Detection tự động phân loại hệ thống nếu không chỉ định).
-- GET /chat/history: Phân trang lịch sử hội thoại của người dùng.
+- Quản lý phiên trò chuyện (ChatSession): Danh sách tối đa 20 cuộc trò chuyện gần nhất.
+- Hỗ trợ tạo mới, xóa từng cuộc trò chuyện độc lập, phân trang tin nhắn trong cuộc trò chuyện.
+- Luận giải có ghi nhớ ngữ cảnh Hồ Sơ Mệnh Đang Chọn và tuyệt đối nghiêm cấm từ ngữ cực đoan.
 """
 
 import uuid
-from typing import Optional
-from fastapi import APIRouter, Depends, Query, status
+from datetime import datetime
+from typing import Optional, List
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 
 from db.database import get_db
-from db.models import User, ChatHistory, TuongAnhResult
+from db.models import User, ChatHistory, ChatSession, BirthProfile, TuongAnhResult
 from auth.dependencies import get_current_user
 from api.dependencies import kiem_tra_quota_truoc_khi_xu_ly
 from api.schemas import (
@@ -19,11 +21,209 @@ from api.schemas import (
     ChatRequest,
     ChatResponse,
     ChatHistoryResponse,
-    ChatHistoryItem
+    ChatHistoryItem,
+    ChatSessionItem,
+    ChatSessionListResponse,
+    ChatSessionCreateRequest
 )
 from interpretation_api.orchestrator.main_flow import luan_giai
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
+
+
+def _prune_old_sessions(user_id: uuid.UUID, db: Session, keep_count: int = 20):
+    """Đảm bảo mỗi người dùng chỉ lưu tối đa keep_count cuộc trò chuyện gần nhất."""
+    try:
+        sessions = (
+            db.query(ChatSession)
+            .filter(ChatSession.user_id == user_id)
+            .order_by(ChatSession.updated_at.desc())
+            .all()
+        )
+        if len(sessions) > keep_count:
+            to_delete = sessions[keep_count:]
+            for s in to_delete:
+                db.delete(s)
+            db.commit()
+    except Exception:
+        db.rollback()
+
+
+@router.get("/sessions", response_model=APIResponse[ChatSessionListResponse])
+def lay_danh_sach_phien_chat(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Lấy danh sách tối đa 20 cuộc trò chuyện gần nhất của người dùng.
+    """
+    sessions = (
+        db.query(ChatSession)
+        .filter(ChatSession.user_id == current_user.id)
+        .order_by(ChatSession.updated_at.desc())
+        .limit(20)
+        .all()
+    )
+    items = []
+    for s in sessions:
+        msg_count = db.query(ChatHistory).filter(ChatHistory.session_id == s.id).count()
+        last_msg = (
+            db.query(ChatHistory)
+            .filter(ChatHistory.session_id == s.id)
+            .order_by(ChatHistory.created_at.desc())
+            .first()
+        )
+        preview = None
+        if last_msg:
+            preview = last_msg.tra_loi[:80] if last_msg.tra_loi else last_msg.cau_hoi[:80]
+
+        items.append(
+            ChatSessionItem(
+                id=str(s.id),
+                tieu_de=s.tieu_de,
+                created_at=s.created_at,
+                updated_at=s.updated_at,
+                so_tin_nhan=msg_count,
+                tin_nhan_cuoi=preview
+            )
+        )
+
+    return APIResponse(
+        thanh_cong=True,
+        du_lieu=ChatSessionListResponse(
+            danh_sach=items,
+            tong_so=len(items)
+        ),
+        loi=None
+    )
+
+
+@router.post("/sessions", response_model=APIResponse[ChatSessionItem])
+def tao_phien_chat_moi(
+    req: Optional[ChatSessionCreateRequest] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Tạo một cuộc trò chuyện mới độc lập.
+    Đảm bảo chỉ lưu tối đa 20 cuộc trò chuyện gần nhất (cắt tỉa phiên cũ).
+    """
+    _prune_old_sessions(current_user.id, db, keep_count=19)
+    title = (req.tieu_de if req and req.tieu_de else "Cuộc trò chuyện mới").strip()
+    new_sess = ChatSession(
+        id=uuid.uuid4(),
+        user_id=current_user.id,
+        tieu_de=title or "Cuộc trò chuyện mới",
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow()
+    )
+    db.add(new_sess)
+    db.commit()
+    db.refresh(new_sess)
+
+    return APIResponse(
+        thanh_cong=True,
+        du_lieu=ChatSessionItem(
+            id=str(new_sess.id),
+            tieu_de=new_sess.tieu_de,
+            created_at=new_sess.created_at,
+            updated_at=new_sess.updated_at,
+            so_tin_nhan=0,
+            tin_nhan_cuoi=None
+        ),
+        loi=None
+    )
+
+
+@router.delete("/sessions/{session_id}", response_model=APIResponse[dict])
+def xoa_phien_chat(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Xóa riêng một cuộc trò chuyện và toàn bộ tin nhắn bên trong.
+    """
+    try:
+        s_uuid = uuid.UUID(session_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="ID cuộc trò chuyện không hợp lệ")
+
+    sess = db.query(ChatSession).filter(
+        ChatSession.id == s_uuid,
+        ChatSession.user_id == current_user.id
+    ).first()
+
+    if not sess:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy cuộc trò chuyện này")
+
+    db.delete(sess)
+    db.commit()
+
+    return APIResponse(
+        thanh_cong=True,
+        du_lieu={"thanh_cong": True, "thong_bao": "Đã xóa cuộc trò chuyện thành công"},
+        loi=None
+    )
+
+
+@router.get("/sessions/{session_id}/messages", response_model=APIResponse[ChatHistoryResponse])
+def lay_tin_nhan_phien_chat(
+    session_id: str,
+    page: int = Query(default=1, ge=1, description="Số thứ tự trang"),
+    page_size: int = Query(default=15, ge=1, le=100, description="Số lượng tin nhắn mỗi trang"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Phân trang tin nhắn trong một cuộc trò chuyện cụ thể.
+    Hỗ trợ nút 'Cuộn lên hoặc bấm để xem thêm tin nhắn cũ'.
+    """
+    try:
+        s_uuid = uuid.UUID(session_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="ID cuộc trò chuyện không hợp lệ")
+
+    sess = db.query(ChatSession).filter(
+        ChatSession.id == s_uuid,
+        ChatSession.user_id == current_user.id
+    ).first()
+
+    if not sess:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy cuộc trò chuyện này")
+
+    query = db.query(ChatHistory).filter(
+        ChatHistory.user_id == current_user.id,
+        ChatHistory.session_id == s_uuid
+    )
+    total = query.count()
+    offset = (page - 1) * page_size
+    records = query.order_by(ChatHistory.created_at.desc()).offset(offset).limit(page_size).all()
+
+    # Sắp xếp lại theo thời gian tăng dần để hiển thị tự nhiên trong khung chat
+    items = [
+        ChatHistoryItem(
+            id=str(r.id),
+            session_id=str(r.session_id) if r.session_id else None,
+            he_thong=r.he_thong,
+            reference_id=str(r.reference_id) if r.reference_id else None,
+            cau_hoi=r.cau_hoi,
+            tra_loi=r.tra_loi,
+            created_at=r.created_at
+        )
+        for r in reversed(records)
+    ]
+
+    return APIResponse(
+        thanh_cong=True,
+        du_lieu=ChatHistoryResponse(
+            tong_so=total,
+            trang=page,
+            kich_thuoc_trang=page_size,
+            danh_sach=items
+        ),
+        loi=None
+    )
 
 
 @router.post("", response_model=APIResponse[ChatResponse])
@@ -34,17 +234,89 @@ def gui_cau_hoi_chat(
 ):
     """
     Gửi câu hỏi tự do tới trợ lý phong thủy.
-    - Tự động nhận diện chủ đề huyền học (Topic Detection).
-    - Tra cứu tri thức chuẩn xác và sinh luận giải cá nhân hóa.
-    - Tự động kiểm duyệt Content Safety và ghi nhận ChatHistory.
+    - Quản lý phiên trò chuyện riêng biệt.
+    - Nạp ngữ cảnh hồ sơ mệnh chủ đang đàm đạo.
+    - Tuân thủ quy chuẩn an toàn nội dung (Content Safety Softener).
     """
     du_lieu = {}
     co_anh = False
 
+    # 1. Xác định hoặc tạo phiên trò chuyện (ChatSession)
+    active_session = None
+    if req.session_id:
+        try:
+            s_uuid = uuid.UUID(req.session_id)
+            active_session = db.query(ChatSession).filter(
+                ChatSession.id == s_uuid,
+                ChatSession.user_id == current_user.id
+            ).first()
+        except Exception:
+            pass
+
+    if not active_session:
+        _prune_old_sessions(current_user.id, db, keep_count=19)
+        raw_title = req.cau_hoi.strip() if req.cau_hoi else "Cuộc trò chuyện mới"
+        title = raw_title[:45] + ("..." if len(raw_title) > 45 else "")
+        active_session = ChatSession(
+            id=uuid.uuid4(),
+            user_id=current_user.id,
+            tieu_de=title or "Cuộc trò chuyện mới",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
+        )
+        db.add(active_session)
+        db.commit()
+        db.refresh(active_session)
+    else:
+        active_session.updated_at = datetime.utcnow()
+        if active_session.tieu_de == "Cuộc trò chuyện mới" and req.cau_hoi:
+            raw_title = req.cau_hoi.strip()
+            active_session.tieu_de = raw_title[:45] + ("..." if len(raw_title) > 45 else "")
+        db.commit()
+
+    du_lieu["session_id"] = str(active_session.id)
+
+    # 2. Bổ sung ngữ cảnh hồ sơ mệnh chủ (người hỏi)
+    profile = None
+    if req.birth_profile_id:
+        try:
+            p_uuid = uuid.UUID(req.birth_profile_id)
+            profile = db.query(BirthProfile).filter(
+                BirthProfile.id == p_uuid,
+                BirthProfile.user_id == current_user.id
+            ).first()
+        except Exception:
+            pass
+
+    if not profile and current_user.default_birth_profile_id:
+        profile = db.query(BirthProfile).filter(
+            BirthProfile.id == current_user.default_birth_profile_id,
+            BirthProfile.user_id == current_user.id
+        ).first()
+
+    if not profile:
+        profile = (
+            db.query(BirthProfile)
+            .filter(BirthProfile.user_id == current_user.id)
+            .order_by(BirthProfile.is_default.desc(), BirthProfile.created_at.asc())
+            .first()
+        )
+
+    if profile:
+        du_lieu["ho_so_menh_chu"] = {
+            "id": str(profile.id),
+            "ho_ten": profile.ho_ten,
+            "gioi_tinh": profile.gioi_tinh,
+            "ngay_sinh_duong": profile.ngay_sinh_duong.isoformat() if hasattr(profile.ngay_sinh_duong, "isoformat") else str(profile.ngay_sinh_duong),
+            "gio_sinh": profile.gio_sinh,
+            "phut_sinh": profile.phut_sinh,
+            "ngay_sinh_am": profile.ngay_sinh_am.isoformat() if hasattr(profile.ngay_sinh_am, "isoformat") else (str(profile.ngay_sinh_am) if profile.ngay_sinh_am else None)
+        }
+
+    # 3. Trích xuất đặc điểm ảnh đính kèm nếu có
     if req.reference_id:
         du_lieu["reference_id"] = req.reference_id
         du_lieu["id"] = req.reference_id
-        # Tra cứu đặc điểm ảnh nếu reference_id là ảnh sinh trắc học
         try:
             ref_uuid = uuid.UUID(req.reference_id)
             img_rec = db.query(TuongAnhResult).filter(
@@ -63,6 +335,7 @@ def gui_cau_hoi_chat(
     if req.he_thong:
         du_lieu["he_thong"] = req.he_thong
 
+    # 4. Thực thi quy trình luận giải Orchestrator
     res = luan_giai(
         user_id=str(current_user.id),
         cau_hoi=req.cau_hoi,
@@ -84,7 +357,6 @@ def gui_cau_hoi_chat(
     elif res.get("thong_bao"):
         noi_dung_tra_loi = res.get("thong_bao", "")
 
-    # Coi can_hoi_lai hoặc chua_co_du_lieu là tin nhắn hợp lệ trả về cho người dùng
     is_success = bool(
         res.get("thanh_cong") or
         res.get("can_hoi_lai") or
@@ -94,6 +366,7 @@ def gui_cau_hoi_chat(
     return APIResponse(
         thanh_cong=is_success,
         du_lieu={
+            "session_id": str(active_session.id) if active_session else None,
             "he_thong": res.get("he_thong"),
             "cau_hoi": req.cau_hoi,
             "tra_loi": noi_dung_tra_loi,
@@ -108,6 +381,7 @@ def xem_lich_su_chat(
     page: int = Query(default=1, ge=1, description="Số thứ tự trang"),
     page_size: int = Query(default=20, ge=1, le=100, description="Số lượng bản ghi mỗi trang"),
     he_thong: Optional[str] = Query(default=None, description="Lọc theo hệ thống (tu_vi, kinh_dich, bat_tu, nhan_tuong)"),
+    session_id: Optional[str] = Query(default=None, description="Lọc theo phiên trò chuyện"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -117,6 +391,12 @@ def xem_lich_su_chat(
     query = db.query(ChatHistory).filter(ChatHistory.user_id == current_user.id)
     if he_thong:
         query = query.filter(ChatHistory.he_thong == he_thong)
+    if session_id:
+        try:
+            s_uuid = uuid.UUID(session_id)
+            query = query.filter(ChatHistory.session_id == s_uuid)
+        except Exception:
+            pass
 
     total = query.count()
     offset = (page - 1) * page_size
@@ -125,6 +405,7 @@ def xem_lich_su_chat(
     items = [
         ChatHistoryItem(
             id=str(r.id),
+            session_id=str(r.session_id) if r.session_id else None,
             he_thong=r.he_thong,
             reference_id=str(r.reference_id) if r.reference_id else None,
             cau_hoi=r.cau_hoi,

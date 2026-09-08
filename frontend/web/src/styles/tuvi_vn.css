@@ -1,0 +1,479 @@
+/* ==========================================================================
+   CSS CHO LÁ SỐ TỬ VI CHUẨN TUVI.VN TRONG TUVIXEMBOI
+   ========================================================================== */
+
+:root {
+  /* Ngũ Hành Màu Sắc */
+  --color-kim: #6B7280;   /* Kim: Xám Bạc */
+  --color-moc: #15803D;   /* Mộc: Xanh Lá Đậm */
+  --color-thuy: #000000;  /* Thủy: Đen Tuyển */
+  --color-hoa: #DC2626;   /* Hỏa: Đỏ Cờ */
+  --color-tho: #CA8A04;   /* Thổ: Vàng Hổ Phách / Vàng Nâu */
+
+  /* Nền & Đường Kẻ */
+  --color-bg-paper: #F3ECE1;
+  --color-chart-border: #DCC9A8;
+  --color-cell-bg: #FFFFFF;
+  --color-text-main: #1F2937;
+  --color-link-blue: #2563EB;
+  --color-hotline-blue: #1D4ED8;
+  --color-seal-red: #B91C1C;
+}
+
+/* Container bao trọn lá số */
+.tuvi-container {
+  width: 100%;
+  max-width: 960px;
+  background: #FFFFFF;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 auto 24px auto;
+  font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   GRID 4X4 LAYOUT CHO 12 CUNG & THIÊN BÀN TRUNG TÂM
+   ========================================================================== */
+.tuvi-grid-wrapper {
+  position: relative;
+  background-color: var(--color-chart-border);
+  padding: 2px;
+}
+
+.tuvi-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, minmax(320px, auto));
+  gap: 2px;
+  background-color: var(--color-chart-border);
+  position: relative;
+}
+
+/* Ô Cung Tử Vi (Địa Bàn) */
+.palace-cell {
+  background-color: var(--color-cell-bg);
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5px 8px;
+  position: relative;
+  user-select: none;
+  min-height: 320px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Viền Ô Cung theo Ngũ Hành Địa Chi */
+.palace-cell.cell-element-thuy, .palace-cell[data-branch="Tý"], .palace-cell[data-branch="Hợi"] {
+  border: 2px solid #232733 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(35, 39, 51, 0.35), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+.palace-cell.cell-element-moc, .palace-cell[data-branch="Dần"], .palace-cell[data-branch="Mão"] {
+  border: 2px solid #2B724C !important;
+  box-shadow: inset 0 0 0 1.5px rgba(43, 114, 76, 0.35), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+.palace-cell.cell-element-hoa, .palace-cell[data-branch="Tỵ"], .palace-cell[data-branch="Ngọ"] {
+  border: 2px solid #B93838 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(185, 56, 56, 0.35), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+.palace-cell.cell-element-kim, .palace-cell[data-branch="Thân"], .palace-cell[data-branch="Dậu"] {
+  border: 2px solid #6B7280 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(107, 114, 128, 0.35), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+.palace-cell.cell-element-tho, .palace-cell[data-branch="Thìn"], .palace-cell[data-branch="Tuất"], .palace-cell[data-branch="Sửu"], .palace-cell[data-branch="Mùi"] {
+  border: 2px solid #9E5D26 !important;
+  box-shadow: inset 0 0 0 1.5px rgba(158, 93, 38, 0.35), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ==========================================================================
+   PALACE HEADER
+   ========================================================================== */
+.palace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #E5E7EB;
+  padding-bottom: 3px;
+  line-height: 1.25;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.canchi-abbr {
+  color: #111827;
+}
+.cung-element {
+  color: #374151;
+  font-size: 11px;
+}
+
+.header-center {
+  text-align: center;
+  flex: 1;
+  padding: 0 4px;
+}
+.palace-name {
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.badge-than-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: #B91C1C;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #111827;
+}
+.daivan-age {
+  font-size: 12px;
+}
+.thang-luu {
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   PALACE BODY (2 CỘT CÁT & HUNG)
+   ========================================================================== */
+.palace-body {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  flex: 1;
+  padding: 4px 0;
+  overflow: hidden;
+}
+
+.col-cat {
+  width: 52%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.col-hung {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.star-line {
+  display: block;
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: nowrap;
+  font-weight: 600;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.star-major {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.star-luu {
+  font-weight: 700;
+  font-style: italic;
+}
+
+.star-brightness {
+  font-weight: 700;
+  margin-left: 1px;
+  font-style: normal;
+}
+
+/* Ngũ hành class màu */
+.element-kim { color: var(--color-kim) !important; }
+.element-moc { color: var(--color-moc) !important; }
+.element-thuy { color: var(--color-thuy) !important; }
+.element-hoa { color: var(--color-hoa) !important; }
+.element-tho { color: var(--color-tho) !important; }
+
+/* ==========================================================================
+   PALACE FOOTER
+   ========================================================================== */
+.palace-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid #E5E7EB;
+  padding-top: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #1F2937;
+  line-height: 1.2;
+}
+.footer-left { color: #111827; }
+.footer-center { color: #111827; font-weight: 600; }
+.footer-right { color: #111827; }
+
+/* ==========================================================================
+   THIÊN BÀN (CENTER BOX 2X2)
+   ========================================================================== */
+.center-box {
+  grid-column: 2 / span 2;
+  grid-row: 2 / span 2;
+  background-color: #FDFBF7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.view-con-giap-la-so, .view-con-giap-la-so-hover {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+.view-con-giap-la-so-hover {
+  display: none;
+}
+
+/* 12 thế đứng Tam Hợp & Xung Chiếu theo Địa Chi của cung (Tý=0 đến Hợi=11) */
+.list-line-0  { background-image: url('/images/cung-chieu-03.png'); }
+.list-line-1  { background-image: url('/images/cung-chieu-03.png'); -webkit-transform: scaleX(-1); transform: scaleX(-1); }
+.list-line-2  { background-image: url('/images/cung-chieu-02.png'); -webkit-transform: scaleX(-1); transform: scaleX(-1); }
+.list-line-3  { background-image: url('/images/cung-chieu-01.png'); -webkit-transform: scaleX(-1); transform: scaleX(-1); }
+.list-line-4  { background-image: url('/images/cung-chieu-01.png'); transform: rotate(180deg); }
+.list-line-5  { background-image: url('/images/cung-chieu-02.png'); transform: rotate(180deg); }
+.list-line-6  { background-image: url('/images/cung-chieu-03.png'); transform: rotate(180deg); }
+.list-line-7  { background-image: url('/images/cung-chieu-03.png'); -webkit-transform: scaleY(-1); transform: scaleY(-1); }
+.list-line-8  { background-image: url('/images/cung-chieu-02.png'); -webkit-transform: scaleY(-1); transform: scaleY(-1); }
+.list-line-9  { background-image: url('/images/cung-chieu-01.png'); -webkit-transform: scaleY(-1); transform: scaleY(-1); }
+.list-line-10 { background-image: url('/images/cung-chieu-01.png'); }
+.list-line-11 { background-image: url('/images/cung-chieu-02.png'); }
+
+/* Hiệu ứng khi rê chuột vào ô cung */
+.palace-cell.cung-view-hover {
+  background-color: #FFFBEB !important;
+  box-shadow: 0 0 10px rgba(180, 83, 9, 0.35) !important;
+  z-index: 10;
+}
+.palace-cell.none-cung-view-hover {
+  opacity: 0.68;
+}
+
+.center-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.center-header-branding {
+  text-align: center;
+  margin-bottom: 2px;
+}
+.brand-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.brand-website {
+  color: var(--color-link-blue);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.brand-hotline-box {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1F2937;
+  margin-top: 1px;
+}
+.brand-hotline {
+  color: var(--color-hotline-blue);
+  font-weight: 800;
+  font-size: 13px;
+}
+.brand-chart-title {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #000000;
+  letter-spacing: 1px;
+  margin: 4px 0 8px 0;
+  text-align: center;
+}
+
+.center-info-grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 0 4px;
+}
+.info-row {
+  display: flex;
+  align-items: baseline;
+  text-align: left;
+}
+.info-label {
+  width: 105px;
+  min-width: 105px;
+  font-weight: 700;
+  color: #111827;
+  text-align: left;
+  white-space: nowrap;
+}
+.info-val {
+  font-weight: 600;
+  color: #1F2937;
+  text-align: left;
+  flex: 1;
+}
+.info-val-sub {
+  color: #4B5563;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.center-seal {
+  position: absolute;
+  bottom: 8px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--color-seal-red);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-seal-red);
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 1px;
+  box-shadow: inset 0 0 0 1px var(--color-seal-red);
+  transform: rotate(-3deg);
+  user-select: none;
+  opacity: 0.88;
+}
+
+/* TUẦN & TRIỆT BADGES */
+.badge-tuan-triet {
+  position: absolute;
+  z-index: 10;
+  background: #000000;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  user-select: none;
+}
+.badge-triet-default {
+  top: 25%;
+  left: 12.5%;
+  transform: translate(-50%, -50%);
+}
+.badge-tuan-default {
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* FOOTER LEGEND */
+.tuvi-footer-legend {
+  border-top: 2px solid var(--color-chart-border);
+  background-color: #FAF5EE;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1F2937;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.legend-brightness {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.legend-b-item {
+  display: inline-flex;
+  align-items: center;
+}
+.legend-b-code {
+  color: #DC2626;
+  font-weight: 800;
+  margin-right: 2px;
+}
+
+.legend-elements {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.legend-el-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.color-block {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+}
+.bg-kim { background-color: var(--color-kim); }
+.bg-moc { background-color: var(--color-moc); }
+.bg-thuy { background-color: var(--color-thuy); }
+.bg-hoa { background-color: var(--color-hoa); }
+.bg-tho { background-color: var(--color-tho); }
+
+.legend-chart-id {
+  font-family: monospace;
+  font-size: 12px;
+  color: #4B5563;
+}

@@ -292,6 +292,30 @@ export default function SettingsPage() {
                         <span className="font-heading text-base font-bold text-primary">
                           {p.ho_ten || 'Mệnh Chủ'}
                         </span>
+                        {p.is_default ? (
+                          <span className="px-2 py-0.5 rounded-full bg-[#6B140E] text-[#FAF5EE] text-[10px] font-bold uppercase tracking-wider">
+                            ⭐ Hồ Sơ Mệnh Đang Chọn
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await birthProfileService.setDefault(p.id);
+                                if (typeof window !== 'undefined') {
+                                  localStorage.setItem('selected_ho_so_menh_id', p.id);
+                                }
+                                fetchProfiles();
+                              } catch (err) {
+                                alert('Không thể đặt hồ sơ mặc định.');
+                              }
+                            }}
+                            className="text-[11px] text-[#8B1C13] hover:underline font-semibold"
+                            title="Chọn làm Hồ Sơ Mệnh Đang Chọn trên Dashboard"
+                          >
+                            + Đặt làm hồ sơ chính
+                          </button>
+                        )}
                         <span className="px-2 py-0.5 rounded-md bg-[#FAF5EE] border border-surface-border text-[11px] font-medium text-text-secondary">
                           {p.gioi_tinh === 'nam' ? 'Nam Mạng' : 'Nữ Mạng'}
                         </span>

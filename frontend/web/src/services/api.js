@@ -138,6 +138,8 @@ export const authService = {
 
 export const birthProfileService = {
   create: (data) => apiClient.post('/birth-profile', data),
+  anSao: (data) => apiClient.post('/birth-profile/an-sao', data),
+  setDefault: (id) => apiClient.put(`/birth-profile/${id}/set-default`),
   getAll: () => apiClient.get('/birth-profile'),
   getById: (id) => apiClient.get(`/birth-profile/${id}`),
   update: (id, data) => apiClient.put(`/birth-profile/${id}`, data),
@@ -145,7 +147,14 @@ export const birthProfileService = {
 };
 
 export const tuViService = {
-  getLaSo: (birthProfileId) => apiClient.get(`/tu-vi/${birthProfileId}`),
+  getLaSo: (birthProfileId, onlyChart = false) =>
+    apiClient.get(`/tu-vi/${birthProfileId}`, { params: { only_chart: onlyChart } }),
+  getChartOnly: (birthProfileId) =>
+    apiClient.get(`/tu-vi/${birthProfileId}/chart`),
+  getTopicInterpretation: (birthProfileId, topic) =>
+    apiClient.get(`/tu-vi/${birthProfileId}/topic`, { params: { topic } }),
+  chatWithChart: (birthProfileId, cauHoi) =>
+    apiClient.post(`/tu-vi/${birthProfileId}/chat`, { cau_hoi: cauHoi }),
 };
 
 export const batTuService = {
@@ -184,11 +193,28 @@ export const visionService = {
 
 export const quotaService = {
   getQuota: () => apiClient.get('/quota'),
+  upgradePremium: () => apiClient.post('/quota/upgrade-premium'),
 };
 
 export const chatService = {
   sendMessage: (data) => apiClient.post('/chat', data),
   getHistory: (params) => apiClient.get('/chat/history', { params }),
+
+  // --- Quản lý phiên trò chuyện (Chat Sessions) ---
+  getSessions: () => apiClient.get('/chat/sessions'),
+  createSession: (data) => apiClient.post('/chat/sessions', data),
+  deleteSession: (sessionId) => apiClient.delete(`/chat/sessions/${sessionId}`),
+  getSessionMessages: (sessionId, params) =>
+    apiClient.get(`/chat/sessions/${sessionId}/messages`, { params }),
+};
+
+export const forumService = {
+  getPosts: (params) => apiClient.get('/forum/posts', { params }),
+  createPost: (data) => apiClient.post('/forum/posts', data),
+  getPost: (id) => apiClient.get(`/forum/posts/${id}`),
+  deletePost: (id) => apiClient.delete(`/forum/posts/${id}`),
+  createComment: (postId, data) => apiClient.post(`/forum/posts/${postId}/comments`, data),
+  deleteComment: (commentId) => apiClient.delete(`/forum/comments/${commentId}`),
 };
 
 export default apiClient;

@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Router Bát Tự Tứ Trụ:
 - GET /bat-tu/{birth_profile_id}:
@@ -45,17 +45,22 @@ def xem_bat_tu_tu_tru(
     if not profile:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy hồ sơ sinh")
 
+    gioi_tinh = getattr(profile, "gioi_tinh", "nam") or "nam"
+
     # 1. Kiểm tra đã có TuTruResult chưa
     tu_tru_record = db.query(TuTruResult).filter(TuTruResult.birth_profile_id == profile.id).first()
-    if not tu_tru_record:
-        canh_gio = xac_dinh_gio_sinh_theo_canh_gio(profile.gio_sinh, profile.phut_sinh)
-        gio_chi = canh_gio["chi_gio"]
+    canh_gio = xac_dinh_gio_sinh_theo_canh_gio(profile.gio_sinh, profile.phut_sinh)
+    gio_chi = canh_gio["chi_gio"]
 
+    if not tu_tru_record:
         tu_tru_data = lap_tu_tru(
             ngay_duong=profile.ngay_sinh_duong.day,
             thang_duong=profile.ngay_sinh_duong.month,
             nam_duong=profile.ngay_sinh_duong.year,
-            gio_chi=gio_chi
+            gio_chi=gio_chi,
+            gioi_tinh=gioi_tinh,
+            gio_sinh=profile.gio_sinh,
+            phut_sinh=profile.phut_sinh
         )
 
         tu_tru_record = TuTruResult(
@@ -68,6 +73,34 @@ def xem_bat_tu_tu_tru(
         db.refresh(tu_tru_record)
     else:
         tu_tru_data = tu_tru_record.du_lieu_json
+        vn = tu_tru_data.get("vuong_nhuoc_detail") if isinstance(tu_tru_data, dict) else {}
+        can_recompute = (
+            not isinstance(tu_tru_data, dict)
+            or "vung_bien_4_tru" not in tu_tru_data
+            or "chi_tiet_tru" not in tu_tru_data
+            or "cach_cuc" not in tu_tru_data
+            or not isinstance(vn, dict)
+            or not vn.get("bang_chung_the")
+            or "cans_tiet_khac" not in vn
+        )
+        if can_recompute:
+            tu_tru_data = lap_tu_tru(
+                ngay_duong=profile.ngay_sinh_duong.day,
+                thang_duong=profile.ngay_sinh_duong.month,
+                nam_duong=profile.ngay_sinh_duong.year,
+                gio_chi=gio_chi,
+                gioi_tinh=gioi_tinh,
+                gio_sinh=profile.gio_sinh,
+                phut_sinh=profile.phut_sinh
+            )
+            tu_tru_record.du_lieu_json = tu_tru_data
+            db.commit()
+            try:
+                from middleware.quota_service import xoa_cache_theo_he_thong
+                xoa_cache_theo_he_thong("bat_tu", db=db)
+            except Exception:
+                pass
+
 
     # 2. Luận giải AI
     input_data = copy.deepcopy(tu_tru_data)
