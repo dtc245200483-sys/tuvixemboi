@@ -5,23 +5,29 @@ Các hàm bảo mật mật khẩu và tạo/giải mã JWT token.
 
 from datetime import datetime, timedelta
 from typing import Dict, Any
-from passlib.context import CryptContext
+import bcrypt
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
 from config import settings
 
-# Khởi tạo CryptContext với thuật toán bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def _safe_encode(password: str) -> bytes:
+    """Chuyển mật khẩu thành byte UTF-8 và cắt tối đa 72 bytes theo chuẩn bcrypt"""
+    b = str(password).encode("utf-8")
+    return b[:72] if len(b) > 72 else b
 
 
 def hash_password(password: str) -> str:
-    """Mã hóa mật khẩu sử dụng thuật toán bcrypt"""
-    return pwd_context.hash(password)
+    """Mã hóa mật khẩu sử dụng thuật toán bcrypt trực tiếp, tương thích mọi phiên bản"""
+    return bcrypt.hashpw(_safe_encode(password), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Xác thực mật khẩu gốc với mật khẩu đã băm trong database"""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(_safe_encode(plain_password), str(hashed_password).encode("utf-8"))
+    except Exception:
+        return False
 
 
 def create_access_token(data: Dict[str, Any]) -> str:

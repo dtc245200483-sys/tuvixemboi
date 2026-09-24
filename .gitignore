@@ -32,3 +32,6 @@ logs/
 # Operating System
 .DS_Store
 Thumbs.db
+
+# Storage / Uploads
+backend/storage/uploads/
