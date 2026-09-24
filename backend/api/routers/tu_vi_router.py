@@ -28,6 +28,22 @@ from interpretation_api.orchestrator.cache_service import tao_cache_key, lay_ket
 router = APIRouter(prefix="/tu-vi", tags=["Tu Vi"])
 
 
+from datetime import date, datetime
+
+def parse_date_safe(d) -> date:
+    """Chuyển đổi an toàn đối tượng date, datetime hoặc chuỗi ISO thành datetime.date"""
+    if isinstance(d, datetime):
+        return d.date()
+    if isinstance(d, date):
+        return d
+    if isinstance(d, str):
+        clean_str = d.split("T")[0].split(" ")[0]
+        parts = [int(p) for p in clean_str.split("-")]
+        if len(parts) == 3:
+            return date(parts[0], parts[1], parts[2])
+    raise ValueError(f"Không thể định dạng ngày hợp lệ từ: {d}")
+
+
 @router.get("/{birth_profile_id}/chart", response_model=APIResponse[TuViResponse])
 def xem_la_so_tu_vi_chi_tiet(
     birth_profile_id: str,
@@ -64,12 +80,14 @@ def xem_la_so_tu_vi(
     canh_gio = xac_dinh_gio_sinh_theo_canh_gio(profile.gio_sinh, profile.phut_sinh)
     gio_chi = canh_gio["chi_gio"]
 
+    ngay_duong = parse_date_safe(profile.ngay_sinh_duong)
     if profile.ngay_sinh_am:
-        ngay_am = profile.ngay_sinh_am.day
-        thang_am = profile.ngay_sinh_am.month
-        nam_am = profile.ngay_sinh_am.year
+        ngay_am_obj = parse_date_safe(profile.ngay_sinh_am)
+        ngay_am = ngay_am_obj.day
+        thang_am = ngay_am_obj.month
+        nam_am = ngay_am_obj.year
     else:
-        lunar = solar_to_lunar(profile.ngay_sinh_duong.day, profile.ngay_sinh_duong.month, profile.ngay_sinh_duong.year)
+        lunar = solar_to_lunar(ngay_duong.day, ngay_duong.month, ngay_duong.year)
         ngay_am = lunar["ngay_am"]
         thang_am = lunar["thang_am"]
         nam_am = lunar["nam_am"]
@@ -87,7 +105,7 @@ def xem_la_so_tu_vi(
     if can_tinh_lai:
         la_so_data = lap_la_so(
             ho_ten=profile.ho_ten,
-            ngay_sinh_duong=profile.ngay_sinh_duong,
+            ngay_sinh_duong=ngay_duong,
             gio_sinh=profile.gio_sinh,
             phut_sinh=profile.phut_sinh,
             gioi_tinh=profile.gioi_tinh,
@@ -116,7 +134,7 @@ def xem_la_so_tu_vi(
     if "thong_tin_co_ban" in la_so_data:
         la_so_data["thong_tin_co_ban"]["ho_ten"] = profile.ho_ten
         la_so_data["thong_tin_co_ban"]["gio_sinh_str"] = f"{profile.gio_sinh:02d}:{profile.phut_sinh:02d} (Giờ {gio_chi})"
-        la_so_data["thong_tin_co_ban"]["ngay_duong_str"] = f"{profile.ngay_sinh_duong.day:02d}/{profile.ngay_sinh_duong.month:02d}/{profile.ngay_sinh_duong.year}"
+        la_so_data["thong_tin_co_ban"]["ngay_duong_str"] = f"{ngay_duong.day:02d}/{ngay_duong.month:02d}/{ngay_duong.year}"
         la_so_data["thong_tin_co_ban"]["ngay_am_str"] = f"{ngay_am:02d}/{thang_am:02d}/{nam_am} (Âm Lịch)"
 
     # Nếu chỉ lấy lá số (cực nhanh < 50ms, hiển thị ngay lập tức không bị treo)

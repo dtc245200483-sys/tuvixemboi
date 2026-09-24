@@ -22,6 +22,22 @@ from calendar_converter.lunar_calendar import xac_dinh_gio_sinh_theo_canh_gio
 from astro_engine.bat_tu import lap_tu_tru
 from interpretation_api.orchestrator.main_flow import luan_giai
 
+from datetime import date, datetime
+
+def parse_date_safe(d) -> date:
+    """Chuyển đổi an toàn đối tượng date, datetime hoặc chuỗi ISO thành datetime.date"""
+    if isinstance(d, datetime):
+        return d.date()
+    if isinstance(d, date):
+        return d
+    if isinstance(d, str):
+        clean_str = d.split("T")[0].split(" ")[0]
+        parts = [int(p) for p in clean_str.split("-")]
+        if len(parts) == 3:
+            return date(parts[0], parts[1], parts[2])
+    raise ValueError(f"Không thể định dạng ngày hợp lệ từ: {d}")
+
+
 router = APIRouter(prefix="/bat-tu", tags=["Bat Tu"])
 
 
@@ -46,6 +62,7 @@ def xem_bat_tu_tu_tru(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy hồ sơ sinh")
 
     gioi_tinh = getattr(profile, "gioi_tinh", "nam") or "nam"
+    ngay_duong = parse_date_safe(profile.ngay_sinh_duong)
 
     # 1. Kiểm tra đã có TuTruResult chưa
     tu_tru_record = db.query(TuTruResult).filter(TuTruResult.birth_profile_id == profile.id).first()
@@ -54,9 +71,9 @@ def xem_bat_tu_tu_tru(
 
     if not tu_tru_record:
         tu_tru_data = lap_tu_tru(
-            ngay_duong=profile.ngay_sinh_duong.day,
-            thang_duong=profile.ngay_sinh_duong.month,
-            nam_duong=profile.ngay_sinh_duong.year,
+            ngay_duong=ngay_duong.day,
+            thang_duong=ngay_duong.month,
+            nam_duong=ngay_duong.year,
             gio_chi=gio_chi,
             gioi_tinh=gioi_tinh,
             gio_sinh=profile.gio_sinh,
@@ -85,9 +102,9 @@ def xem_bat_tu_tu_tru(
         )
         if can_recompute:
             tu_tru_data = lap_tu_tru(
-                ngay_duong=profile.ngay_sinh_duong.day,
-                thang_duong=profile.ngay_sinh_duong.month,
-                nam_duong=profile.ngay_sinh_duong.year,
+                ngay_duong=ngay_duong.day,
+                thang_duong=ngay_duong.month,
+                nam_duong=ngay_duong.year,
                 gio_chi=gio_chi,
                 gioi_tinh=gioi_tinh,
                 gio_sinh=profile.gio_sinh,
