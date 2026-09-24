@@ -472,6 +472,7 @@ def test_11_global_exception_handler(authenticated_client):
     @app.get("/test-internal-crash-simulation")
     def simulate_crash():
         raise ZeroDivisionError("Cố ý mô phỏng chia cho 0 ngoài ý muốn")
+    app.router.routes.insert(0, app.router.routes.pop())
 
     mock_sentry = MagicMock()
     with patch.dict("sys.modules", {"sentry_sdk": mock_sentry}):
