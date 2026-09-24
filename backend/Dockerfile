@@ -7,11 +7,12 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONPATH="/app:/app/backend:/app/interpretation_api:/app/knowledge_base" \
     PORT=8000
 
-# Cài đặt các công cụ hệ thống cần thiết (pg_dump cho sao lưu Postgres, build-essential)
+# Cài đặt các công cụ hệ thống cần thiết (pg_dump, build-essential, curl, nodejs cho iztro)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     postgresql-client \
     build-essential \
     curl \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
