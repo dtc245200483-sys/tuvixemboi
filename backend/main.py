@@ -22,7 +22,7 @@ for _p in [_CURRENT_DIR, _ROOT_DIR, os.path.join(_ROOT_DIR, "interpretation_api"
         sys.path.insert(0, _p)
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
@@ -193,6 +193,12 @@ app.include_router(nhan_tuong_router)
 app.include_router(chat_router)
 app.include_router(quota_router)
 app.include_router(forum_router)
+
+
+@app.get("/", tags=["Root"])
+def root():
+    """Tự động chuyển hướng từ trang chủ backend sang trang tài liệu API Swagger"""
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health", tags=["Health"])
