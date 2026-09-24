@@ -178,8 +178,8 @@ async def global_unhandled_exception_handler(request: Request, exc: Exception):
         content={
             "thanh_cong": False,
             "du_lieu": None,
-            "loi": "Đã có lỗi xảy ra, vui lòng thử lại",
-            "detail": "Đã có lỗi xảy ra, vui lòng thử lại"
+            "loi": f"Lỗi hệ thống: {str(exc)}",
+            "detail": f"Lỗi hệ thống: {str(exc)}"
         }
     )
 

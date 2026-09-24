@@ -43,20 +43,54 @@ def init_db():
     import db.models  # Nạp toàn bộ models
     Base.metadata.create_all(bind=engine)
 
-    # Kiểm tra cột session_id trong chat_histories
+    # Tự động đồng bộ các cột mới trong users, birth_profiles, chat_histories
     with engine.connect() as conn:
         try:
             from sqlalchemy import text
-            if "sqlite" in settings.database_url:
-                cols = [row[1] for row in conn.execute(text("PRAGMA table_info(chat_histories)")).fetchall()]
-                if "session_id" not in cols:
+            is_sqlite = "sqlite" in settings.database_url.lower()
+
+            if is_sqlite:
+                # 1. users table
+                u_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(users)")).fetchall()]
+                if "da_dong_y_sinh_trac_hoc" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN da_dong_y_sinh_trac_hoc BOOLEAN DEFAULT 0"))
+                if "thoi_gian_dong_y_sinh_trac_hoc" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN thoi_gian_dong_y_sinh_trac_hoc DATETIME"))
+                if "is_premium" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN is_premium BOOLEAN DEFAULT 0"))
+                if "premium_expires_at" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN premium_expires_at DATETIME"))
+                if "default_birth_profile_id" not in u_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN default_birth_profile_id CHAR(36)"))
+
+                # 2. birth_profiles table
+                bp_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(birth_profiles)")).fetchall()]
+                if "is_default" not in bp_cols:
+                    conn.execute(text("ALTER TABLE birth_profiles ADD COLUMN is_default BOOLEAN DEFAULT 0"))
+                if "is_quick_chart" not in bp_cols:
+                    conn.execute(text("ALTER TABLE birth_profiles ADD COLUMN is_quick_chart BOOLEAN DEFAULT 0"))
+
+                # 3. chat_histories table
+                ch_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(chat_histories)")).fetchall()]
+                if "session_id" not in ch_cols:
                     conn.execute(text("ALTER TABLE chat_histories ADD COLUMN session_id CHAR(36)"))
-                    conn.commit()
+
+                conn.commit()
             else:
-                conn.execute(text("ALTER TABLE chat_histories ADD COLUMN IF NOT EXISTS session_id UUID REFERENCES chat_sessions(id) ON DELETE CASCADE"))
+                # PostgreSQL
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS da_dong_y_sinh_trac_hoc BOOLEAN DEFAULT FALSE"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS thoi_gian_dong_y_sinh_trac_hoc TIMESTAMP WITH TIME ZONE"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP WITH TIME ZONE"))
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS default_birth_profile_id UUID"))
+
+                conn.execute(text("ALTER TABLE birth_profiles ADD COLUMN IF NOT EXISTS is_default BOOLEAN DEFAULT FALSE"))
+                conn.execute(text("ALTER TABLE birth_profiles ADD COLUMN IF NOT EXISTS is_quick_chart BOOLEAN DEFAULT FALSE"))
+
+                conn.execute(text("ALTER TABLE chat_histories ADD COLUMN IF NOT EXISTS session_id UUID"))
                 conn.commit()
         except Exception:
-            pass
+            conn.rollback()
 
 
 def get_db() -> Generator[Session, None, None]:
