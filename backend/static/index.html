@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#6B2B1F" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tử Vi & Xem Bói AI — Nền Tảng Huyền Học Cổ Truyền & Trí Tuệ Nhân Tạo</title>
+    <!-- Preconnect Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@700;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tự động hủy Service Worker và xóa sạch CacheStorage cũ trên localhost để chống dính cache chunk cũ -->
+    <script>
+      (function() {
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+              for (var i = 0; i < regs.length; i++) {
+                regs[i].unregister();
+              }
+            });
+          }
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              for (var i = 0; i < names.length; i++) {
+                caches.delete(names[i]);
+              }
+            });
+          }
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-BHmX_rsj.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CxoR8fv_.css">
+  </head>
+  <body class="bg-background text-text-primary min-h-screen">
+    <div id="root">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; text-align: center;">
+        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+        <svg style="animation: spin 1s linear infinite; width: 48px; height: 48px; color: #6B2B1F; margin-bottom: 16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle opacity="0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path opacity="0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <h2 style="color: #6B2B1F; font-size: 1.25rem; font-weight: 600; margin: 0; padding-bottom: 8px;">Đang tải dữ liệu ứng dụng...</h2>
+        <p style="color: #8c6b63; font-size: 0.875rem; margin: 0;">Trong lần chạy đầu tiên sẽ mất khoảng 10-20 giây để hệ thống biên dịch.<br/>Vui lòng giữ nguyên trang, giao diện sẽ tự động hiện ra khi sẵn sàng!</p>
+      </div>
+    </div>
+
+  </body>
+</html>

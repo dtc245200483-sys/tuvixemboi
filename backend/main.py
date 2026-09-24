@@ -52,6 +52,9 @@ khoi_tao_sentry()
 
 def _warmup_background():
     """Tải trước mô hình embedding, vector store và API provider ở luồng nền để tối ưu tốc độ cho request đầu tiên."""
+    if os.getenv("ENABLE_WARMUP", "false").lower() != "true":
+        logger.info("[WARMUP] Tối ưu hóa RAM cho môi trường container: Bỏ qua warmup mô hình nặng.")
+        return
     try:
         from knowledge_base.embedding_service import get_embedding_model
         logger.info("[WARMUP] Đang tải trước mô hình embedding trong nền...")
