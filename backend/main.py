@@ -208,7 +208,7 @@ def health_check():
     import shutil
     return {
         "status": "ok",
-        "version": "v1.0.9",
+        "version": "v1.0.10",
         "node": shutil.which("node"),
         "nodejs": shutil.which("nodejs")
     }

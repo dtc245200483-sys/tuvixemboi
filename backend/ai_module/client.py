@@ -6,6 +6,7 @@ Lớp AI Client điều phối toàn bộ các yêu cầu AI trong hệ thống:
 - Tuân thủ nguyên tắc bảo mật dữ liệu: CHỈ log metadata kỹ thuật, KHÔNG log prompt/response nhạy cảm.
 """
 
+import os
 import time
 import logging
 from typing import Optional, Dict, Any, Callable
@@ -16,6 +17,7 @@ from ai_module.base_provider import BaseAIProvider
 from ai_module.providers.gemini_provider import GeminiProvider
 from ai_module.providers.deepseek_provider import DeepSeekProvider
 from ai_module.providers.freellm_provider import FreeLLMProvider
+from ai_module.providers.openai_compatible_provider import OpenAICompatibleProvider
 
 logger = logging.getLogger("AIModuleClient")
 if not logger.handlers:
@@ -30,31 +32,50 @@ class AIClient:
         default_provider: Optional[str] = None,
         gemini_provider: Optional[BaseAIProvider] = None,
         deepseek_provider: Optional[BaseAIProvider] = None,
-        freellm_provider: Optional[BaseAIProvider] = None
+        freellm_provider: Optional[BaseAIProvider] = None,
+        openai_provider: Optional[BaseAIProvider] = None
     ):
+        configured_provider = (getattr(settings, "ai_provider", "freellmapi") or "freellmapi").strip().lower()
         if default_provider:
             provider_name = default_provider.strip().lower()
         elif freellm_provider is not None:
             provider_name = "freellmapi"
-        elif gemini_provider is not None and getattr(settings, "ai_provider", None) == "gemini":
+        elif gemini_provider is not None and configured_provider == "gemini":
             provider_name = "gemini"
-        elif deepseek_provider is not None and getattr(settings, "ai_provider", None) == "deepseek":
+        elif deepseek_provider is not None and configured_provider == "deepseek":
             provider_name = "deepseek"
         elif gemini_provider is not None and deepseek_provider is None and freellm_provider is None:
-            # Caller specifically injected only gemini_provider (e.g. mock in unit tests)
             provider_name = "gemini"
         else:
-            provider_name = (getattr(settings, "ai_provider", "freellmapi") or "freellmapi").strip().lower()
+            provider_name = configured_provider
 
+        default_openai = openai_provider or OpenAICompatibleProvider(provider_name="openai")
+        chatz_zai = openai_provider or OpenAICompatibleProvider(
+            provider_name="chatz",
+            base_url=os.getenv("AI_BASE_URL") or getattr(settings, "ai_base_url", "") or "https://api.z.ai/api/paas/v4/chat/completions",
+            model=os.getenv("AI_MODEL") or getattr(settings, "ai_model", "") or "glm-4-flash"
+        )
         self.providers: Dict[str, BaseAIProvider] = {
             "freellmapi": freellm_provider or FreeLLMProvider(),
             "groq": freellm_provider or FreeLLMProvider(),
             "gemini": gemini_provider or GeminiProvider(),
-            "deepseek": deepseek_provider or DeepSeekProvider()
+            "deepseek": deepseek_provider or DeepSeekProvider(),
+            "openai": default_openai,
+            "openai_compatible": default_openai,
+            "chatz": chatz_zai,
+            "chatz.ai": chatz_zai,
+            "z.ai": chatz_zai,
+            "chat.z.ai": chatz_zai,
+            "glm": chatz_zai,
+            "custom": default_openai,
         }
 
         if provider_name not in self.providers:
-            provider_name = "freellmapi"
+            # Nếu người dùng cấu hình key cho chatz hoặc openai nhưng tên provider lạ
+            if getattr(settings, "ai_api_key", ""):
+                provider_name = "chatz"
+            else:
+                provider_name = "freellmapi"
 
         self.current_provider_name = provider_name
 

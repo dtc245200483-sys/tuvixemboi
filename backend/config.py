@@ -32,15 +32,17 @@ class Settings(BaseSettings):
     """Lớp cấu hình ứng dụng kế thừa BaseSettings từ pydantic-settings"""
 
     # 1. Cơ sở dữ liệu & Xác thực
-    database_url: str = Field(..., description="Connection string cơ sở dữ liệu")
-    jwt_secret: str = Field(..., description="Khóa bí mật dùng ký JWT")
+    database_url: str = Field("sqlite:///./app.db", description="Connection string cơ sở dữ liệu")
+    jwt_secret: str = Field("tuvi-production-jwt-secret-key-2026-secure-fixed", description="Khóa bí mật dùng ký JWT")
     jwt_algorithm: str = Field("HS256", description="Thuật toán mã hóa JWT")
-    access_token_expire_minutes: int = Field(30, description="Thời gian hết hạn của Access Token (phút)")
-    refresh_token_expire_days: int = Field(7, description="Thời gian hết hạn của Refresh Token (ngày)")
+    access_token_expire_minutes: int = Field(1440, description="Thời gian hết hạn của Access Token (phút) - 24 giờ")
+    refresh_token_expire_days: int = Field(30, description="Thời gian hết hạn của Refresh Token (ngày)")
 
     # 2. AI Module & Vector Store
-    ai_api_key: str = Field("", description="API Key cho dịch vụ AI bên ngoài (Gemini, OpenAI)")
-    ai_provider: str = Field("freellmapi", description="Nhà cung cấp dịch vụ AI (freellmapi, gemini, deepseek)")
+    ai_api_key: str = Field("", description="API Key cho dịch vụ AI bên ngoài (chatz.ai, z.ai, Gemini, OpenAI)")
+    ai_provider: str = Field("freellmapi", description="Nhà cung cấp dịch vụ AI (chatz, z.ai, freellmapi, gemini, deepseek, openai)")
+    ai_base_url: str = Field("", description="Base URL cho OpenAI/Chatz/Z.ai API (VD: https://api.z.ai/api/paas/v4/chat/completions)")
+    ai_model: str = Field("", description="Tên model AI tùy chỉnh (VD: glm-4-flash, gpt-4o-mini)")
     vector_db_path: str = Field("./knowledge_base/vector_store", description="Đường dẫn lưu trữ ChromaDB vector store")
     content_safety_api_key: str = Field("", description="API Key kiểm duyệt an toàn nội dung")
     freellm_db_path: str = Field(r"D:\AI github\freellmapi\server\data\freeapi.db", description="Đường dẫn đến file SQLite chứa API keys của FreeLLMAPI")

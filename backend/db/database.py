@@ -10,11 +10,15 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from config import settings
 
 connect_args = {}
-if settings.database_url.startswith("sqlite"):
+db_url = settings.database_url
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+if db_url.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
 engine = create_engine(
-    settings.database_url,
+    db_url,
     connect_args=connect_args,
     echo=False
 )
@@ -22,7 +26,7 @@ engine = create_engine(
 # Kích hoạt tính năng Foreign Key Constraints cho SQLite (mặc định SQLite tắt FK)
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    if "sqlite" in settings.database_url:
+    if "sqlite" in db_url:
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
