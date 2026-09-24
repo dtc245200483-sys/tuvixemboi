@@ -205,7 +205,13 @@ app.include_router(forum_router)
 @app.get("/health", tags=["Health"])
 def health_check():
     """Endpoint kiểm tra trạng thái hoạt động cơ bản của hệ thống"""
-    return {"status": "ok", "version": "v1.0.4"}
+    import shutil
+    return {
+        "status": "ok",
+        "version": "v1.0.5",
+        "node": shutil.which("node"),
+        "nodejs": shutil.which("nodejs")
+    }
 
 
 # ==============================================================================

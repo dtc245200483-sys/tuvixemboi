@@ -13,6 +13,7 @@ Cung Thân, Can Cung, Tứ Hóa, Tuần Triệt, Đại Vận, Tiểu Hạn hoà
 import os
 import sys
 import json
+import shutil
 import subprocess
 import logging
 from datetime import datetime, date
@@ -598,8 +599,9 @@ def lap_la_so(
 
     # 2. Thực thi qua Node.js iztro_calculator
     try:
+        node_bin = shutil.which("node") or shutil.which("nodejs") or "node"
         proc = subprocess.run(
-            ["node", CALCULATOR_JS],
+            [node_bin, CALCULATOR_JS],
             input=json.dumps(params, ensure_ascii=False),
             capture_output=True,
             text=True,

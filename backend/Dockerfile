@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     nodejs \
+    && (which node || ln -s $(which nodejs) /usr/local/bin/node || true) \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
