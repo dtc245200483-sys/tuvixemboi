@@ -17,13 +17,9 @@ const p2 = path.join(__dirname, 'iztro_lib', 'node_modules');
 let iztro;
 try {
   iztro = require('./iztro_lib');
-} catch (e1) {
-  try {
-    iztro = require('d:/ung dung tri tue nhan ao/iztro/lib');
-  } catch (err) {
-    console.error(JSON.stringify({ error: 'Lỗi nạp module iztro: ' + err.message }));
-    process.exit(1);
-  }
+} catch (err) {
+  console.error(JSON.stringify({ error: 'Lỗi nạp ./iztro_lib: ' + err.message, stack: err.stack }));
+  process.exit(1);
 }
 
 // LỤC THẬP HOA GIÁP NẠP ÂM (60 HOA GIÁP)
