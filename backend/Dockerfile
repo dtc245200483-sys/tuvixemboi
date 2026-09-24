@@ -5,6 +5,7 @@ FROM python:3.10-slim
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH="/app:/app/backend:/app/interpretation_api:/app/knowledge_base" \
+    NODE_PATH="/app/backend/astro_engine/tu_vi/node_modules" \
     PORT=8000
 
 # Cài đặt các công cụ hệ thống cần thiết (pg_dump, build-essential, curl, nodejs cho iztro)

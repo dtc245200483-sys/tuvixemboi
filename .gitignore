@@ -1,5 +1,6 @@
 # Node / Web
 node_modules/
+!backend/astro_engine/tu_vi/node_modules/
 dist/
 build/
 
