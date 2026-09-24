@@ -10,19 +10,42 @@ from typing import List, Dict, Union, Optional, Any
 # Model đa ngôn ngữ tối ưu tiếng Việt và Hán Việt
 DEFAULT_MODEL_NAME = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 
+import os
+import logging
+
+logger = logging.getLogger("embedding_service")
 _model_instance: Optional[Any] = None
+
+
+def is_embedding_disabled() -> bool:
+    val = os.getenv("ENABLE_EMBEDDING", "").strip().lower()
+    if val == "true":
+        return False
+    if val == "false":
+        return True
+    # Mặc định tắt trên Render container để tránh tràn 512MB RAM gây sập server (502 Bad Gateway)
+    if os.getenv("RENDER") or os.getenv("IS_CONTAINER"):
+        return True
+    return False
 
 
 def get_embedding_model(model_name: str = DEFAULT_MODEL_NAME):
     """Khởi tạo hoặc lấy instance model theo mô hình Singleton để tránh load lại nhiều lần."""
     global _model_instance
+    if is_embedding_disabled():
+        logger.info("[EMBEDDING] Mô hình embedding bị tắt để bảo toàn RAM.")
+        return None
     if _model_instance is None:
-        from sentence_transformers import SentenceTransformer
         try:
-            # Tối ưu tải nhanh từ cache offline, tránh request HEAD mạng làm chậm khởi động
-            _model_instance = SentenceTransformer(model_name, local_files_only=True)
-        except Exception:
-            _model_instance = SentenceTransformer(model_name)
+            from sentence_transformers import SentenceTransformer
+            try:
+                # Tối ưu tải nhanh từ cache offline, tránh request HEAD mạng làm chậm khởi động
+                _model_instance = SentenceTransformer(model_name, local_files_only=True)
+            except Exception:
+                _model_instance = SentenceTransformer(model_name)
+        except Exception as e:
+            logger.warning(f"[EMBEDDING] Không thể tải model {model_name}: {e}")
+            return None
     return _model_instance
 
 
@@ -40,6 +63,8 @@ def tao_embedding(text: str, model_name: str = DEFAULT_MODEL_NAME) -> List[float
         return _embedding_cache[cache_key]
 
     model = get_embedding_model(model_name)
+    if model is None:
+        return [0.0] * 384
     emb = model.encode(clean_text, convert_to_numpy=True, normalize_embeddings=True)
     res = emb.tolist()
     if len(_embedding_cache) < 2048:
@@ -60,6 +85,8 @@ def tao_embedding_batch(texts: List[str], model_name: str = DEFAULT_MODEL_NAME, 
     clean_texts = [t if t and t.strip() else " " for t in texts]
 
     model = get_embedding_model(model_name)
+    if model is None:
+        return [[0.0] * 384 for _ in clean_texts]
     embeddings = model.encode(
         clean_texts,
         batch_size=batch_size,

@@ -41,9 +41,20 @@ def parse_date_safe(d) -> date:
 router = APIRouter(prefix="/bat-tu", tags=["Bat Tu"])
 
 
+@router.get("/{birth_profile_id}/chart", response_model=APIResponse[BatTuResponse])
+def xem_bat_tu_chi_tiet(
+    birth_profile_id: str,
+    current_user: User = Depends(kiem_tra_quota_truoc_khi_xu_ly),
+    db: Session = Depends(get_db)
+):
+    """Lấy trực tiếp dữ liệu lá số Bát Tự Tứ Trụ cực nhanh (< 50ms) không gọi qua AI luận giải."""
+    return xem_bat_tu_tu_tru(birth_profile_id=birth_profile_id, only_chart=True, current_user=current_user, db=db)
+
+
 @router.get("/{birth_profile_id}", response_model=APIResponse[BatTuResponse])
 def xem_bat_tu_tu_tru(
     birth_profile_id: str,
+    only_chart: bool = False,
     current_user: User = Depends(kiem_tra_quota_truoc_khi_xu_ly),
     db: Session = Depends(get_db)
 ):
@@ -118,6 +129,16 @@ def xem_bat_tu_tu_tru(
             except Exception:
                 pass
 
+    if only_chart:
+        return APIResponse(
+            thanh_cong=True,
+            du_lieu={
+                "birth_profile_id": str(profile.id),
+                "tu_tru": tu_tru_data,
+                "luan_giai": None
+            },
+            loi=None
+        )
 
     # 2. Luận giải AI
     input_data = copy.deepcopy(tu_tru_data)
@@ -126,14 +147,23 @@ def xem_bat_tu_tu_tru(
     input_data["he_thong"] = "bat_tu"
     input_data["la_tong_quan"] = True
 
-    luan_giai_res = luan_giai(
-        user_id=str(current_user.id),
-        cau_hoi="Luận giải tổng quan lá số Bát Tự Tứ Trụ",
-        du_lieu_dau_vao=input_data,
-        co_dinh_kem_anh=False,
-        la_tong_quan=True,
-        db=db
-    )
+    try:
+        luan_giai_res = luan_giai(
+            user_id=str(current_user.id),
+            cau_hoi="Luận giải tổng quan lá số Bát Tự Tứ Trụ",
+            du_lieu_dau_vao=input_data,
+            co_dinh_kem_anh=False,
+            la_tong_quan=True,
+            db=db
+        )
+    except Exception as e:
+        luan_giai_res = {
+            "thanh_cong": False,
+            "cau_tra_loi": {
+                "chu_de": "tong_quan",
+                "noi_dung": "Lá số Bát Tự Tứ Trụ đã được thiết lập thành công. Bản đồ ngũ hành, thập thần và đại vận sẵn sàng tra cứu."
+            }
+        }
 
     return APIResponse(
         thanh_cong=True,

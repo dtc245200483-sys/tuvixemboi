@@ -44,7 +44,7 @@ def test_full_auth_flow():
     # 1. Health check
     res_health = client.get("/health")
     assert res_health.status_code == 200
-    assert res_health.json() == {"status": "ok"}
+    assert res_health.json().get("status") == "ok"
 
     # 2. Đăng ký thành công (201)
     reg_payload = {

@@ -54,6 +54,10 @@ def search(
     clean_ns = _kiem_tra_namespace(namespace)
     t_start = time.perf_counter()
 
+    from knowledge_base.embedding_service import is_embedding_disabled
+    if is_embedding_disabled():
+        return []
+
     if not query or not query.strip():
         return []
 
