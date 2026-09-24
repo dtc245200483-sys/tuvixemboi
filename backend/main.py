@@ -22,7 +22,8 @@ for _p in [_CURRENT_DIR, _ROOT_DIR, os.path.join(_ROOT_DIR, "interpretation_api"
         sys.path.insert(0, _p)
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
@@ -195,16 +196,61 @@ app.include_router(quota_router)
 app.include_router(forum_router)
 
 
-@app.get("/", tags=["Root"])
-def root():
-    """Tự động chuyển hướng từ trang chủ backend sang trang tài liệu API Swagger"""
-    return RedirectResponse(url="/docs")
-
-
 @app.get("/health", tags=["Health"])
 def health_check():
     """Endpoint kiểm tra trạng thái hoạt động cơ bản của hệ thống"""
     return {"status": "ok"}
+
+
+# ==============================================================================
+# PHỤC VỤ GIAO DIỆN WEB NGƯỜI DÙNG (SPA FRONTEND)
+# ==============================================================================
+_STATIC_DIR = os.path.join(_CURRENT_DIR, "static")
+if not os.path.exists(_STATIC_DIR):
+    _STATIC_DIR = os.path.join(_ROOT_DIR, "frontend", "web", "dist")
+
+if os.path.exists(_STATIC_DIR):
+    _assets_dir = os.path.join(_STATIC_DIR, "assets")
+    if os.path.exists(_assets_dir):
+        app.mount("/assets", StaticFiles(directory=_assets_dir), name="assets")
+
+    _images_dir = os.path.join(_STATIC_DIR, "images")
+    if os.path.exists(_images_dir):
+        app.mount("/images", StaticFiles(directory=_images_dir), name="images")
+
+    _icons_dir = os.path.join(_STATIC_DIR, "icons")
+    if os.path.exists(_icons_dir):
+        app.mount("/icons", StaticFiles(directory=_icons_dir), name="icons")
+
+    @app.get("/", tags=["Frontend"])
+    async def serve_index():
+        """Phục vụ trang chủ Web Tử Vi cho người dùng"""
+        index_file = os.path.join(_STATIC_DIR, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        return RedirectResponse(url="/docs")
+
+    @app.get("/{full_path:path}", tags=["Frontend"])
+    async def serve_spa_frontend(full_path: str):
+        """Phục vụ các route chuyển trang React Router và file tĩnh của Web"""
+        # Nếu là các tiền tố API đã biết nhưng không khớp router cụ thể -> trả về 404 API
+        if full_path.startswith(("api/", "auth/")):
+            raise HTTPException(status_code=404, detail="API endpoint không tồn tại")
+
+        # Phục vụ file tĩnh cụ thể nếu có (VD: favicon.svg, manifest.json, sw.js, v.v.)
+        candidate = os.path.join(_STATIC_DIR, full_path)
+        if full_path and os.path.isfile(candidate):
+            return FileResponse(candidate)
+
+        # Mọi route chuyển trang của React SPA (VD: /tu-vi, /dashboard, /settings, /login)
+        index_file = os.path.join(_STATIC_DIR, "index.html")
+        if os.path.isfile(index_file):
+            return FileResponse(index_file)
+        raise HTTPException(status_code=404, detail="Giao diện chưa được build")
+else:
+    @app.get("/", tags=["Root"])
+    def root_fallback():
+        return RedirectResponse(url="/docs")
 
 
 if __name__ == "__main__":
