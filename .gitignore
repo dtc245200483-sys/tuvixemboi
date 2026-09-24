@@ -3,7 +3,11 @@ node_modules/
 !backend/astro_engine/tu_vi/node_modules/
 !backend/astro_engine/tu_vi/iztro_lib/node_modules/
 dist/
+!backend/astro_engine/tu_vi/**/dist/
+!backend/astro_engine/tu_vi/**/dist/**
 build/
+!backend/astro_engine/tu_vi/**/build/
+!backend/astro_engine/tu_vi/**/build/**
 
 # Python
 __pycache__/
