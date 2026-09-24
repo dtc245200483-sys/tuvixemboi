@@ -1,6 +1,7 @@
 # Node / Web
 node_modules/
 !backend/astro_engine/tu_vi/node_modules/
+!backend/astro_engine/tu_vi/iztro_lib/node_modules/
 dist/
 build/
 

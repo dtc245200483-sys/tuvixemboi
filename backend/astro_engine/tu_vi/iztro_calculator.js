@@ -4,13 +4,22 @@
 
 const path = require('path');
 const fs = require('fs');
+const Module = require('module');
+
+// Cấu hình đường dẫn tìm kiếm module tuyệt đối cho cả môi trường local và container
+const p1 = path.join(__dirname, 'node_modules');
+const p2 = path.join(__dirname, 'iztro_lib', 'node_modules');
+[p1, p2].forEach(p => {
+  if (Module.globalPaths && Module.globalPaths.indexOf(p) === -1) Module.globalPaths.unshift(p);
+  if (module.paths && module.paths.indexOf(p) === -1) module.paths.unshift(p);
+});
 
 let iztro;
 try {
-  iztro = require('d:/ung dung tri tue nhan ao/iztro/lib');
+  iztro = require('./iztro_lib');
 } catch (e1) {
   try {
-    iztro = require('./iztro_lib');
+    iztro = require('d:/ung dung tri tue nhan ao/iztro/lib');
   } catch (err) {
     console.error(JSON.stringify({ error: 'Lỗi nạp module iztro: ' + err.message }));
     process.exit(1);
