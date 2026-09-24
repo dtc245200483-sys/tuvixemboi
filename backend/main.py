@@ -173,13 +173,16 @@ async def global_unhandled_exception_handler(request: Request, exc: Exception):
     except Exception:
         pass
 
+    detail_msg = f"{type(exc).__name__}: {str(exc)}"
+    is_debug = request.headers.get("x-debug") == "1"
+
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "thanh_cong": False,
             "du_lieu": None,
-            "loi": "Đã có lỗi xảy ra, vui lòng thử lại",
-            "detail": "Đã có lỗi xảy ra, vui lòng thử lại"
+            "loi": detail_msg if is_debug else "Đã có lỗi xảy ra, vui lòng thử lại",
+            "detail": detail_msg if is_debug else "Đã có lỗi xảy ra, vui lòng thử lại"
         }
     )
 
@@ -202,7 +205,7 @@ app.include_router(forum_router)
 @app.get("/health", tags=["Health"])
 def health_check():
     """Endpoint kiểm tra trạng thái hoạt động cơ bản của hệ thống"""
-    return {"status": "ok"}
+    return {"status": "ok", "version": "v1.0.4"}
 
 
 # ==============================================================================
