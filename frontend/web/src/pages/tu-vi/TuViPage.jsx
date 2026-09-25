@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import {
   IconCompass,
@@ -9,8 +9,15 @@ import {
   IconStar,
   IconInfoCircle,
   IconUsers,
-  IconPlus
+  IconPlus,
+  IconPhoto,
+  IconDownload,
+  IconX,
+  IconLoader2,
+  IconDeviceMobile,
+  IconMaximize
 } from '@tabler/icons-react';
+import html2canvas from 'html2canvas';
 import { tuViService, birthProfileService } from '../../services/api';
 import InterpretationTabs from '../../components/InterpretationTabs';
 import QuotaBadge from '../../components/QuotaBadge';
@@ -222,7 +229,92 @@ export default function TuViPage() {
   const [showPalaceDetail, setShowPalaceDetail] = useState(true);
   const [xemNam, setXemNam] = useState(2026);
   const [xemThang, setXemThang] = useState(7);
-  const [mobileViewMode, setMobileViewMode] = useState('grid'); // 'grid' | 'cards'
+  const [mobileViewMode, setMobileViewMode] = useState('fit'); // 'fit' | 'scroll' | 'cards'
+  const [chartImageUrl, setChartImageUrl] = useState(null);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 375);
+
+  const chartRef = useRef(null);
+  const [chartHeight, setChartHeight] = useState(1200);
+
+  const isMobile = screenWidth < 1024;
+  const scaleRatio = useMemo(() => {
+    if (!isMobile) return 1;
+    const padding = 24;
+    const avail = Math.max(280, screenWidth - padding);
+    return Math.min(1, avail / 780);
+  }, [screenWidth, isMobile]);
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const updateH = () => {
+      if (chartRef.current) {
+        const h = chartRef.current.offsetHeight;
+        if (h > 400) setChartHeight(h);
+      }
+    };
+    updateH();
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const h = entry.borderBoxSize?.[0]?.blockSize || entry.contentRect?.height;
+        if (h && h > 400) setChartHeight(h);
+      }
+    });
+    ro.observe(chartRef.current);
+    return () => ro.disconnect();
+  }, [laSoData, isGrayscale]);
+
+  // Hàm xuất ảnh lá số để xem full màn hình và tải về
+  const handleViewChartImage = async () => {
+    const element = document.getElementById('tuviChartExport') || document.querySelector('.tuvi-container');
+    if (!element) return;
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#FFFFFF',
+        logging: false,
+        onclone: (clonedDoc) => {
+          const el = clonedDoc.getElementById('tuviChartExport');
+          if (el) {
+            el.style.transform = 'none';
+            if (el.parentElement) {
+              el.parentElement.style.transform = 'none';
+              el.parentElement.style.width = 'auto';
+              el.parentElement.style.height = 'auto';
+              el.parentElement.style.overflow = 'visible';
+            }
+          }
+        },
+      });
+      const dataUrl = canvas.toDataURL('image/png');
+      setChartImageUrl(dataUrl);
+      setShowImageModal(true);
+    } catch (err) {
+      console.error('Lỗi xuất ảnh lá số:', err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleDownloadChartImage = () => {
+    if (!chartImageUrl) return;
+    const a = document.createElement('a');
+    a.href = chartImageUrl;
+    const name = (chartData?.userName || 'LaSoTuVi').replace(/\s+/g, '_');
+    a.download = `LaSoTuVi_${name}_${xemNam}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
   // 1. Tải danh sách hồ sơ sinh
   useEffect(() => {
@@ -483,35 +575,71 @@ export default function TuViPage() {
   return (
     <div className="min-h-screen bg-background text-text-primary">
       {/* HEADER TOP NAVBAR */}
-      <header className="bg-primary text-text-on-primary border-b border-[#552218] px-4 sm:px-8 py-3.5 shadow-subtle sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/dashboard"
-              className="p-1.5 rounded-btn bg-[#552218] text-text-on-primary hover:bg-[#431A12] transition-colors"
-              title="Quay lại Tổng quan"
-            >
-              <IconArrowLeft size={18} />
-            </Link>
-            <div>
-              <h1 className="font-heading text-lg sm:text-xl font-bold tracking-wide text-text-on-primary flex items-center gap-2">
-                <span>Tử Vi Đẩu Số Toàn Thư</span>
-              </h1>
-              <p className="text-xs text-text-on-primary/80 font-body hidden md:block">
-                Thiên Bàn 12 Cung Chuẩn Cổ Học — Phân Cột Cát Hung & Đồ Họa Chiếu Sao Xuyên Tâm
-              </p>
+      <header className="bg-primary text-text-on-primary border-b border-[#552218] px-3 sm:px-8 py-2.5 sm:py-3.5 shadow-subtle sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto space-y-2 sm:space-y-0">
+          {/* Row 1: Back button, Title & Desktop Profile/Quota */}
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <Link
+                to="/dashboard"
+                className="p-1.5 rounded-btn bg-[#552218] text-text-on-primary hover:bg-[#431A12] transition-colors flex-shrink-0"
+                title="Quay lại Tổng quan"
+              >
+                <IconArrowLeft size={18} />
+              </Link>
+              <div className="min-w-0">
+                <h1 className="font-heading text-base sm:text-xl font-bold tracking-wide text-text-on-primary whitespace-nowrap truncate">
+                  Tử Vi Đẩu Số
+                </h1>
+                <p className="text-xs text-text-on-primary/80 font-body hidden md:block">
+                  Thiên Bàn 12 Cung Chuẩn Cổ Học — Phân Cột Cát Hung & Đồ Họa Chiếu Sao Xuyên Tâm
+                </p>
+              </div>
+            </div>
+
+            {/* Desktop Profile Switcher & Quota */}
+            <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
+              {safeProfiles.length > 0 && (
+                <div className="flex items-center gap-2 bg-[#552218] px-2.5 py-1.5 rounded-btn border border-accent/30 text-xs font-body">
+                  <IconUser size={15} className="text-accent flex-shrink-0" />
+                  <select
+                    value={currentProfileId || ''}
+                    onChange={handleProfileChange}
+                    className="bg-transparent text-text-on-primary font-bold outline-none cursor-pointer text-xs max-w-xs truncate"
+                  >
+                    {safeProfiles.map((prof) => (
+                      <option key={prof.id} value={prof.id} className="bg-[#431A12] text-text-on-primary">
+                        {prof.ho_ten || 'Hồ sơ chưa đặt tên'} ({prof.gioi_tinh === 'nam' ? 'Nam' : 'Nữ'})
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/birth-profile"
+                    className="ml-1 text-accent hover:text-white transition-colors"
+                    title="Thêm hồ sơ mới"
+                  >
+                    <IconPlus size={15} />
+                  </Link>
+                </div>
+              )}
+              <QuotaBadge refreshTrigger={quotaTrigger} />
+            </div>
+
+            {/* Mobile Quota Badge (top right) */}
+            <div className="sm:hidden flex-shrink-0">
+              <QuotaBadge refreshTrigger={quotaTrigger} />
             </div>
           </div>
 
-          {/* QUICK PROFILE SWITCHER DROPDOWN */}
-          <div className="flex items-center gap-3">
-            {safeProfiles.length > 0 && (
-              <div className="flex items-center gap-2 bg-[#552218] px-2.5 py-1.5 rounded-btn border border-accent/30 text-xs font-body">
-                <IconUser size={15} className="text-accent flex-shrink-0" />
+          {/* Row 2: Mobile Profile Switcher (Full Width Bar on small screens) */}
+          {safeProfiles.length > 0 && (
+            <div className="sm:hidden flex items-center justify-between gap-2 bg-[#552218] px-3 py-1.5 rounded-lg border border-accent/30 text-xs font-body w-full">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <IconUser size={14} className="text-accent flex-shrink-0" />
                 <select
                   value={currentProfileId || ''}
                   onChange={handleProfileChange}
-                  className="bg-transparent text-text-on-primary font-bold outline-none cursor-pointer text-xs max-w-[110px] sm:max-w-xs truncate"
+                  className="bg-transparent text-text-on-primary font-semibold outline-none cursor-pointer text-xs w-full truncate"
                 >
                   {safeProfiles.map((prof) => (
                     <option key={prof.id} value={prof.id} className="bg-[#431A12] text-text-on-primary">
@@ -519,17 +647,16 @@ export default function TuViPage() {
                     </option>
                   ))}
                 </select>
-                <Link
-                  to="/birth-profile"
-                  className="ml-1 text-accent hover:text-white transition-colors"
-                  title="Thêm hồ sơ mới"
-                >
-                  <IconPlus size={15} />
-                </Link>
               </div>
-            )}
-            <QuotaBadge refreshTrigger={quotaTrigger} />
-          </div>
+              <Link
+                to="/birth-profile"
+                className="text-accent hover:text-white transition-colors p-1 flex-shrink-0"
+                title="Thêm hồ sơ mới"
+              >
+                <IconPlus size={15} />
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
@@ -569,44 +696,142 @@ export default function TuViPage() {
             <div className="flex flex-col lg:flex-row items-start gap-6">
               {/* CỘT TRÁI: LÁ SỐ 12 CUNG + CHI TIẾT CUNG CHỌN */}
               <div className="flex-1 min-w-0 w-full space-y-6">
-                {/* BỘ CHUYỂN ĐỔI CHẾ ĐỘ XEM TRÊN ĐIỆN THOẠI */}
-                <div className="lg:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-[#FAF5EE] border border-accent/40 shadow-2xs">
-                  <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                {/* BỘ CHUYỂN ĐỔI CHẾ ĐỘ XEM TRÊN ĐIỆN THOẠI & NÚT XUẤT ẢNH */}
+                <div className="lg:hidden flex flex-col gap-2 p-2 rounded-xl bg-[#FAF5EE] border border-accent/40 shadow-2xs">
+                  <div className="grid grid-cols-3 gap-1.5 w-full">
                     <button
                       type="button"
-                      onClick={() => setMobileViewMode('grid')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-body font-semibold transition-all ${
-                        mobileViewMode === 'grid'
+                      onClick={() => setMobileViewMode('fit')}
+                      className={`px-2 py-2 rounded-lg text-xs font-body font-semibold flex items-center justify-center gap-1 transition-all ${
+                        mobileViewMode === 'fit'
                           ? 'bg-[#8B1C13] text-white shadow-xs'
-                          : 'text-[#6B5A4D] hover:text-[#2C2420]'
+                          : 'bg-white text-[#6B5A4D] border border-[#D5C9B8] hover:text-[#2C2420]'
                       }`}
+                      title="Thu nhỏ toàn bộ 12 cung vừa màn hình điện thoại"
                     >
-                      Bàn Đồ 4x4 (↔ Vuốt ngang)
+                      <IconDeviceMobile size={14} />
+                      <span>Thu nhỏ</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMobileViewMode('scroll')}
+                      className={`px-2 py-2 rounded-lg text-xs font-body font-semibold flex items-center justify-center gap-1 transition-all ${
+                        mobileViewMode === 'scroll'
+                          ? 'bg-[#8B1C13] text-white shadow-xs'
+                          : 'bg-white text-[#6B5A4D] border border-[#D5C9B8] hover:text-[#2C2420]'
+                      }`}
+                      title="Xem cỡ lớn 100% cuộn vuốt ngang dọc"
+                    >
+                      <span>↔ Cuộn ngang</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setMobileViewMode('cards')}
-                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-body font-semibold transition-all ${
+                      className={`px-2 py-2 rounded-lg text-xs font-body font-semibold flex items-center justify-center gap-1 transition-all ${
                         mobileViewMode === 'cards'
                           ? 'bg-[#8B1C13] text-white shadow-xs'
-                          : 'text-[#6B5A4D] hover:text-[#2C2420]'
+                          : 'bg-white text-[#6B5A4D] border border-[#D5C9B8] hover:text-[#2C2420]'
                       }`}
+                      title="Xem danh sách 12 cung dạng thẻ dọc"
                     >
-                      Danh Sách Thẻ (Dễ Đọc)
+                      <span>📋 12 Thẻ</span>
                     </button>
                   </div>
-                  {mobileViewMode === 'grid' && (
-                    <span className="text-[11px] font-body text-text-secondary flex items-center gap-1">
-                      <span>💡 Vuốt sang ngang ↔ để xem toàn cảnh 12 cung</span>
+
+                  <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#E2D9C8]/60 text-xs">
+                    <span className="text-[11px] font-body text-text-secondary truncate">
+                      {mobileViewMode === 'fit' && '💡 Đã thu nhỏ vừa màn hình (không cần vuốt ngang)'}
+                      {mobileViewMode === 'scroll' && '💡 Vuốt ngang ↔ để xem toàn cảnh 12 cung cỡ lớn'}
+                      {mobileViewMode === 'cards' && '💡 Chạm vào từng thẻ cung để xem chi tiết sao'}
                     </span>
-                  )}
+
+                    <button
+                      type="button"
+                      onClick={handleViewChartImage}
+                      disabled={isExporting}
+                      className="px-2.5 py-1 rounded-lg bg-accent text-white font-bold text-xs flex items-center gap-1 hover:brightness-110 transition-all flex-shrink-0 shadow-xs"
+                      title="Xem ảnh lá số toàn màn hình và tải về máy"
+                    >
+                      {isExporting ? (
+                        <>
+                          <IconLoader2 size={13} className="animate-spin" />
+                          <span>Đang tạo...</span>
+                        </>
+                      ) : (
+                        <>
+                          <IconPhoto size={14} />
+                          <span>Xem ảnh</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                {/* CHẾ ĐỘ 1: BÀN ĐỒ LƯỚI TRUYỀN THỐNG 4X4 (Có cuộn ngang mượt trên mobile) */}
+                {/* CHẾ ĐỘ 1: BÀN ĐỒ LƯỚI TRUYỀN THỐNG 4X4 (Hỗ trợ Thu nhỏ vừa màn hình & Cuộn ngang mượt) */}
                 <div className={mobileViewMode === 'cards' ? 'hidden lg:block' : 'block'}>
-                  <div className="tuvi-scroll-wrapper">
-                    <div className={`tuvi-container ${isGrayscale ? 'grayscale' : ''}`}>
-                      <div className="tuvi-grid-wrapper">
+                  {/* THANH CÔNG CỤ XUẤT ẢNH TRÊN MÀN HÌNH LỚN (DESKTOP) */}
+                  <div className="hidden lg:flex items-center justify-between pb-1 text-xs text-text-secondary">
+                    <span className="font-body">Thiên Bàn 12 Cung Chuẩn Cổ Học • Giao diện chính xác tuvi.vn</span>
+                    <button
+                      type="button"
+                      onClick={handleViewChartImage}
+                      disabled={isExporting}
+                      className="px-3 py-1.5 rounded-btn bg-[#FAF5EE] border border-accent/30 text-primary hover:bg-[#F3EAD8] font-semibold text-xs flex items-center gap-1.5 transition-all shadow-2xs"
+                      title="Xem ảnh lá số toàn màn hình và tải về"
+                    >
+                      {isExporting ? (
+                        <>
+                          <IconLoader2 size={14} className="animate-spin text-accent" />
+                          <span>Đang tạo ảnh...</span>
+                        </>
+                      ) : (
+                        <>
+                          <IconPhoto size={14} className="text-accent" />
+                          <span>Xem ảnh full / Tải về</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div
+                    className={
+                      isMobile && mobileViewMode === 'fit'
+                        ? 'w-full flex justify-center overflow-hidden py-1'
+                        : 'tuvi-scroll-wrapper'
+                    }
+                  >
+                    <div
+                      style={
+                        isMobile && mobileViewMode === 'fit'
+                          ? {
+                              width: `${Math.round(780 * scaleRatio)}px`,
+                              height: `${Math.round(chartHeight * scaleRatio)}px`,
+                              overflow: 'hidden',
+                              position: 'relative',
+                              flexShrink: 0,
+                            }
+                          : {}
+                      }
+                    >
+                      <div
+                        style={
+                          isMobile && mobileViewMode === 'fit'
+                            ? {
+                                width: '780px',
+                                minWidth: '780px',
+                                transform: `scale(${scaleRatio})`,
+                                transformOrigin: 'top left',
+                              }
+                            : {}
+                        }
+                      >
+                        <div
+                          id="tuviChartExport"
+                          ref={chartRef}
+                          className={`tuvi-container ${isGrayscale ? 'grayscale' : ''}`}
+                          style={isMobile && mobileViewMode === 'fit' ? { width: '780px', minWidth: '780px' } : {}}
+                        >
+                          <div className="tuvi-grid-wrapper">
                     {/* HUY HIỆU TUẦN / TRIỆT TẠI BIÊN GIỚI CUNG */}
                     <div className="badge-tuan-triet badge-triet-default">TRIỆT</div>
                     <div className="badge-tuan-triet badge-tuan-default">TUẦN</div>
@@ -899,6 +1124,8 @@ export default function TuViPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
           {/* CHẾ ĐỘ 2: DANH SÁCH 12 CUNG DẠNG THẺ (Dành riêng cho màn hình điện thoại) */}
           {mobileViewMode === 'cards' && (
@@ -1167,6 +1394,67 @@ export default function TuViPage() {
               >
                 <IconPlus size={15} /> Thêm hồ sơ mới
               </Link>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL XEM ẢNH LÁ SỐ TOÀN MÀN HÌNH (LIGHTBOX FULLSCREEN) */}
+        {showImageModal && chartImageUrl && (
+          <div className="fixed inset-0 z-50 flex flex-col bg-black/90 backdrop-blur-md animate-fade-in p-2 sm:p-4">
+            {/* Header Modal */}
+            <div className="flex items-center justify-between gap-3 text-white pb-2.5 px-2 border-b border-white/20 flex-shrink-0">
+              <div className="flex items-center gap-2 min-w-0">
+                <IconPhoto size={20} className="text-accent flex-shrink-0" />
+                <span className="font-heading font-bold text-sm sm:text-base truncate">
+                  Ảnh Lá Số Tử Vi — {chartData?.userName || 'Mệnh Chủ'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={handleDownloadChartImage}
+                  className="px-3 py-1.5 rounded-lg bg-accent text-white font-bold text-xs flex items-center gap-1.5 hover:brightness-110 shadow-sm transition-all"
+                  title="Tải ảnh PNG độ nét cao về thiết bị"
+                >
+                  <IconDownload size={15} />
+                  <span className="hidden sm:inline">Tải ảnh về máy</span>
+                  <span className="sm:hidden">Tải về</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowImageModal(false)}
+                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  title="Đóng"
+                >
+                  <IconX size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Hướng dẫn zoom trên mobile */}
+            <div className="py-1 px-2 text-center text-xs text-white/70 font-body flex-shrink-0">
+              💡 Bạn có thể dùng 2 ngón tay thu phóng (pinch-to-zoom) để xem chi tiết mọi cung sao
+            </div>
+
+            {/* Khung cuộn chứa ảnh độ nét cao */}
+            <div className="flex-1 overflow-auto flex items-center justify-center p-2 rounded-lg bg-black/40">
+              <img
+                src={chartImageUrl}
+                alt={`Lá Số Tử Vi ${chartData?.userName || ''}`}
+                className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded shadow-2xl transition-transform"
+              />
+            </div>
+
+            {/* Footer Modal */}
+            <div className="flex items-center justify-between text-xs text-white/60 pt-2 px-2 border-t border-white/10 flex-shrink-0">
+              <span>Độ phân giải 2X • Chuẩn Thiên Bàn Cổ Học</span>
+              <button
+                type="button"
+                onClick={() => setShowImageModal(false)}
+                className="text-white hover:underline text-xs"
+              >
+                Đóng cửa sổ
+              </button>
             </div>
           </div>
         )}
