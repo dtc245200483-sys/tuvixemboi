@@ -477,3 +477,90 @@
   font-size: 12px;
   color: #4B5563;
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN CHO THIẾT BỊ DI ĐỘNG (MOBILE & TABLET)
+   ========================================================================== */
+
+/* Khung cuộn ngang mượt mà cho màn hình điện thoại */
+.tuvi-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  padding-bottom: 6px;
+  border-radius: 8px;
+}
+
+/* Tùy chỉnh thanh cuộn đẹp mắt */
+.tuvi-scroll-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+.tuvi-scroll-wrapper::-webkit-scrollbar-track {
+  background: rgba(107, 43, 31, 0.05);
+  border-radius: 999px;
+}
+.tuvi-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(107, 43, 31, 0.25);
+  border-radius: 999px;
+}
+.tuvi-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 43, 31, 0.45);
+}
+
+@media (max-width: 960px) {
+  /* Giữ nguyên tỷ lệ chuẩn của lá số trên điện thoại bằng cách cố định min-width trong khung cuộn */
+  .tuvi-container {
+    min-width: 760px;
+    max-width: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 12px;
+  }
+
+  .palace-cell {
+    min-height: 290px;
+    padding: 4px 6px;
+  }
+
+  .center-box {
+    padding: 8px 12px;
+  }
+
+  .center-title {
+    font-size: 18px;
+  }
+
+  .info-row {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .star-major {
+    font-size: 12px;
+  }
+
+  .star-line {
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 640px) {
+  .tuvi-footer-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .legend-brightness {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    font-size: 10.5px;
+  }
+
+  .legend-elements {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 10.5px;
+  }
+}

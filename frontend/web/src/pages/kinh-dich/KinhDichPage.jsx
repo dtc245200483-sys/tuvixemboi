@@ -191,7 +191,7 @@ export default function KinhDichPage() {
               <label className="block font-body text-xs font-semibold text-text-primary uppercase tracking-wider">
                 Phương Thức Gieo Quẻ
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   { id: 'dong_xu', title: 'Tam Tiền Chiêm Cổ', desc: 'Gieo 3 đồng tiền theo lối Lục Hào', icon: IconCoins },
                   { id: 'thoi_gian', title: 'Mai Hoa Dịch Số', desc: 'Lấy quẻ theo Thời khắc vũ trụ hiện tại', icon: IconClock },

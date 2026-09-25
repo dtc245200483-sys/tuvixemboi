@@ -424,7 +424,7 @@ export default function CalendarView() {
       {/* Calendar Header */}
       <div className="rounded-2xl overflow-hidden shadow-sm" style={{ border: '1px solid var(--color-surface-border)', background: 'var(--color-surface)' }}>
         {/* Controls row */}
-        <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
+        <div className="px-3 sm:px-4 py-3 flex flex-wrap items-center justify-between gap-2 border-b" style={{ borderColor: 'var(--color-surface-border)' }}>
           <div className="flex items-center gap-2">
             <button type="button" onClick={prevMonth}
               className="p-1.5 rounded-lg transition-colors hover:bg-black/5"

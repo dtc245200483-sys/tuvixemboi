@@ -222,6 +222,7 @@ export default function TuViPage() {
   const [showPalaceDetail, setShowPalaceDetail] = useState(true);
   const [xemNam, setXemNam] = useState(2026);
   const [xemThang, setXemThang] = useState(7);
+  const [mobileViewMode, setMobileViewMode] = useState('grid'); // 'grid' | 'cards'
 
   // 1. Tải danh sách hồ sơ sinh
   useEffect(() => {
@@ -510,7 +511,7 @@ export default function TuViPage() {
                 <select
                   value={currentProfileId || ''}
                   onChange={handleProfileChange}
-                  className="bg-transparent text-text-on-primary font-bold outline-none cursor-pointer text-xs"
+                  className="bg-transparent text-text-on-primary font-bold outline-none cursor-pointer text-xs max-w-[110px] sm:max-w-xs truncate"
                 >
                   {safeProfiles.map((prof) => (
                     <option key={prof.id} value={prof.id} className="bg-[#431A12] text-text-on-primary">
@@ -568,9 +569,44 @@ export default function TuViPage() {
             <div className="flex flex-col lg:flex-row items-start gap-6">
               {/* CỘT TRÁI: LÁ SỐ 12 CUNG + CHI TIẾT CUNG CHỌN */}
               <div className="flex-1 min-w-0 w-full space-y-6">
-                {/* LÁ SỐ TỬ VI CHUẨN GIAO DIỆN TUVI.VN */}
-                <div className={`tuvi-container ${isGrayscale ? 'grayscale' : ''}`}>
-                  <div className="tuvi-grid-wrapper">
+                {/* BỘ CHUYỂN ĐỔI CHẾ ĐỘ XEM TRÊN ĐIỆN THOẠI */}
+                <div className="lg:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-[#FAF5EE] border border-accent/40 shadow-2xs">
+                  <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => setMobileViewMode('grid')}
+                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-body font-semibold transition-all ${
+                        mobileViewMode === 'grid'
+                          ? 'bg-[#8B1C13] text-white shadow-xs'
+                          : 'text-[#6B5A4D] hover:text-[#2C2420]'
+                      }`}
+                    >
+                      Bàn Đồ 4x4 (↔ Vuốt ngang)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMobileViewMode('cards')}
+                      className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-body font-semibold transition-all ${
+                        mobileViewMode === 'cards'
+                          ? 'bg-[#8B1C13] text-white shadow-xs'
+                          : 'text-[#6B5A4D] hover:text-[#2C2420]'
+                      }`}
+                    >
+                      Danh Sách Thẻ (Dễ Đọc)
+                    </button>
+                  </div>
+                  {mobileViewMode === 'grid' && (
+                    <span className="text-[11px] font-body text-text-secondary flex items-center gap-1">
+                      <span>💡 Vuốt sang ngang ↔ để xem toàn cảnh 12 cung</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* CHẾ ĐỘ 1: BÀN ĐỒ LƯỚI TRUYỀN THỐNG 4X4 (Có cuộn ngang mượt trên mobile) */}
+                <div className={mobileViewMode === 'cards' ? 'hidden lg:block' : 'block'}>
+                  <div className="tuvi-scroll-wrapper">
+                    <div className={`tuvi-container ${isGrayscale ? 'grayscale' : ''}`}>
+                      <div className="tuvi-grid-wrapper">
                     {/* HUY HIỆU TUẦN / TRIỆT TẠI BIÊN GIỚI CUNG */}
                     <div className="badge-tuan-triet badge-triet-default">TRIỆT</div>
                     <div className="badge-tuan-triet badge-tuan-default">TUẦN</div>
@@ -861,6 +897,126 @@ export default function TuViPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* CHẾ ĐỘ 2: DANH SÁCH 12 CUNG DẠNG THẺ (Dành riêng cho màn hình điện thoại) */}
+          {mobileViewMode === 'cards' && (
+            <div className="lg:hidden space-y-4">
+              {/* Ô Thông Tin Bản Mệnh Trung Tâm */}
+              <div className="p-4 rounded-xl bg-[#FAF5EE] border border-[#D5C9B8] space-y-2 text-xs font-body shadow-xs">
+                <div className="flex items-center justify-between border-b border-[#E2D9C8] pb-2">
+                  <span className="font-heading font-bold text-sm text-[#8B1C13]">THÔNG TIN MỆNH CHỦ</span>
+                  <span className="font-mono text-[11px] text-accent font-bold">{chartData.cucVal}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>Họ tên: <strong className="text-primary">{chartData.hoTenVal}</strong></div>
+                  <div>Giới tính: <strong>{chartData.gioiTinhVal}</strong></div>
+                  <div>Dương lịch: <strong>{chartData.ngayDuongVal}</strong></div>
+                  <div>Âm lịch: <strong>{chartData.ngayAmVal}</strong></div>
+                  <div>Bản mệnh: <strong className="text-accent">{chartData.napAmVal}</strong></div>
+                  <div>Cân lượng: <strong>{chartData.canLuongVal}</strong></div>
+                  <div>Chủ mệnh: <strong>{chartData.menhChuVal}</strong></div>
+                  <div>Chủ thân: <strong>{chartData.thanChuVal}</strong></div>
+                </div>
+              </div>
+
+              {/* Danh sách 12 Cung dạng thẻ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {chartData.palaces.map((palace, idx) => {
+                  const branch = palace.earthlyBranch;
+                  const isSelected = selectedPalace?.earthlyBranch === branch;
+                  const canChiText = `${palace.heavenlyStem || ''} ${branch}`;
+                  const daivanAge = (palace.decadal && Array.isArray(palace.decadal.range)) ? `${palace.decadal.range[0]} - ${palace.decadal.range[1]}` : `${idx * 10 + 5}`;
+                  const majorStars = palace.majorStars || [];
+                  const minorList = (palace.minorStars || []).concat(palace.adjectiveStars || []);
+
+                  return (
+                    <div
+                      key={branch}
+                      onClick={() => {
+                        setSelectedPalace(palace);
+                        setShowPalaceDetail(true);
+                      }}
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer space-y-2.5 ${
+                        isSelected
+                          ? 'bg-white border-2 border-[#8B1C13] shadow-md ring-2 ring-[#8B1C13]/20'
+                          : 'bg-white border-[#D5C9B8] hover:border-[#8B1C13]/60 shadow-xs'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between border-b border-[#E2D9C8] pb-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-heading font-bold text-sm text-[#8B1C13]">
+                            Cung {palace.name}
+                          </span>
+                          <span className="text-[11px] font-mono text-text-secondary">
+                            ({canChiText})
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {palace.isBodyPalace && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#8B1C13] text-white font-bold">
+                              THÂN
+                            </span>
+                          )}
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#FAF5EE] text-[#855B14] font-semibold">
+                            ĐV: {daivanAge}t
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Chính tinh */}
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-text-secondary block mb-1">Chính tinh:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {majorStars.length > 0 ? (
+                            majorStars.map((s) => {
+                              const info = getStarInfo(s.name);
+                              const bTag = formatBrightness(s.brightness);
+                              return (
+                                <span key={s.name} className={`px-2 py-0.5 rounded text-[11px] font-bold bg-[#FAF6EE] border border-surface-border/40 ${info.elementClass}`}>
+                                  {s.name} {bTag}
+                                </span>
+                              );
+                            })
+                          ) : (
+                            <span className="text-[11px] text-text-secondary italic">Vô chính diệu</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Phụ tinh tóm tắt */}
+                      {minorList.length > 0 && (
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-text-secondary block mb-1">Phụ tinh nổi bật:</span>
+                          <div className="flex flex-wrap gap-1">
+                            {minorList.slice(0, 6).map((s) => {
+                              const info = getStarInfo(s.name);
+                              return (
+                                <span key={s.name} className={`px-1.5 py-0.2 rounded text-[10px] bg-surface border border-surface-border/30 ${info.elementClass}`}>
+                                  {s.name}
+                                </span>
+                              );
+                            })}
+                            {minorList.length > 6 && (
+                              <span className="text-[10px] text-text-secondary font-mono self-center">
+                                +{minorList.length - 6} sao
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="pt-1 flex items-center justify-between text-[11px] text-[#8B1C13] font-medium">
+                        <span>{isSelected ? '✓ Đang xem chi tiết bên dưới' : 'Chạm để xem luận giải'}</span>
+                        <span className="text-xs">→</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
               {/* BẢNG CHI TIẾT CUNG ĐANG CHỌN (CHỈ HIỂN THỊ NẾU showPalaceDetail === true) */}
               {showPalaceDetail && selectedPalace && (

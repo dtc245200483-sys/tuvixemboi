@@ -270,7 +270,7 @@ export default function BatTuPage() {
             <div>
               <h1 className="font-heading text-xl sm:text-2xl font-bold tracking-wide text-text-on-primary flex items-center gap-2">
                 <span>Bát Tự Tứ Trụ Tử Bình</span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-accent/30 text-text-on-primary border border-accent/40 font-normal">
+                <span className="hidden md:inline-block text-xs font-mono px-2 py-0.5 rounded-full bg-accent/30 text-text-on-primary border border-accent/40 font-normal">
                   Kinh Điển Trần Khang Ninh
                 </span>
               </h1>
@@ -287,7 +287,7 @@ export default function BatTuPage() {
                 <select
                   value={birthProfileId || ''}
                   onChange={handleProfileChange}
-                  className="bg-transparent text-text-on-primary text-xs outline-none cursor-pointer pr-1 font-medium"
+                  className="bg-transparent text-text-on-primary text-xs outline-none cursor-pointer pr-1 font-medium max-w-[110px] sm:max-w-xs truncate"
                   title="Chọn hồ sơ mệnh chủ để lập lá số Bát Tự"
                 >
                   {safeProfiles.map((p) => (

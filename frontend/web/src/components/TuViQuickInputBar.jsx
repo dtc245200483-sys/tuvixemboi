@@ -106,7 +106,7 @@ export default function TuViQuickInputBar({
     <div className="w-full bg-[#FAF6EE] border border-[#E2D9C8] rounded-2xl p-4 sm:p-5 shadow-xs mb-6 text-[#2C2420]">
       <form onSubmit={handleSubmit} className="space-y-3">
         {/* HÀNG INPUT CÁC TRƯỜNG DỮ LIỆU */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
           {/* HỌ VÀ TÊN */}
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider text-[#7D6B58] mb-1">
