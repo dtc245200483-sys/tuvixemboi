@@ -159,7 +159,7 @@ class AIClient:
             if response.thanh_cong:
                 return response
 
-            if not response.thanh_cong and response.loi_neu_co and ("API Key" in response.loi_neu_co or "Chưa cấu hình" in response.loi_neu_co):
+            if not response.thanh_cong and response.loi_neu_co and any(kw in response.loi_neu_co for kw in ["API Key", "Chưa cấu hình", "Insufficient balance", "1113", "余额不足"]):
                 break
 
             # Nếu chưa thành công và còn lượt retry -> chờ exponential backoff
@@ -169,6 +169,18 @@ class AIClient:
                     f"[RETRY_BACKOFF] Lần gọi thứ {attempt} thất bại. Chờ {wait_time:.2f}s trước khi thử lại..."
                 )
                 sleeper(wait_time)
+
+        # Tự động kích hoạt Fallback sang FreeLLM dự phòng nếu provider chính (chatz / z.ai) thất bại
+        fallback_eligible_providers = ["chatz", "chatz.ai", "z.ai", "chat.z.ai", "openai", "openai_compatible", "glm"]
+        if last_response and not last_response.thanh_cong and "freellmapi" in self.providers and self.current_provider_name in fallback_eligible_providers:
+            logger.warning(
+                f"[AI_CLIENT] Provider chính '{self.current_provider_name}' không phản hồi ({last_response.loi_neu_co}). "
+                "Đang tự động chuyển sang Provider dự phòng FreeLLM để phục vụ người dùng..."
+            )
+            fallback_res = self.providers["freellmapi"].goi_ai(request)
+            if fallback_res.thanh_cong:
+                self._ghi_log_metadata(fallback_res, attempt=effective_retries + 1)
+                return fallback_res
 
         # Trả về kết quả thất bại cuối cùng nếu đã hết lượt thử
         return last_response or AIResponse(
