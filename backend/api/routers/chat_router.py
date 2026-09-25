@@ -312,6 +312,27 @@ def gui_cau_hoi_chat(
             "phut_sinh": profile.phut_sinh,
             "ngay_sinh_am": profile.ngay_sinh_am.isoformat() if hasattr(profile.ngay_sinh_am, "isoformat") else (str(profile.ngay_sinh_am) if profile.ngay_sinh_am else None)
         }
+        # Tự động lập hoặc lấy lá số Tử Vi của hồ sơ này để đưa vào ngữ cảnh luận giải chuyên sâu
+        try:
+            from db.models import LaSoTuViResult
+            from astro_engine.tu_vi import lap_la_so
+            la_so_record = db.query(LaSoTuViResult).filter(LaSoTuViResult.birth_profile_id == profile.id).first()
+            if la_so_record and la_so_record.du_lieu_json:
+                la_so_data = la_so_record.du_lieu_json
+            else:
+                la_so_data = lap_la_so(
+                    ho_ten=profile.ho_ten,
+                    ngay_sinh_duong=profile.ngay_sinh_duong,
+                    gio_sinh=profile.gio_sinh or 12,
+                    phut_sinh=profile.phut_sinh or 0,
+                    gioi_tinh=profile.gioi_tinh or "nam"
+                )
+            if la_so_data and isinstance(la_so_data, dict):
+                for k, v in la_so_data.items():
+                    if k not in du_lieu:
+                        du_lieu[k] = v
+        except Exception as e:
+            logger.warning(f"Lỗi khi nạp lá số Tử Vi vào chat: {e}")
 
     # 3. Trích xuất đặc điểm ảnh đính kèm nếu có
     if req.reference_id:

@@ -239,12 +239,6 @@ export default function ChatHistoryList({
                     Cần thêm thông tin
                   </span>
                 )}
-                {msg.chua_co_du_lieu && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF5EE] border border-surface-border text-text-secondary text-[11px] font-medium">
-                    <IconInfoCircle size={12} />
-                    Chưa có dữ liệu sinh
-                  </span>
-                )}
                 <span className="text-[11px] text-text-secondary ml-auto">
                   {formatTime(msg.created_at)}
                 </span>
@@ -261,23 +255,6 @@ export default function ChatHistoryList({
                 }`}
               >
                 {msg.noi_dung}
-
-                {/* Call-to-action if missing birth data */}
-                {msg.chua_co_du_lieu && (
-                  <div className="mt-3 pt-3 border-t border-surface-border flex items-center justify-between">
-                    <span className="text-xs text-text-secondary">
-                      Thiết lập hồ sơ ngày giờ sinh để AI lấy dữ liệu lập lá số:
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/birth-profile')}
-                      className="ml-2 px-3 py-1.5 rounded-lg bg-primary hover:bg-[#552218] text-text-on-primary text-xs font-medium transition-all shadow-sm flex items-center gap-1 flex-shrink-0"
-                    >
-                      Nhập thông tin sinh
-                      <IconArrowRight size={13} />
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>

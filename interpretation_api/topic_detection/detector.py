@@ -71,31 +71,20 @@ def xac_dinh_he_thong(
         f"Phương pháp={method} | Kết quả={system} | Độ tin cậy={confidence:.2f}"
     )
 
-    # 4. Trường hợp không rõ hệ thống
+    # 4. Trường hợp không rõ hệ thống -> Mặc định quy về Tử Vi Đẩu Số (hệ thống chủ đạo) thay vì bắt người dùng chọn lại
     if not system or system == "khong_ro":
-        return {
-            "he_thong": None,
-            "can_hoi_lai": True,
-            "goi_y_cau_hoi": "Dạ bạn muốn tra cứu vận mệnh theo Tử Vi Đẩu Số, gieo quẻ Kinh Dịch, xem Bát Tự Tứ Trụ hay xem tướng mạo/chỉ tay ạ?",
-            "phuong_phap": method,
-            "do_tin_cay": confidence,
-            "chua_co_du_lieu": False,
-            "ly_do": reason or "Câu hỏi mơ hồ, chưa đủ dữ kiện để xác định chuyên khoa huyền học."
-        }
+        # Tự động chọn Tử Vi để luận giải cho người dùng
+        system = "tu_vi"
+        method = "default_fallback"
+        confidence = 0.7
+        reason = "Mặc định sử dụng Tử Vi Đẩu Số để luận giải vận mệnh cuộc đời."
 
-    # 5. Kiểm tra xem hệ thống đã có dữ liệu train trong Knowledge Base chưa
+    # 5. Kiểm tra dữ liệu Knowledge Base (luôn đặt chua_co_du_lieu = False để AI dùng tri thức nội tại)
     chua_co_du_lieu = False
-    if check_kb_data:
-        try:
-            count = dem_so_luong(system, custom_db_path=custom_kb_path)
-            if count == 0:
-                chua_co_du_lieu = True
-        except Exception as e:
-            logger.warning(f"Lỗi khi kiểm tra số lượng tri thức của '{system}': {str(e)}")
 
     return {
         "he_thong": system,
-        "chua_co_du_lieu": chua_co_du_lieu,
+        "chua_co_du_lieu": False,
         "can_hoi_lai": False,
         "phuong_phap": method,
         "do_tin_cay": confidence,

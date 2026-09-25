@@ -17,7 +17,12 @@ KEYWORDS = {
         "tham lang", "vũ khúc", "thiên đồng", "liêm trinh", "thiên phủ",
         "thái âm", "thái dương", "cự môn", "thiên tướng",
         "thiên lương", "thiên cơ", "tử vi đẩu số",
-        "tu vi", "la so", "cung menh", "quan loc", "tai bach", "phuc duc"
+        "tu vi", "la so", "cung menh", "quan loc", "tai bach", "phuc duc",
+        "công danh", "sự nghiệp", "thăng tiến", "tình duyên", "kết hôn",
+        "lấy vợ", "lấy chồng", "tài lộc", "tiền tài", "tiền bạc", "giàu nghèo",
+        "sức khỏe", "bệnh tật", "vận hạn", "năm nay", "tương lai",
+        "hậu vận", "số mệnh", "vận mệnh", "làm ăn", "kinh doanh", "mua nhà",
+        "đất đai", "con cái", "gia đạo", "xuất ngoại", "đổi việc", "xin việc"
     ],
     "kinh_dich": [
         "kinh dịch", "quẻ", "hào", "hào động", "quẻ chính", "quẻ biến",

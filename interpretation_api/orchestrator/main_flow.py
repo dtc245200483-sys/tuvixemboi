@@ -195,17 +195,12 @@ def luan_giai(
                 "nguon_tri_thuc_da_dung": []
             }
 
-        # 3. Xử lý nếu hệ thống chưa có dữ liệu huấn luyện
+        # 3. Nếu KB trống -> KHÔNG chặn, chỉ ghi log để AI tự dùng kiến thức sẵn có trả lời
         if topic_info.get("chua_co_du_lieu"):
-            return {
-                "he_thong": he_thong,
-                "thanh_cong": False,
-                "chua_co_du_lieu": True,
-                "can_hoi_lai": False,
-                "thong_bao": f"Hệ thống '{he_thong}' hiện chưa có đủ dữ liệu tri thức để luận giải chính xác.",
-                "cau_tra_loi": None,
-                "nguon_tri_thuc_da_dung": []
-            }
+            logger.warning(
+                f"[ORCHESTRATOR] Knowledge Base của hệ thống '{he_thong}' đang trống trên server. "
+                "AI sẽ tự trả lời dựa trên kiến thức huyền học nội tại."
+            )
 
         # Nếu chưa kiểm tra cache ở bước 0 (do chưa có explicit_system) nhưng nay đã xác định được hệ thống
         if db and ref_id and is_general and not cache_key:
@@ -257,6 +252,14 @@ def luan_giai(
 
         # 5. Ghép prompt luận giải theo đúng hệ thống (kèm thông tin hồ sơ mệnh chủ nếu có)
         effective_question = cau_hoi
+        if 'lich_su' not in locals():
+            lich_su = lay_lich_su_chat(user_id=user_id, so_luong_gan_nhat=5, session_id=session_id, db=db) if db else []
+
+        if len(cau_hoi.strip().split()) <= 4 and lich_su:
+            prev_questions = [m.get("cau_hoi") for m in lich_su if m.get("cau_hoi") and len(m.get("cau_hoi", "")) > 10]
+            if prev_questions:
+                effective_question = f"{prev_questions[-1]} (Yêu cầu luận giải chuyên sâu theo {he_thong})"
+
         ho_so_mc = du_lieu_dau_vao.get("ho_so_menh_chu")
         if ho_so_mc and isinstance(ho_so_mc, dict):
             mc_ten = ho_so_mc.get("ho_ten", "")
@@ -264,7 +267,7 @@ def luan_giai(
             mc_ngay_sinh = ho_so_mc.get("ngay_sinh_duong", "")
             mc_gio_sinh = ho_so_mc.get("gio_sinh", "")
             effective_question = (
-                f"{cau_hoi}\n"
+                f"{effective_question}\n"
                 f"[THÔNG TIN NGƯỜI HỎI (MỆNH CHỦ)]: Họ tên: {mc_ten}, Giới tính: {mc_gioi_tinh}, Ngày sinh: {mc_ngay_sinh}, Giờ: {mc_gio_sinh}h. "
                 f"Hãy xưng hô và đưa ra lời giải đáp tương thích theo thông tin này."
             )

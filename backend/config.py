@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     # 2. AI Module & Vector Store
     ai_api_key: str = Field("c95e54cd3aa14f63890573b48be05a7a.RsUeUEeZ9grFGRM7", description="API Key cho dịch vụ AI bên ngoài (chatz.ai, z.ai, Gemini, OpenAI)")
-    ai_provider: str = Field("chatz", description="Nhà cung cấp dịch vụ AI (chatz, z.ai, freellmapi, gemini, deepseek, openai)")
+    ai_provider: str = Field("freellmapi", description="Nhà cung cấp dịch vụ AI (freellmapi, chatz, z.ai, gemini, deepseek, openai)")
     ai_base_url: str = Field("https://api.z.ai/api/paas/v4/chat/completions", description="Base URL cho OpenAI/Chatz/Z.ai API (VD: https://api.z.ai/api/paas/v4/chat/completions)")
     ai_model: str = Field("glm-4.5-air", description="Tên model AI tùy chỉnh (VD: glm-4.5-air, glm-4-flash, gpt-4o-mini)")
     vector_db_path: str = Field("./knowledge_base/vector_store", description="Đường dẫn lưu trữ ChromaDB vector store")
