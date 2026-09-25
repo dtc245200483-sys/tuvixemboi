@@ -418,7 +418,7 @@ export default function ChatPage() {
               hasMore={hasMore}
               onLoadMore={() => loadHistory(false)}
               onRetry={retryLastMessage}
-              onSelectSampleQuestion={(q) => sendMessage({ text: q })}
+              onSelectSampleQuestion={(q) => sendMessage({ text: q, birthProfileId: defaultProfile?.id || null })}
             />
           </div>
 
@@ -427,7 +427,7 @@ export default function ChatPage() {
 
           {/* Bottom Chat Input */}
           <ChatInput
-            onSendMessage={sendMessage}
+            onSendMessage={(params) => sendMessage({ ...params, birthProfileId: defaultProfile?.id || null })}
             isSending={isSending}
             quotaExceeded={quotaExceeded}
             onRequireConsent={handleRequireConsent}

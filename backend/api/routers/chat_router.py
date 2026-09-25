@@ -357,6 +357,15 @@ def gui_cau_hoi_chat(
     elif res.get("thong_bao"):
         noi_dung_tra_loi = res.get("thong_bao", "")
 
+    # Khi AI hỏi lại (can_hoi_lai), thêm thông tin hồ sơ đang có để người dùng không nhầm phải nhập lại
+    if res.get("can_hoi_lai") and profile:
+        ho_ten = profile.ho_ten or "bạn"
+        ngay_sinh = profile.ngay_sinh_duong.strftime("%d/%m/%Y") if hasattr(profile.ngay_sinh_duong, "strftime") else str(profile.ngay_sinh_duong)
+        noi_dung_tra_loi = (
+            f"Dạ {ho_ten} (sinh {ngay_sinh}), "
+            + (noi_dung_tra_loi or "bạn muốn tra cứu vận mệnh theo Tử Vi Đẩu Số, gieo quẻ Kinh Dịch, xem Bát Tự Tứ Trụ hay xem tướng mạo/chỉ tay ạ?")
+        )
+
     is_success = bool(
         res.get("thanh_cong") or
         res.get("can_hoi_lai") or

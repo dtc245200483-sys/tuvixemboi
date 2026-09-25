@@ -202,7 +202,7 @@ export default function useChatStream() {
   // ==============================================================
   // Gửi tin nhắn
   // ==============================================================
-  const sendMessage = async ({ text, attachedImage = null, referenceId = null, heThongUuTien = null }) => {
+  const sendMessage = async ({ text, attachedImage = null, referenceId = null, heThongUuTien = null, birthProfileId = null }) => {
     if (!text?.trim() && !attachedImage) return;
 
     const trimmedText = text?.trim() || 'Xin mời luận giải giúp tôi hình ảnh đính kèm.';
@@ -265,12 +265,13 @@ export default function useChatStream() {
         }
       }
 
-      // 2. Gọi chat API với session_id
+      // 2. Gọi chat API với session_id và birth_profile_id
       const payload = {
         cau_hoi: trimmedText,
         reference_id: effectiveReferenceId || null,
         he_thong: heThongUuTien || (effectiveReferenceId ? 'nhan_tuong' : null),
         session_id: activeSessionId || null,
+        birth_profile_id: birthProfileId || null,
       };
 
       const res = await chatService.sendMessage(payload);
@@ -346,6 +347,7 @@ export default function useChatStream() {
           attachedImage,
           referenceId: effectiveReferenceId,
           heThongUuTien,
+          birthProfileId,
         });
       }
     } finally {
@@ -356,11 +358,11 @@ export default function useChatStream() {
   // Retry gửi lại tin nhắn lỗi
   const retryLastMessage = async () => {
     if (!lastFailedMessage) return;
-    const { tempId, text, attachedImage, referenceId, heThongUuTien } = lastFailedMessage;
+    const { tempId, text, attachedImage, referenceId, heThongUuTien, birthProfileId } = lastFailedMessage;
     setMessages((prev) => prev.filter((m) => m.id !== tempId));
     setLastFailedMessage(null);
     setError(null);
-    await sendMessage({ text, attachedImage, referenceId, heThongUuTien });
+    await sendMessage({ text, attachedImage, referenceId, heThongUuTien, birthProfileId });
   };
 
   return {
